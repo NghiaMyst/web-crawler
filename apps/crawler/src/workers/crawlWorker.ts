@@ -2,6 +2,7 @@ import { Worker, Job } from 'bullmq';
 import { connection } from '../connection.js';
 import { logger } from '../logger.js';
 import { cheerioFetch } from './CheerioWorker.js';
+import { playwrightFetch } from './PlaywrightWorker.js';
 import type { CrawlJobData } from '../producers/crawlProducer.js';
 
 export function createCrawlWorker(): Worker<CrawlJobData> {
@@ -13,8 +14,9 @@ export function createCrawlWorker(): Worker<CrawlJobData> {
 
       if (strategy === 'cheerio') {
         await cheerioFetch(url, sourceId, job.id ?? 'unknown');
+      } else if (strategy === 'playwright') {
+        await playwrightFetch(url, sourceId, job.id ?? 'unknown');
       } else {
-        // Phase 1: placeholder for other strategies (playwright added in 01-06)
         logger.info('Crawl job completed (stub)', { url, sourceId, jobId: job.id });
       }
     },

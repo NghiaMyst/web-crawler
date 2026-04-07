@@ -19,6 +19,9 @@ importers:
 
   apps/crawler:
     dependencies:
+      '@web-crawler/shared-types':
+        specifier: workspace:*
+        version: link:../../packages/shared-types
       axios:
         specifier: 1.14.0
         version: 1.14.0

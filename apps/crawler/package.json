@@ -11,6 +11,7 @@
     "lint": "eslint src --ext .ts"
   },
   "dependencies": {
+    "@web-crawler/shared-types": "workspace:*",
     "axios": "1.14.0",
     "bullmq": "5.73.0",
     "cheerio": "1.0.0",
