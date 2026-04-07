@@ -1,0 +1,19 @@
+{
+  "name": "@web-crawler/crawler",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx src/index.ts",
+    "type-check": "tsc --noEmit",
+    "lint": "eslint src --ext .ts"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@types/node": "25.5.2",
+    "tsx": "^4.19.3",
+    "typescript": "6.0.2"
+  }
+}

@@ -1,0 +1,9 @@
+/* Global styles — extend in Phase 7 when Tailwind is added */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, sans-serif;
+}
