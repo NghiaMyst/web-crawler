@@ -1,2 +1,3 @@
-// Crawler entry point — workers and schedulers registered here in later tasks
-console.log('Crawler service starting...');
+import { logger } from './logger.js';
+
+logger.info('Crawler service starting', { service: 'crawler', version: '0.0.1' });
