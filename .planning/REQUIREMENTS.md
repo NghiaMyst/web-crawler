@@ -80,7 +80,7 @@
 - [ ] **INFRA-02**: All Docker images have ARM64 builds (Oracle Cloud Ampere A1 compatibility)
 - [x] **INFRA-03**: Monorepo structure: `apps/crawler`, `apps/api`, `apps/dashboard`, `packages/shared-types`
 - [x] **INFRA-04**: Turborepo + pnpm workspaces for monorepo orchestration
-- [ ] **INFRA-05**: Structured logging: `winston` (Node.js), `Serilog` (.NET)
+- [x] **INFRA-05**: Structured logging: `winston` (Node.js), `Serilog` (.NET)
 - [ ] **INFRA-06**: BullMQ graceful shutdown on `SIGTERM` (finish current job before exit)
 
 ### Deployment (Phase 4)
@@ -136,7 +136,7 @@
 | INFRA-02 | Phase 1 | Pending |
 | INFRA-03 | Phase 1 | Complete |
 | INFRA-04 | Phase 1 | Complete |
-| INFRA-05 | Phase 1 | Pending |
+| INFRA-05 | Phase 1 | Complete |
 | INFRA-06 | Phase 1 | Pending |
 | CRAWL-01 | Phase 1 | Pending |
 | CRAWL-02 | Phase 1 | Pending |

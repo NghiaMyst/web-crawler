@@ -45,7 +45,7 @@ Ten phases that build a personal data aggregation system from an empty monorepo 
 Plans:
 - [x] 01-01: Turborepo + pnpm workspace scaffold (`apps/crawler`, `apps/api`, `apps/dashboard`, `packages/shared-types`)
 - [ ] 01-02: Docker Compose local dev stack (PostgreSQL, Redis with health checks, service containers, ARM64 base images)
-- [ ] 01-03: Structured logging setup (winston in Node.js, Serilog in .NET, consistent JSON format)
+- [x] 01-03: Structured logging setup (winston in Node.js, Serilog in .NET, consistent JSON format)
 - [ ] 01-04: BullMQ queue bootstrap — named queue, worker process, job producer, SIGTERM graceful shutdown
 - [ ] 01-05: Cheerio crawl worker — HTTP fetch + Cheerio parse, result logged
 - [ ] 01-06: Playwright crawl worker — browser pool (max 3), ARM Docker validation, smoke test page render
@@ -321,7 +321,7 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Monorepo Foundation & Crawler Skeleton | 1/1 | Complete   | 2026-04-07 |
+| 1. Monorepo Foundation & Crawler Skeleton | 2/1 | Complete   | 2026-04-07 |
 | 2. Full URL Frontier & Crawl Hardening | 0/6 | Not started | - |
 | 3. PostgreSQL Schema, Parsers & LISTEN/NOTIFY Handoff | 0/5 | Not started | - |
 | 4. Notification Engine | 0/5 | Not started | - |
