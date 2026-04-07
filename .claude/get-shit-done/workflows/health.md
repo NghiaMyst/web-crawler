@@ -25,7 +25,7 @@ fi
 **Run health validation:**
 
 ```bash
-node "D:/Experience/SideProj/web-crawler/.claude/get-shit-done/bin/gsd-tools.cjs" validate health $REPAIR_FLAG
+node "D:/project/mcp/web-crawler/.claude/get-shit-done/bin/gsd-tools.cjs" validate health $REPAIR_FLAG
 ```
 
 Parse JSON output:
@@ -112,7 +112,7 @@ If yes, re-run with --repair flag and display results.
 Re-run health check without --repair to confirm issues are resolved:
 
 ```bash
-node "D:/Experience/SideProj/web-crawler/.claude/get-shit-done/bin/gsd-tools.cjs" validate health
+node "D:/project/mcp/web-crawler/.claude/get-shit-done/bin/gsd-tools.cjs" validate health
 ```
 
 Report final status.
@@ -166,13 +166,13 @@ When `--repair` is active, detect and clean up:
 
 ```bash
 # Check for stale task directories (older than 24 hours)
-TASKS_DIR="D:/Experience/SideProj/web-crawler/.claude/tasks"
+TASKS_DIR="D:/project/mcp/web-crawler/.claude/tasks"
 if [ -d "$TASKS_DIR" ]; then
   STALE_COUNT=$( (find "$TASKS_DIR" -maxdepth 1 -type d -mtime +1 2>/dev/null || true) | wc -l )
   if [ "$STALE_COUNT" -gt 0 ]; then
-    echo "⚠️  Found $STALE_COUNT stale task directories in D:/Experience/SideProj/web-crawler/.claude/tasks/"
+    echo "⚠️  Found $STALE_COUNT stale task directories in D:/project/mcp/web-crawler/.claude/tasks/"
     echo "   These are leftover from crashed subagent sessions."
-    echo "   Run: rm -rf D:/Experience/SideProj/web-crawler/.claude/tasks/*  (safe — only affects dead sessions)"
+    echo "   Run: rm -rf D:/project/mcp/web-crawler/.claude/tasks/*  (safe — only affects dead sessions)"
   fi
 fi
 ```

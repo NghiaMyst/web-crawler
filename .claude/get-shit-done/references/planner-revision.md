@@ -55,7 +55,7 @@ Group by plan, dimension, severity.
 ### Step 6: Commit
 
 ```bash
-node "D:/Experience/SideProj/web-crawler/.claude/get-shit-done/bin/gsd-tools.cjs" commit "fix($PHASE): revise plans based on checker feedback" --files .planning/phases/$PHASE-*/$PHASE-*-PLAN.md
+node "D:/project/mcp/web-crawler/.claude/get-shit-done/bin/gsd-tools.cjs" commit "fix($PHASE): revise plans based on checker feedback" --files .planning/phases/$PHASE-*/$PHASE-*-PLAN.md
 ```
 
 ### Step 7: Return Revision Summary

@@ -12,8 +12,8 @@ Read all files referenced by the invoking prompt's execution_context before star
 Ensure config exists and load current state:
 
 ```bash
-node "D:/Experience/SideProj/web-crawler/.claude/get-shit-done/bin/gsd-tools.cjs" config-ensure-section
-INIT=$(node "D:/Experience/SideProj/web-crawler/.claude/get-shit-done/bin/gsd-tools.cjs" state load)
+node "D:/project/mcp/web-crawler/.claude/get-shit-done/bin/gsd-tools.cjs" config-ensure-section
+INIT=$(node "D:/project/mcp/web-crawler/.claude/get-shit-done/bin/gsd-tools.cjs" state load)
 if [[ "$INIT" == @file:* ]]; then INIT=$(cat "${INIT#@file:}"); fi
 ```
 
@@ -174,7 +174,7 @@ Merge new settings into existing config.json:
 ```json
 {
   ...existing_config,
-  "model_profile": "quality" | "balanced" | "budget" | "inherit",
+  "model_profile": "quality" | "balanced" | "budget" | "adaptive" | "inherit",
   "workflow": {
     "research": true/false,
     "plan_check": true/false,

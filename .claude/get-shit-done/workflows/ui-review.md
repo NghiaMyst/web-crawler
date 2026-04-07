@@ -3,7 +3,7 @@ Retroactive 6-pillar visual audit of implemented frontend code. Standalone comma
 </purpose>
 
 <required_reading>
-@D:/Experience/SideProj/web-crawler/.claude/get-shit-done/references/ui-brand.md
+@D:/project/mcp/web-crawler/.claude/get-shit-done/references/ui-brand.md
 </required_reading>
 
 <available_agent_types>
@@ -16,15 +16,15 @@ Valid GSD subagent types (use exact names — do not fall back to 'general-purpo
 ## 0. Initialize
 
 ```bash
-INIT=$(node "D:/Experience/SideProj/web-crawler/.claude/get-shit-done/bin/gsd-tools.cjs" init phase-op "${PHASE_ARG}")
+INIT=$(node "D:/project/mcp/web-crawler/.claude/get-shit-done/bin/gsd-tools.cjs" init phase-op "${PHASE_ARG}")
 if [[ "$INIT" == @file:* ]]; then INIT=$(cat "${INIT#@file:}"); fi
-AGENT_SKILLS_UI_REVIEWER=$(node "D:/Experience/SideProj/web-crawler/.claude/get-shit-done/bin/gsd-tools.cjs" agent-skills gsd-ui-reviewer 2>/dev/null)
+AGENT_SKILLS_UI_REVIEWER=$(node "D:/project/mcp/web-crawler/.claude/get-shit-done/bin/gsd-tools.cjs" agent-skills gsd-ui-reviewer 2>/dev/null)
 ```
 
 Parse: `phase_dir`, `phase_number`, `phase_name`, `phase_slug`, `padded_phase`, `commit_docs`.
 
 ```bash
-UI_AUDITOR_MODEL=$(node "D:/Experience/SideProj/web-crawler/.claude/get-shit-done/bin/gsd-tools.cjs" resolve-model gsd-ui-auditor --raw)
+UI_AUDITOR_MODEL=$(node "D:/project/mcp/web-crawler/.claude/get-shit-done/bin/gsd-tools.cjs" resolve-model gsd-ui-auditor --raw)
 ```
 
 Display banner:
@@ -71,7 +71,7 @@ Build file list for auditor:
 Build prompt:
 
 ```markdown
-Read D:/Experience/SideProj/web-crawler/.claude/agents/gsd-ui-auditor.md for instructions.
+Read D:/project/mcp/web-crawler/.claude/agents/gsd-ui-auditor.md for instructions.
 
 <objective>
 Conduct 6-pillar visual audit of Phase {phase_number}: {phase_name}
@@ -140,8 +140,8 @@ Full review: {path to UI-REVIEW.md}
 
 `/clear` then one of:
 
-- `/gsd:verify-work {N}` — UAT testing
-- `/gsd:plan-phase {N+1}` — plan next phase
+- `/gsd-verify-work {N}` — UAT testing
+- `/gsd-plan-phase {N+1}` — plan next phase
 
 - `/gsd-verify-work {N}` — UAT testing
 - `/gsd-plan-phase {N+1}` — plan next phase
@@ -172,7 +172,7 @@ tools is detected at runtime.
 ## 5. Commit (if configured)
 
 ```bash
-node "D:/Experience/SideProj/web-crawler/.claude/get-shit-done/bin/gsd-tools.cjs" commit "docs(${padded_phase}): UI audit review" --files "${PHASE_DIR}/${PADDED_PHASE}-UI-REVIEW.md"
+node "D:/project/mcp/web-crawler/.claude/get-shit-done/bin/gsd-tools.cjs" commit "docs(${padded_phase}): UI audit review" --files "${PHASE_DIR}/${PADDED_PHASE}-UI-REVIEW.md"
 ```
 
 </process>

@@ -475,8 +475,8 @@ Output: [Artifacts created]
 </objective>
 
 <execution_context>
-@D:/Experience/SideProj/web-crawler/.claude/get-shit-done/workflows/execute-plan.md
-@D:/Experience/SideProj/web-crawler/.claude/get-shit-done/templates/summary.md
+@D:/project/mcp/web-crawler/.claude/get-shit-done/workflows/execute-plan.md
+@D:/project/mcp/web-crawler/.claude/get-shit-done/templates/summary.md
 </execution_context>
 
 <context>
@@ -894,7 +894,7 @@ start of execution when `--reviews` flag is present or reviews mode is active.
 Load planning context:
 
 ```bash
-INIT=$(node "D:/Experience/SideProj/web-crawler/.claude/get-shit-done/bin/gsd-tools.cjs" init plan-phase "${PHASE}")
+INIT=$(node "D:/project/mcp/web-crawler/.claude/get-shit-done/bin/gsd-tools.cjs" init plan-phase "${PHASE}")
 if [[ "$INIT" == @file:* ]]; then INIT=$(cat "${INIT#@file:}"); fi
 ```
 
@@ -963,7 +963,7 @@ Apply discovery level protocol (see discovery_levels section).
 
 **Step 1 — Generate digest index:**
 ```bash
-node "D:/Experience/SideProj/web-crawler/.claude/get-shit-done/bin/gsd-tools.cjs" history-digest
+node "D:/project/mcp/web-crawler/.claude/get-shit-done/bin/gsd-tools.cjs" history-digest
 ```
 
 **Step 2 — Select relevant phases (typically 2-4):**
@@ -1007,6 +1007,10 @@ Read the most recent milestone retrospective and cross-milestone trends. Extract
 - **Cost patterns** to inform model selection and agent strategy
 </step>
 
+<step name="inject_global_learnings">
+If `features.global_learnings` is `true`: run `gsd-tools learnings query --tag <phase_tags> --limit 5`, prefix matches with `[Prior learning from <project>]` as weak priors. Project-local decisions take precedence. Skip silently if disabled or no matches. For tags, use PLAN.md frontmatter `tags` field or keywords from the phase objective, comma-separated (e.g. `--tag auth,database,api`).
+</step>
+
 <step name="gather_phase_context">
 Use `phase_dir` from init context (already loaded in load_project_state).
 
@@ -1022,6 +1026,9 @@ cat "$phase_dir"/*-DISCOVERY.md 2>/dev/null  # From mandatory discovery
 </step>
 
 <step name="break_into_tasks">
+At decision points during plan creation, apply structured reasoning:
+@D:/project/mcp/web-crawler/.claude/get-shit-done/references/thinking-models-planning.md
+
 Decompose phase into tasks. **Think dependencies first, not sequence.**
 
 For each task:
@@ -1128,7 +1135,7 @@ Include all frontmatter fields.
 Validate each created PLAN.md using gsd-tools:
 
 ```bash
-VALID=$(node "D:/Experience/SideProj/web-crawler/.claude/get-shit-done/bin/gsd-tools.cjs" frontmatter validate "$PLAN_PATH" --schema plan)
+VALID=$(node "D:/project/mcp/web-crawler/.claude/get-shit-done/bin/gsd-tools.cjs" frontmatter validate "$PLAN_PATH" --schema plan)
 ```
 
 Returns JSON: `{ valid, missing, present, schema }`
@@ -1141,7 +1148,7 @@ Required plan frontmatter fields:
 Also validate plan structure:
 
 ```bash
-STRUCTURE=$(node "D:/Experience/SideProj/web-crawler/.claude/get-shit-done/bin/gsd-tools.cjs" verify plan-structure "$PLAN_PATH")
+STRUCTURE=$(node "D:/project/mcp/web-crawler/.claude/get-shit-done/bin/gsd-tools.cjs" verify plan-structure "$PLAN_PATH")
 ```
 
 Returns JSON: `{ valid, errors, warnings, task_count, tasks }`
@@ -1178,7 +1185,7 @@ Plans:
 
 <step name="git_commit">
 ```bash
-node "D:/Experience/SideProj/web-crawler/.claude/get-shit-done/bin/gsd-tools.cjs" commit "docs($PHASE): create phase plan" --files .planning/phases/$PHASE-*/$PHASE-*-PLAN.md .planning/ROADMAP.md
+node "D:/project/mcp/web-crawler/.claude/get-shit-done/bin/gsd-tools.cjs" commit "docs($PHASE): create phase plan" --files .planning/phases/$PHASE-*/$PHASE-*-PLAN.md .planning/ROADMAP.md
 ```
 </step>
 

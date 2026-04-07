@@ -216,7 +216,7 @@ get-shit-done/
 
 **New Workflow:**
 - Implementation: `get-shit-done/workflows/{name}.md`
-- Usage: Reference from command with `@D:/Experience/SideProj/web-crawler/.claude/get-shit-done/workflows/{name}.md`
+- Usage: Reference from command with `@D:/project/mcp/web-crawler/.claude/get-shit-done/workflows/{name}.md`
 
 **New Reference Document:**
 - Implementation: `get-shit-done/references/{name}.md`
@@ -229,12 +229,12 @@ get-shit-done/
 ## Special Directories
 
 **get-shit-done/**
-- Purpose: Resources installed to D:/Experience/SideProj/web-crawler/.claude/
+- Purpose: Resources installed to D:/project/mcp/web-crawler/.claude/
 - Source: Copied by bin/install.js during installation
 - Committed: Yes (source of truth)
 
 **commands/**
-- Purpose: Slash commands installed to D:/Experience/SideProj/web-crawler/.claude/commands/
+- Purpose: Slash commands installed to D:/project/mcp/web-crawler/.claude/commands/
 - Source: Copied by bin/install.js during installation
 - Committed: Yes (source of truth)
 

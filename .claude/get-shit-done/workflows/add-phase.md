@@ -29,7 +29,7 @@ Exit.
 Load phase operation context:
 
 ```bash
-INIT=$(node "D:/Experience/SideProj/web-crawler/.claude/get-shit-done/bin/gsd-tools.cjs" init phase-op "0")
+INIT=$(node "D:/project/mcp/web-crawler/.claude/get-shit-done/bin/gsd-tools.cjs" init phase-op "0")
 if [[ "$INIT" == @file:* ]]; then INIT=$(cat "${INIT#@file:}"); fi
 ```
 
@@ -45,7 +45,7 @@ Exit.
 **Delegate the phase addition to gsd-tools:**
 
 ```bash
-RESULT=$(node "D:/Experience/SideProj/web-crawler/.claude/get-shit-done/bin/gsd-tools.cjs" phase add "${description}")
+RESULT=$(node "D:/project/mcp/web-crawler/.claude/get-shit-done/bin/gsd-tools.cjs" phase add "${description}")
 ```
 
 The CLI handles:

@@ -19,14 +19,14 @@ Read all files referenced by the invoking prompt's execution_context before star
 Bootstrap via manager init:
 
 ```bash
-INIT=$(node "D:/Experience/SideProj/web-crawler/.claude/get-shit-done/bin/gsd-tools.cjs" init manager)
+INIT=$(node "D:/project/mcp/web-crawler/.claude/get-shit-done/bin/gsd-tools.cjs" init manager)
 if [[ "$INIT" == @file:* ]]; then INIT=$(cat "${INIT#@file:}"); fi
 ```
 
 Parse JSON for: `milestone_version`, `milestone_name`, `phase_count`, `completed_count`, `in_progress_count`, `phases`, `recommended_actions`, `all_complete`, `waiting_signal`, `manager_flags`.
 
 `manager_flags` contains per-step passthrough flags from config:
-- `manager_flags.discuss` — appended to `/gsd:discuss-phase` args (e.g. `"--auto --analyze"`)
+- `manager_flags.discuss` — appended to `/gsd-discuss-phase` args (e.g. `"--auto --analyze"`)
 - `manager_flags.plan` — appended to plan agent init command
 - `manager_flags.execute` — appended to execute agent init command
 
@@ -60,7 +60,7 @@ Proceed to dashboard step.
 **Every time this step is reached**, re-read state from disk to pick up changes from background agents:
 
 ```bash
-INIT=$(node "D:/Experience/SideProj/web-crawler/.claude/get-shit-done/bin/gsd-tools.cjs" init manager)
+INIT=$(node "D:/project/mcp/web-crawler/.claude/get-shit-done/bin/gsd-tools.cjs" init manager)
 if [[ "$INIT" == @file:* ]]; then INIT=$(cat "${INIT#@file:}"); fi
 ```
 
@@ -113,8 +113,8 @@ If `all_complete` is true:
 ╚══════════════════════════════════════════════════════════════╝
 
 All {phase_count} phases done. Ready for final steps:
-  → /gsd:verify-work — run acceptance testing
-  → /gsd:complete-milestone — archive and wrap up
+  → /gsd-verify-work — run acceptance testing
+  → /gsd-complete-milestone — archive and wrap up
 ```
 
 Ask user via AskUserQuestion:
@@ -335,11 +335,11 @@ Display final status with progress bar:
  {milestone_version} — {milestone_name}
  {PROGRESS_BAR} {progress_pct}%  ({completed_count}/{phase_count} phases)
 
- Resume anytime: /gsd:manager
+ Resume anytime: /gsd-manager
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
 
-**Note:** Any background agents still running will continue to completion. Their results will be visible on next `/gsd:manager` or `/gsd:progress` invocation.
+**Note:** Any background agents still running will continue to completion. Their results will be visible on next `/gsd-manager` or `/gsd-progress` invocation.
 
 </step>
 
