@@ -1,9 +1,8 @@
 import { Queue } from 'bullmq';
 import { connection } from '../connection.js';
 
-// Named queue per CONVENTIONS.md: 'crawl:{domain}'
-// 'crawl:default' is the general-purpose queue for Phase 1
-export const crawlQueue = new Queue('crawl:default', {
+// Named queue — BullMQ forbids ':' in queue names, use '-' as separator
+export const crawlQueue = new Queue('crawl-default', {
   connection,
   defaultJobOptions: {
     attempts: 3,

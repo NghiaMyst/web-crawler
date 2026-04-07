@@ -27,7 +27,7 @@ export interface FootballDataJobData {
 
 export function createFootballDataWorker(): Worker<FootballDataJobData> {
   const worker = new Worker<FootballDataJobData>(
-    'crawl:football-data.org',
+    'crawl-football-data.org',
     async (job: Job<FootballDataJobData>): Promise<void> => {
       const { competition } = job.data;
       const url = `https://api.football-data.org/v4/competitions/${competition}/standings`;

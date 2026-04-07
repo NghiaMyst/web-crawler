@@ -7,7 +7,7 @@ import type { CrawlJobData } from '../producers/crawlProducer.js';
 
 export function createCrawlWorker(): Worker<CrawlJobData> {
   const worker = new Worker<CrawlJobData>(
-    'crawl:default',
+    'crawl-default',
     async (job: Job<CrawlJobData>): Promise<void> => {
       const { url, sourceId, strategy } = job.data;
       logger.info('Crawl job started', { url, sourceId, jobId: job.id, strategy });

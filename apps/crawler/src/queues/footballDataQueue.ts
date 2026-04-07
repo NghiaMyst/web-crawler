@@ -1,8 +1,8 @@
 import { Queue } from 'bullmq';
 import { connection } from '../connection.js';
 
-// Named queue per CONVENTIONS.md: 'crawl:{domain}'
-export const footballDataQueue = new Queue('crawl:football-data.org', {
+// Named queue — BullMQ forbids ':' in queue names, use '-' as separator
+export const footballDataQueue = new Queue('crawl-football-data.org', {
   connection,
   defaultJobOptions: {
     attempts: 3,

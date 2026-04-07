@@ -48,6 +48,6 @@ await setupGracefulShutdown(crawlWorker, async () => {
 });
 
 logger.info('Crawler service ready', {
-  queues: ['crawl:default', 'crawl:football-data.org'],
+  queues: ['crawl-default', 'crawl-football-data.org'],
   scheduler: 'epl-standings-scheduler',
 });
