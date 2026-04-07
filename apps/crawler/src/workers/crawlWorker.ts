@@ -1,6 +1,7 @@
 import { Worker, Job } from 'bullmq';
 import { connection } from '../connection.js';
 import { logger } from '../logger.js';
+import { cheerioFetch } from './CheerioWorker.js';
 import type { CrawlJobData } from '../producers/crawlProducer.js';
 
 export function createCrawlWorker(): Worker<CrawlJobData> {
@@ -10,13 +11,16 @@ export function createCrawlWorker(): Worker<CrawlJobData> {
       const { url, sourceId, strategy } = job.data;
       logger.info('Crawl job started', { url, sourceId, jobId: job.id, strategy });
 
-      // Phase 1: placeholder — Cheerio and Playwright processors wired in Plans 01-05/01-06
-      // This worker validates the BullMQ pipeline end-to-end
-      logger.info('Crawl job completed (stub)', { url, sourceId, jobId: job.id });
+      if (strategy === 'cheerio') {
+        await cheerioFetch(url, sourceId, job.id ?? 'unknown');
+      } else {
+        // Phase 1: placeholder for other strategies (playwright added in 01-06)
+        logger.info('Crawl job completed (stub)', { url, sourceId, jobId: job.id });
+      }
     },
     {
       connection,
-      concurrency: 1, // serial per queue — expand in Phase 2
+      concurrency: 1,
     },
   );
 
