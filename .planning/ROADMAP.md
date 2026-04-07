@@ -8,7 +8,7 @@ Ten phases that build a personal data aggregation system from an empty monorepo 
 
 ## Phases
 
-- [ ] **Phase 1: Monorepo Foundation & Crawler Skeleton** - Turborepo monorepo wired, Docker Compose running, Cheerio + Playwright workers verified on ARM, BullMQ queue proven with football-data.org as the first live source
+- [x] **Phase 1: Monorepo Foundation & Crawler Skeleton** - Turborepo monorepo wired, Docker Compose running, Cheerio + Playwright workers verified on ARM, BullMQ queue proven with football-data.org as the first live source (completed 2026-04-07)
 - [ ] **Phase 2: Full URL Frontier & Crawl Hardening** - Bloom Filter dedup, per-domain politeness queues, robots.txt caching, exponential backoff, dead-letter queue, and all five data sources crawling
 - [ ] **Phase 3: PostgreSQL Schema & LISTEN/NOTIFY Handoff** - Database schema live with EF Core Migrations, Node→.NET handoff via LISTEN/NOTIFY, keyed-service parser dispatch, JSONB entries stored
 - [ ] **Phase 4: Notification Engine** - Diff engine evaluating alert rules, Telegram and Discord delivery, notification logs persisted
@@ -43,7 +43,7 @@ Ten phases that build a personal data aggregation system from an empty monorepo 
 **Plans**: 7 plans
 
 Plans:
-- [ ] 01-01: Turborepo + pnpm workspace scaffold (`apps/crawler`, `apps/api`, `apps/dashboard`, `packages/shared-types`)
+- [x] 01-01: Turborepo + pnpm workspace scaffold (`apps/crawler`, `apps/api`, `apps/dashboard`, `packages/shared-types`)
 - [ ] 01-02: Docker Compose local dev stack (PostgreSQL, Redis with health checks, service containers, ARM64 base images)
 - [ ] 01-03: Structured logging setup (winston in Node.js, Serilog in .NET, consistent JSON format)
 - [ ] 01-04: BullMQ queue bootstrap — named queue, worker process, job producer, SIGTERM graceful shutdown
@@ -321,7 +321,7 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Monorepo Foundation & Crawler Skeleton | 0/7 | Not started | - |
+| 1. Monorepo Foundation & Crawler Skeleton | 1/1 | Complete   | 2026-04-07 |
 | 2. Full URL Frontier & Crawl Hardening | 0/6 | Not started | - |
 | 3. PostgreSQL Schema, Parsers & LISTEN/NOTIFY Handoff | 0/5 | Not started | - |
 | 4. Notification Engine | 0/5 | Not started | - |
