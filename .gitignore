@@ -1,0 +1,32 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build outputs
+dist/
+.next/
+out/
+
+# Environment files (never commit secrets)
+apps/**/.env
+.env
+!.env.example
+!apps/**/.env.example
+
+# Turbo cache
+.turbo/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.suo
+*.user
+
+# dotnet
+apps/api/bin/
+apps/api/obj/
