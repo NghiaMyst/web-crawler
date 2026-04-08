@@ -8,11 +8,13 @@
     "build": "tsc",
     "dev": "tsx src/index.ts",
     "type-check": "tsc --noEmit",
-    "lint": "eslint src --ext .ts"
+    "lint": "eslint src --ext .ts",
+    "test": "vitest run --reporter=verbose"
   },
   "dependencies": {
     "@web-crawler/shared-types": "workspace:*",
     "axios": "1.14.0",
+    "bloom-filters": "^3.0.4",
     "bullmq": "5.73.0",
     "cheerio": "1.0.0",
     "ioredis": "5.10.1",
@@ -22,6 +24,7 @@
   "devDependencies": {
     "@types/node": "25.5.2",
     "tsx": "^4.19.3",
-    "typescript": "6.0.2"
+    "typescript": "6.0.2",
+    "vitest": "^4.1.3"
   }
 }
