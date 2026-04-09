@@ -28,15 +28,13 @@ describe('enforcePoliteness', () => {
     mockGet.mockResolvedValue(null);
     mockSet.mockResolvedValue('OK');
 
-    const start = Date.now();
+    // With fake timers, we do NOT advance time — if a setTimeout was scheduled
+    // the promise would never resolve. Resolving immediately proves no delay.
     const promise = enforcePoliteness('example.com');
-    // Advance timers past any potential delay
-    vi.advanceTimersByTime(3000);
+    // Allow microtasks to flush (no timer advancement needed for null path)
     await promise;
 
     expect(mockSet).toHaveBeenCalledOnce();
-    // No delay should have happened — timing stays near start
-    expect(Date.now() - start).toBeLessThan(100);
   });
 
   it('waits approximately the remaining delay when timestamp is from 500ms ago', async () => {
