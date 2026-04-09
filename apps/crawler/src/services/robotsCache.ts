@@ -1,6 +1,10 @@
 import axios from 'axios';
-import robotsParser from 'robots-parser';
+import * as robotsParserModule from 'robots-parser';
 import { connection } from '../connection.js';
+
+// robots-parser is a CJS module; under Node16 module resolution we need .default
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const robotsParser = (robotsParserModule as any).default ?? robotsParserModule;
 
 const CACHE_TTL_S = 86400; // 24 hours
 const USER_AGENT = 'PersonalCrawlerBot/1.0';
