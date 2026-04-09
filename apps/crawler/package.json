@@ -14,6 +14,7 @@
   "dependencies": {
     "@web-crawler/shared-types": "workspace:*",
     "axios": "1.14.0",
+    "bloom-filters": "^3.0.4",
     "bullmq": "5.73.0",
     "cheerio": "1.0.0",
     "ioredis": "5.10.1",
