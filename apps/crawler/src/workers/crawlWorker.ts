@@ -3,6 +3,9 @@ import { connection } from '../connection.js';
 import { logger } from '../logger.js';
 import { cheerioFetch } from './CheerioWorker.js';
 import { playwrightFetch } from './PlaywrightWorker.js';
+import { enforcePoliteness } from '../services/politenessGuard.js';
+import { isUrlAllowed } from '../services/robotsCache.js';
+import { isContentChanged } from '../services/contentHash.js';
 import type { CrawlJobData } from '../producers/crawlProducer.js';
 
 export function createCrawlWorker(): Worker<CrawlJobData> {
@@ -12,12 +15,43 @@ export function createCrawlWorker(): Worker<CrawlJobData> {
       const { url, sourceId, strategy } = job.data;
       logger.info('Crawl job started', { url, sourceId, jobId: job.id, strategy });
 
+      // --- Pre-fetch guard chain (RESEARCH.md Pattern 5, D-01, D-03) ---
+
+      // Step 1: Extract domain for politeness key
+      const { hostname } = new URL(url);
+
+      // Step 2: Politeness guard — enforce 2s per-domain delay (D-01)
+      await enforcePoliteness(hostname);
+
+      // Step 3: robots.txt check — skip disallowed URLs (D-03)
+      // Disallowed URLs complete without error (policy skip, not a failure)
+      const allowed = await isUrlAllowed(url);
+      if (!allowed) {
+        logger.warn('URL disallowed by robots.txt -- skipping', { url, sourceId, jobId: job.id });
+        return;
+      }
+
+      // --- Strategy dispatch (fetch) ---
+      let responseBody: string | undefined;
+
       if (strategy === 'cheerio') {
-        await cheerioFetch(url, sourceId, job.id ?? 'unknown');
+        const result = await cheerioFetch(url, sourceId, job.id ?? 'unknown');
+        responseBody = result.rawHtml;
       } else if (strategy === 'playwright') {
-        await playwrightFetch(url, sourceId, job.id ?? 'unknown');
+        const result = await playwrightFetch(url, sourceId, job.id ?? 'unknown');
+        responseBody = result.html;
       } else {
         logger.info('Crawl job completed (stub)', { url, sourceId, jobId: job.id });
+      }
+
+      // --- Post-fetch: content hash dedup (D-04) ---
+      // Skip processing if content is unchanged since last crawl
+      if (responseBody && sourceId) {
+        const changed = await isContentChanged(sourceId, responseBody);
+        if (!changed) {
+          logger.info('Content unchanged -- skipping', { url, sourceId, jobId: job.id });
+          return;
+        }
       }
     },
     {
