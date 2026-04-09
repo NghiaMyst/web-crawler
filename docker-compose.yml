@@ -35,6 +35,8 @@ services:
       dockerfile: Dockerfile
     env_file:
       - ./apps/crawler/.env
+    environment:
+      - RIOT_API_KEY=${RIOT_API_KEY:-}
     depends_on:
       postgres:
         condition: service_healthy
