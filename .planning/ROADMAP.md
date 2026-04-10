@@ -106,11 +106,11 @@ Plans:
 **Plans**: 5 plans
 
 Plans:
-- [ ] 03-01: EF Core schema — Migrations for all five tables, GIN index on `data_entries.payload`, `entry_key` unique constraint
-- [ ] 03-02: PostgreSQL LISTEN/NOTIFY outbox — Node.js emits NOTIFY after job insert, .NET Npgsql background service subscribes and logs
-- [ ] 03-03: `IContentParser` interface + keyed service registration — interface definition, `AddKeyedScoped` registrations, resolver helper
-- [ ] 03-04: Football + Genshin parsers — `FootballParser` (standings/fixtures), `GenshinParser` (events), both writing JSONB `data_entries`
-- [ ] 03-05: Remaining parsers — `LolParser` (tier list from `__NEXT_DATA__`), `AniListParser` (airing schedule), `MangaDexParser` (chapters)
+- [x] 03-01: EF Core schema — Migrations for all five tables, GIN index on `data_entries.payload`, `entry_key` unique constraint
+- [x] 03-02: PostgreSQL LISTEN/NOTIFY outbox — Node.js emits NOTIFY after job insert, .NET Npgsql background service subscribes and logs
+- [x] 03-03: `IContentParser` interface + keyed service registration — interface definition, `AddKeyedScoped` registrations, resolver helper
+- [x] 03-04: Football + Genshin parsers — `FootballParser` (standings/fixtures), `GenshinParser` (events), both writing JSONB `data_entries`
+- [x] 03-05: Remaining parsers — `LolParser` (tier list from `__NEXT_DATA__`), `AniListParser` (airing schedule), `MangaDexParser` (chapters)
 
 **UI hint**: no
 
