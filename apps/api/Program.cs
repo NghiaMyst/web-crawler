@@ -1,4 +1,6 @@
+using Microsoft.EntityFrameworkCore;
 using Serilog;
+using WebCrawlerApi.Data;
 
 // Bootstrap logger for startup errors (before host is built)
 Log.Logger = new LoggerConfiguration()
@@ -16,6 +18,12 @@ try
             .ReadFrom.Configuration(context.Configuration)
             .ReadFrom.Services(services)
             .Enrich.FromLogContext());
+
+    // Register EF Core with Npgsql and snake_case naming convention
+    builder.Services.AddDbContext<AppDbContext>(opt =>
+        opt.UseNpgsql(Environment.GetEnvironmentVariable("DATABASE_URL")
+               ?? throw new InvalidOperationException("DATABASE_URL env var not set"))
+           .UseSnakeCaseNamingConvention());
 
     var app = builder.Build();
 
