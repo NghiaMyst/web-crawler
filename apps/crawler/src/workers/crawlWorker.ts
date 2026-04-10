@@ -1,4 +1,5 @@
 import { Worker, Job } from 'bullmq';
+import crypto from 'node:crypto';
 import { connection } from '../connection.js';
 import { logger } from '../logger.js';
 import { cheerioFetch } from './CheerioWorker.js';
@@ -6,6 +7,7 @@ import { playwrightFetch } from './PlaywrightWorker.js';
 import { enforcePoliteness } from '../services/politenessGuard.js';
 import { isUrlAllowed } from '../services/robotsCache.js';
 import { isContentChanged } from '../services/contentHash.js';
+import { insertCrawlJobAndNotify, closePgPool } from '../db/crawlJobsDb.js';
 import type { CrawlJobData } from '../producers/crawlProducer.js';
 
 export function createCrawlWorker(): Worker<CrawlJobData> {
@@ -53,6 +55,34 @@ export function createCrawlWorker(): Worker<CrawlJobData> {
           return;
         }
       }
+
+      // --- Post-fetch: DB write + Redis staging (Phase 3, D-01, D-03) ---
+      if (responseBody && sourceId) {
+        const contentHash = crypto.createHash('md5').update(responseBody).digest('hex');
+
+        // CRITICAL ORDER (D-03 + research): Redis BEFORE pg transaction
+        // pg_notify fires on COMMIT — .NET listener reads Redis immediately after
+        const jobId = crypto.randomUUID();
+
+        // Step 1: Stage raw content in Redis with 5-minute TTL
+        await connection.set(`job:raw:${jobId}`, responseBody, 'EX', 300);
+
+        // Step 2: Insert crawl_jobs row + fire NOTIFY (atomic transaction)
+        // parserKey comes from job.data — each source worker sets this
+        const parserKey = job.data.parserKey ?? 'unknown';
+        await insertCrawlJobAndNotify({
+          jobId,
+          sourceId,
+          url,
+          status: 'done',
+          contentHash,
+          parserKey,
+        });
+
+        logger.info('Crawl result staged in Redis and recorded in DB', {
+          url, sourceId, jobId, parserKey,
+        });
+      }
     },
     {
       connection,
@@ -99,6 +129,7 @@ export async function setupGracefulShutdown(
     }
 
     clearTimeout(timeout);
+    await closePgPool();
     await connection.quit();
     logger.info('Worker shut down cleanly');
     process.exit(0);

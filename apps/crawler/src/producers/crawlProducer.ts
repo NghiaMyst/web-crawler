@@ -6,6 +6,7 @@ export interface CrawlJobData {
   url: string;
   sourceId: string;
   strategy: 'cheerio' | 'playwright' | 'api';
+  parserKey?: string;
 }
 
 export async function enqueueCrawlJob(data: CrawlJobData): Promise<void> {
