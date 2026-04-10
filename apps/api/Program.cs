@@ -1,6 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using Serilog;
+using StackExchange.Redis;
 using WebCrawlerApi.Data;
+using WebCrawlerApi.Parsers;
+using WebCrawlerApi.Services;
 
 // Bootstrap logger for startup errors (before host is built)
 Log.Logger = new LoggerConfiguration()
@@ -24,6 +27,23 @@ try
         opt.UseNpgsql(Environment.GetEnvironmentVariable("DATABASE_URL")
                ?? throw new InvalidOperationException("DATABASE_URL env var not set"))
            .UseSnakeCaseNamingConvention());
+
+    // Redis connection for raw content reads (D-03)
+    var redisConnStr = Environment.GetEnvironmentVariable("REDIS_URL") ?? "localhost:6379";
+    var redisEndpoint = redisConnStr.Replace("redis://", "");
+    builder.Services.AddSingleton<IConnectionMultiplexer>(
+        ConnectionMultiplexer.Connect(redisEndpoint));
+
+    // Keyed parser services — PARSE-02 (no hardcoded switch)
+    // Stub implementations replaced by plans 03-04 and 03-05
+    builder.Services.AddKeyedScoped<IContentParser, FootballParser>("football");
+    builder.Services.AddKeyedScoped<IContentParser, GenshinParser>("genshin");
+    builder.Services.AddKeyedScoped<IContentParser, LolParser>("lol");
+    builder.Services.AddKeyedScoped<IContentParser, AniListParser>("anilist");
+    builder.Services.AddKeyedScoped<IContentParser, MangaDexParser>("mangadex");
+
+    // LISTEN/NOTIFY background service
+    builder.Services.AddHostedService<CrawlerEventListener>();
 
     var app = builder.Build();
 
