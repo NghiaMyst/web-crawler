@@ -1,7 +1,9 @@
 import axios from 'axios';
+import crypto from 'node:crypto';
 import { Worker, type Job } from 'bullmq';
 import { connection } from '../connection.js';
 import { logger } from '../logger.js';
+import { insertCrawlJobAndNotify } from '../db/crawlJobsDb.js';
 import { cheerioFetch } from './CheerioWorker.js';
 
 const SOURCE_ID = 'hoyowiki-genshin';
@@ -42,10 +44,19 @@ export function createGenshinWorker(): Worker<GenshinJobData> {
           data = result.rawHtml;
         }
 
-        // Phase 2: log raw response — no storage yet (storage in Phase 3)
-        logger.info('Genshin raw response', { sourceId: SOURCE_ID, jobId: job.id, data });
-
         logger.info('Genshin fetch complete', { url, sourceId: SOURCE_ID, jobId: job.id });
+
+        // Phase 3: stage raw content in Redis, then write crawl_jobs row + NOTIFY
+        const jobId = crypto.randomUUID();
+        await connection.set(`job:raw:${jobId}`, JSON.stringify(data), 'EX', 300);
+        await insertCrawlJobAndNotify({
+          jobId,
+          sourceId: SOURCE_ID,
+          url,
+          status: 'done',
+          contentHash: null,
+          parserKey: 'genshin',
+        });
       } catch (err) {
         const error = err as Error;
         logger.error('Genshin fetch failed', {

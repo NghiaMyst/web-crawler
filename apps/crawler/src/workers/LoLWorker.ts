@@ -1,8 +1,10 @@
 import axios from 'axios';
+import crypto from 'node:crypto';
 import * as cheerio from 'cheerio';
 import { Worker, type Job } from 'bullmq';
 import { connection } from '../connection.js';
 import { logger } from '../logger.js';
+import { insertCrawlJobAndNotify } from '../db/crawlJobsDb.js';
 
 const SOURCE_ID = 'lol-tierlist';
 
@@ -42,14 +44,19 @@ export function createLoLWorker(): Worker<LoLJobData> {
         const scriptContent = $('script#__NEXT_DATA__').text();
         const nextData = JSON.parse(scriptContent) as Record<string, unknown>;
 
-        // Phase 2: log raw data — no storage yet (storage in Phase 3)
-        logger.info('u.gg tier list raw data', {
-          sourceId: SOURCE_ID,
-          jobId: job.id,
-          dataKeys: Object.keys((nextData.props as Record<string, unknown>) ?? {}),
-        });
-
         logger.info('LoL tier list fetch complete', { url, sourceId: SOURCE_ID, jobId: job.id });
+
+        // Phase 3: stage raw content in Redis, then write crawl_jobs row + NOTIFY
+        const jobId = crypto.randomUUID();
+        await connection.set(`job:raw:${jobId}`, JSON.stringify(nextData), 'EX', 300);
+        await insertCrawlJobAndNotify({
+          jobId,
+          sourceId: SOURCE_ID,
+          url,
+          status: 'done',
+          contentHash: null,
+          parserKey: 'lol',
+        });
       } catch (err) {
         const error = err as Error;
         logger.error('LoL tier list fetch failed', {

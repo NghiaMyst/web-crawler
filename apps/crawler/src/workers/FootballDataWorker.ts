@@ -1,7 +1,9 @@
 import axios from 'axios';
+import crypto from 'node:crypto';
 import { Worker, type Job } from 'bullmq';
 import { connection } from '../connection.js';
 import { logger } from '../logger.js';
+import { insertCrawlJobAndNotify } from '../db/crawlJobsDb.js';
 import type { EplStandingsResponse } from '@web-crawler/shared-types';
 
 const SOURCE_ID = 'football-data.org';
@@ -37,22 +39,24 @@ export function createFootballDataWorker(): Worker<FootballDataJobData> {
       try {
         const data = await fetchEplStandings();
 
-        // Phase 1: log raw response — no storage yet (storage in Phase 3)
-        logger.info('football-data.org raw response', {
-          url,
-          sourceId: SOURCE_ID,
-          jobId: job.id,
-          competition: data.competition.name,
-          season: data.season,
-          standings: data.standings,
-        });
-
         logger.info('Football-data fetch complete', {
           url,
           sourceId: SOURCE_ID,
           jobId: job.id,
           matchday: data.season.currentMatchday,
           teamsCount: data.standings[0]?.table.length ?? 0,
+        });
+
+        // Phase 3: stage raw content in Redis, then write crawl_jobs row + NOTIFY
+        const jobId = crypto.randomUUID();
+        await connection.set(`job:raw:${jobId}`, JSON.stringify(data), 'EX', 300);
+        await insertCrawlJobAndNotify({
+          jobId,
+          sourceId: SOURCE_ID,
+          url,
+          status: 'done',
+          contentHash: null,
+          parserKey: 'football',
         });
       } catch (err) {
         const error = err as Error;
