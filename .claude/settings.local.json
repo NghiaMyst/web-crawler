@@ -25,7 +25,9 @@
       "Bash(git -C D:/project/mcp/web-crawler show a2c18bb --stat)",
       "Bash(findstr incomplete:*)",
       "Bash(pnpm tsc:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)"
     ]
   }
 }
