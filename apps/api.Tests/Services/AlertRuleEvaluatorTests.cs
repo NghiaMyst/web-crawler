@@ -79,8 +79,8 @@ public class AlertRuleEvaluatorTests
     public void FieldChanged_DoesNotFire_WhenOtherFieldChanged()
     {
         var rule = MakeRule("""{"type":"field_changed","field":"points"}""");
-        var oldEl = JsonDocument.Parse(""""Arsenal"""").RootElement;
-        var newEl = JsonDocument.Parse(""""Liverpool"""").RootElement;
+        var oldEl = JsonDocument.Parse("""  "Arsenal"  """).RootElement;
+        var newEl = JsonDocument.Parse("""  "Liverpool"  """).RootElement;
         var diff = ExistingEntry(("name", oldEl, newEl));
         var payload = JsonDocument.Parse("""{"name":"Liverpool","points":72}""");
 
