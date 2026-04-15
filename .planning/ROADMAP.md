@@ -8,7 +8,8 @@ Ten phases that build a personal data aggregation system from an empty monorepo 
 
 ## Phases
 
-- [x] **Phase 1: Monorepo Foundation & Crawler Skeleton** - Turborepo monorepo wired, Docker Compose running, Cheerio + Playwright workers verified on ARM, BullMQ queue proven with football-data.org as the first live source (completed 2026-04-07)
+- [x] **Phase 1: Monorepo Foundation & Crawler Skeleton** - Turborepo monorepo wired, Docker Compose running, Cheerio + Playwright workers verified on ARM, BullMQ queue proven with football-data.org as the first live source
+ (completed 2026-04-07)
 - [ ] **Phase 2: Full URL Frontier & Crawl Hardening** - Bloom Filter dedup, per-domain politeness queues, robots.txt caching, exponential backoff, dead-letter queue, and all five data sources crawling
 - [ ] **Phase 3: PostgreSQL Schema & LISTEN/NOTIFY Handoff** - Database schema live with EF Core Migrations, Node→.NET handoff via LISTEN/NOTIFY, keyed-service parser dispatch, JSONB entries stored
 - [ ] **Phase 4: Notification Engine** - Diff engine evaluating alert rules, Telegram and Discord delivery, notification logs persisted
@@ -136,11 +137,11 @@ Plans:
 **Plans**: 5 plans
 
 Plans:
-- [ ] 04-01: Diff engine — `microdiff` integration, snapshot comparison against last `data_entries` payload for same `entry_key`
-- [ ] 04-02: Alert rule evaluator — `new_item`, `field_changed`, `threshold` condition handlers, rule-to-entry matching
-- [ ] 04-03: Telegram Bot delivery — `node-telegram-bot-api` or direct HTTP, message formatting, error handling
-- [ ] 04-04: Discord Webhook delivery — HTTP POST to webhook URL, embed formatting, error handling
-- [ ] 04-05: Notification logging — `notification_logs` insert on every attempt, retry on delivery failure (up to 2x), dedup guard
+- [ ] 04-01-PLAN.md — Diff engine: DiffResult/AlertMatch models, DiffEngine JSONB comparison, xUnit test project bootstrap
+- [ ] 04-02-PLAN.md — Alert rule evaluator: new_item/field_changed/threshold condition handlers, MessageBuilder template substitution (D-03)
+- [ ] 04-03-PLAN.md — Telegram Bot delivery: INotificationSender interface, direct HttpClient to Bot API, resilience handler
+- [ ] 04-04-PLAN.md — Discord Webhook delivery: direct HttpClient POST to webhook URL, content field formatting
+- [ ] 04-05-PLAN.md — Notification wiring: NotificationDispatcher, CrawlerEventListener SELECT-before-UPSERT (D-02), DI registration, dedup guard, retry
 
 **UI hint**: no
 
