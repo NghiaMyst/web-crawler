@@ -42,7 +42,7 @@
 
 ### Notifications
 
-- [ ] **NOTIF-01**: System evaluates alert rules against new/changed entries after each parse
+- [x] **NOTIF-01**: System evaluates alert rules against new/changed entries after each parse
 - [ ] **NOTIF-02**: Supports `new_item` condition (entry_key not previously seen)
 - [ ] **NOTIF-03**: Supports `field_changed` condition (specific JSONB field differs from last snapshot)
 - [ ] **NOTIF-04**: Supports `threshold` condition (numeric JSONB field crosses configured value)
@@ -159,7 +159,7 @@
 | PARSE-01 | Phase 3 | Pending |
 | PARSE-02 | Phase 3 | Pending |
 | PARSE-03 | Phase 3 | Pending |
-| NOTIF-01 | Phase 4 | Pending |
+| NOTIF-01 | Phase 4 | Complete |
 | NOTIF-02 | Phase 4 | Pending |
 | NOTIF-03 | Phase 4 | Pending |
 | NOTIF-04 | Phase 4 | Pending |

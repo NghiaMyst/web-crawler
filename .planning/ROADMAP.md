@@ -137,7 +137,7 @@ Plans:
 **Plans**: 5 plans
 
 Plans:
-- [ ] 04-01-PLAN.md — Diff engine: DiffResult/AlertMatch models, DiffEngine JSONB comparison, xUnit test project bootstrap
+- [x] 04-01-PLAN.md — Diff engine: DiffResult/AlertMatch models, DiffEngine JSONB comparison, xUnit test project bootstrap
 - [ ] 04-02-PLAN.md — Alert rule evaluator: new_item/field_changed/threshold condition handlers, MessageBuilder template substitution (D-03)
 - [ ] 04-03-PLAN.md — Telegram Bot delivery: INotificationSender interface, direct HttpClient to Bot API, resilience handler
 - [ ] 04-04-PLAN.md — Discord Webhook delivery: direct HttpClient POST to webhook URL, content field formatting
@@ -325,7 +325,7 @@ Plans:
 | 1. Monorepo Foundation & Crawler Skeleton | 2/1 | Complete   | 2026-04-07 |
 | 2. Full URL Frontier & Crawl Hardening | 0/6 | Not started | - |
 | 3. PostgreSQL Schema, Parsers & LISTEN/NOTIFY Handoff | 0/5 | Not started | - |
-| 4. Notification Engine | 0/5 | Not started | - |
+| 4. Notification Engine | 1/5 | In Progress|  |
 | 5. .NET REST API | 0/5 | Not started | - |
 | 6. SignalR Real-Time Layer | 0/3 | Not started | - |
 | 7. Next.js Dashboard — Core Views | 0/5 | Not started | - |
