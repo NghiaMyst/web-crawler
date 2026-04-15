@@ -2,7 +2,30 @@
   "permissions": {
     "allow": [
       "Bash(node:*)",
-      "WebSearch"
+      "WebSearch",
+      "Bash(node \".claude/get-shit-done/bin/gsd-tools.cjs\" verify key-links \".planning/phases/02-full-url-frontier-crawl-hardening/02-05-PLAN.md\")",
+      "Bash(echo \"Exit: $?\")",
+      "Bash([ -f D:/project/mcp/web-crawler/CLAUDE.md ])",
+      "Bash(pnpm --filter @web-crawler/crawler run type-check)",
+      "Bash(pnpm install:*)",
+      "Bash(pnpm --filter @web-crawler/shared-types run build)",
+      "Bash(pnpm --filter @web-crawler/crawler test)",
+      "Bash([ -f \"apps/crawler/src/producers/crawlProducer.ts\" ])",
+      "Bash([ -f \"apps/crawler/src/workers/crawlWorker.ts\" ])",
+      "Bash([ -f \"apps/crawler/src/services/robotsCache.ts\" ])",
+      "Bash([ -f \".planning/phases/02-full-url-frontier-crawl-hardening/02-05-SUMMARY.md\" ])",
+      "Bash([ -f \"D:/project/mcp/web-crawler/.planning/phases/02-full-url-frontier-crawl-hardening/02-05-SUMMARY.md\" ])",
+      "Bash([ -f \"D:/project/mcp/web-crawler/.claude/worktrees/agent-a8c1142d/.planning/phases/02-full-url-frontier-crawl-hardening/02-05-SUMMARY.md\" ])",
+      "Bash(git reset:*)",
+      "Skill(gsd:code-review)",
+      "Bash(git -C D:/project/mcp/web-crawler log --oneline --all)",
+      "Bash(git -C D:/project/mcp/web-crawler show --stat a2c18bb)",
+      "Bash(git -C D:/project/mcp/web-crawler show --stat 7239474)",
+      "Bash(git -C D:/project/mcp/web-crawler show 7239474 --stat)",
+      "Bash(git -C D:/project/mcp/web-crawler show a2c18bb --stat)",
+      "Bash(findstr incomplete:*)",
+      "Bash(pnpm tsc:*)",
+      "Bash(git add:*)"
     ]
   }
 }
