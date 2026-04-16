@@ -42,6 +42,20 @@ try
     builder.Services.AddKeyedScoped<IContentParser, AniListParser>("anilist");
     builder.Services.AddKeyedScoped<IContentParser, MangaDexParser>("mangadex");
 
+    // ── Phase 4: Notification Engine services ──
+    builder.Services.AddHttpClient<TelegramSender>()
+        .AddStandardResilienceHandler();
+    builder.Services.AddHttpClient<DiscordSender>()
+        .AddStandardResilienceHandler();
+
+    builder.Services.AddScoped<INotificationSender, TelegramSender>(sp =>
+        sp.GetRequiredService<TelegramSender>());
+    builder.Services.AddScoped<INotificationSender, DiscordSender>(sp =>
+        sp.GetRequiredService<DiscordSender>());
+
+    builder.Services.AddScoped<AlertRuleEvaluator>();
+    builder.Services.AddScoped<NotificationDispatcher>();
+
     // LISTEN/NOTIFY background service
     builder.Services.AddHostedService<CrawlerEventListener>();
 

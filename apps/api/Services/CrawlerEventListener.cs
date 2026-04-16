@@ -6,6 +6,7 @@ using Npgsql;
 using StackExchange.Redis;
 using WebCrawlerApi.Data;
 using WebCrawlerApi.Parsers;
+using WebCrawlerApi.Services;
 
 namespace WebCrawlerApi.Services;
 
@@ -74,16 +75,85 @@ public class CrawlerEventListener(
             var results = await parser.ParseAsync(raw!, msg.SourceId, ct);
             logger.LogInformation("Parser produced {Count} entries", results.Count);
 
-            // UPSERT each parsed entry (D-04)
+            // UPSERT each parsed entry (D-04) + evaluate and notify (D-01, D-02)
             var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
             foreach (var entry in results)
             {
+                // D-02: SELECT before UPSERT to capture old payload for diff
+                var sourceId = Guid.Parse(entry.SourceId);
+                var existing = await db.DataEntries
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(e =>
+                        e.SourceId == sourceId &&
+                        e.EntryKey == entry.EntryKey, ct);
+
+                // Clone old payload before upsert overwrites it
+                JsonDocument? oldPayload = null;
+                if (existing?.Payload is not null)
+                {
+                    // Clone to detach from EF Core tracked entity buffer
+                    oldPayload = JsonDocument.Parse(existing.Payload.RootElement.GetRawText());
+                }
+
                 await UpsertEntryAsync(db, entry, msg.JobId, ct);
+
+                // D-01: Evaluate and notify inline after upsert
+                await EvaluateAndNotifyAsync(db, sourceId, entry, oldPayload, msg.JobId, ct);
             }
         }
         catch (Exception ex)
         {
             logger.LogError(ex, "Failed handling notification: {Payload}", payload);
+        }
+    }
+
+    private async Task EvaluateAndNotifyAsync(
+        AppDbContext db,
+        Guid sourceId,
+        ParsedEntry entry,
+        JsonDocument? oldPayload,
+        string jobId,
+        CancellationToken ct)
+    {
+        try
+        {
+            // Build new payload as JsonDocument for diff comparison
+            var newPayloadJson = JsonSerializer.Serialize(entry.Payload);
+            using var newPayload = JsonDocument.Parse(newPayloadJson);
+
+            // Run diff engine
+            var diff = DiffEngine.Compare(oldPayload, newPayload);
+
+            // Re-read the upserted entry to get its DB-assigned Id for notification_logs FK
+            var upserted = await db.DataEntries
+                .AsNoTracking()
+                .FirstOrDefaultAsync(e =>
+                    e.SourceId == sourceId &&
+                    e.EntryKey == entry.EntryKey, ct);
+
+            if (upserted is null)
+            {
+                logger.LogWarning("Could not find upserted entry for key {EntryKey}", entry.EntryKey);
+                return;
+            }
+
+            // Resolve NotificationDispatcher from scope
+            var dispatcher = scopeFactory.CreateScope().ServiceProvider
+                .GetRequiredService<NotificationDispatcher>();
+
+            // Clone newPayload for dispatcher (original will be disposed at end of using block)
+            var dispatchPayload = JsonDocument.Parse(newPayloadJson);
+
+            await dispatcher.DispatchAsync(db, sourceId, upserted.Id, diff, dispatchPayload, ct);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Notification evaluation failed for entry {EntryKey}", entry.EntryKey);
+            // Don't rethrow — notification failure must not block the parse loop
+        }
+        finally
+        {
+            oldPayload?.Dispose();
         }
     }
 
