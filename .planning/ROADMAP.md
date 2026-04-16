@@ -12,7 +12,7 @@ Ten phases that build a personal data aggregation system from an empty monorepo 
  (completed 2026-04-07)
 - [ ] **Phase 2: Full URL Frontier & Crawl Hardening** - Bloom Filter dedup, per-domain politeness queues, robots.txt caching, exponential backoff, dead-letter queue, and all five data sources crawling
 - [ ] **Phase 3: PostgreSQL Schema & LISTEN/NOTIFY Handoff** - Database schema live with EF Core Migrations, Node→.NET handoff via LISTEN/NOTIFY, keyed-service parser dispatch, JSONB entries stored
-- [ ] **Phase 4: Notification Engine** - Diff engine evaluating alert rules, Telegram and Discord delivery, notification logs persisted
+- [x] **Phase 4: Notification Engine** - Diff engine evaluating alert rules, Telegram and Discord delivery, notification logs persisted (completed 2026-04-16)
 - [ ] **Phase 5: .NET REST API** - Full CRUD for sources and alert rules, job management endpoints, paginated entries query, health check
 - [ ] **Phase 6: SignalR Real-Time Layer** - SignalR hub pushing new entries to connected clients without polling
 - [ ] **Phase 7: Next.js Dashboard — Core Views** - Data table with filters, source management UI, job management UI
@@ -138,10 +138,10 @@ Plans:
 
 Plans:
 - [x] 04-01-PLAN.md — Diff engine: DiffResult/AlertMatch models, DiffEngine JSONB comparison, xUnit test project bootstrap
-- [ ] 04-02-PLAN.md — Alert rule evaluator: new_item/field_changed/threshold condition handlers, MessageBuilder template substitution (D-03)
+- [x] 04-02-PLAN.md — Alert rule evaluator: new_item/field_changed/threshold condition handlers, MessageBuilder template substitution (D-03)
 - [x] 04-03-PLAN.md — Telegram Bot delivery: INotificationSender interface, direct HttpClient to Bot API, resilience handler
 - [x] 04-04-PLAN.md — Discord Webhook delivery: direct HttpClient POST to webhook URL, content field formatting
-- [ ] 04-05-PLAN.md — Notification wiring: NotificationDispatcher, CrawlerEventListener SELECT-before-UPSERT (D-02), DI registration, dedup guard, retry
+- [x] 04-05-PLAN.md — Notification wiring: NotificationDispatcher, CrawlerEventListener SELECT-before-UPSERT (D-02), DI registration, dedup guard, retry
 
 **UI hint**: no
 
@@ -325,7 +325,7 @@ Plans:
 | 1. Monorepo Foundation & Crawler Skeleton | 2/1 | Complete   | 2026-04-07 |
 | 2. Full URL Frontier & Crawl Hardening | 0/6 | Not started | - |
 | 3. PostgreSQL Schema, Parsers & LISTEN/NOTIFY Handoff | 0/5 | Not started | - |
-| 4. Notification Engine | 3/5 | In Progress|  |
+| 4. Notification Engine | 5/5 | Complete   | 2026-04-16 |
 | 5. .NET REST API | 0/5 | Not started | - |
 | 6. SignalR Real-Time Layer | 0/3 | Not started | - |
 | 7. Next.js Dashboard — Core Views | 0/5 | Not started | - |

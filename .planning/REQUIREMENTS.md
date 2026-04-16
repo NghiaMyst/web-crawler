@@ -46,9 +46,9 @@
 - [ ] **NOTIF-02**: Supports `new_item` condition (entry_key not previously seen)
 - [ ] **NOTIF-03**: Supports `field_changed` condition (specific JSONB field differs from last snapshot)
 - [ ] **NOTIF-04**: Supports `threshold` condition (numeric JSONB field crosses configured value)
-- [ ] **NOTIF-05**: Delivers notifications via Telegram Bot API
+- [x] **NOTIF-05**: Delivers notifications via Telegram Bot API
 - [x] **NOTIF-06**: Delivers notifications via Discord Webhook
-- [ ] **NOTIF-07**: Notification history stored in `notification_logs` table
+- [x] **NOTIF-07**: Notification history stored in `notification_logs` table
 
 ### API
 
@@ -163,9 +163,9 @@
 | NOTIF-02 | Phase 4 | Pending |
 | NOTIF-03 | Phase 4 | Pending |
 | NOTIF-04 | Phase 4 | Pending |
-| NOTIF-05 | Phase 4 | Pending |
+| NOTIF-05 | Phase 4 | Complete |
 | NOTIF-06 | Phase 4 | Complete |
-| NOTIF-07 | Phase 4 | Pending |
+| NOTIF-07 | Phase 4 | Complete |
 | API-01 | Phase 5 | Pending |
 | API-02 | Phase 5 | Pending |
 | API-03 | Phase 5 | Pending |
