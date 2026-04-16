@@ -1,4 +1,6 @@
+using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WebCrawlerApi.Data.Entities;
 
 namespace WebCrawlerApi.Data;
@@ -10,6 +12,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<DataEntry> DataEntries => Set<DataEntry>();
     public DbSet<AlertRule> AlertRules => Set<AlertRule>();
     public DbSet<NotificationLog> NotificationLogs => Set<NotificationLog>();
+
+    private static JsonDocument ParseJsonDocument(string s) => JsonDocument.Parse(s);
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -57,6 +61,11 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                   .OnDelete(DeleteBehavior.Cascade);
         });
 
+        // Value converter for JsonDocument <-> string (required for InMemory provider in tests)
+        var jsonDocConverter = new ValueConverter<JsonDocument, string>(
+            v => v.RootElement.GetRawText(),
+            v => ParseJsonDocument(v));
+
         // ── DataEntry ─────────────────────────────────────────────────────────
         modelBuilder.Entity<DataEntry>(entity =>
         {
@@ -65,7 +74,9 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             entity.Property(e => e.CrawledAt).HasDefaultValueSql("NOW()");
 
             // JSONB type for flexible per-domain payload
-            entity.Property(e => e.Payload).HasColumnType("jsonb");
+            entity.Property(e => e.Payload)
+                .HasColumnType("jsonb")
+                .HasConversion(jsonDocConverter);
 
             // GIN index enables fast JSONB queries: payload @> '{"is_active": true}'
             entity.HasIndex(e => e.Payload).HasMethod("gin");
@@ -89,6 +100,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         });
 
         // ── AlertRule ─────────────────────────────────────────────────────────
+
         modelBuilder.Entity<AlertRule>(entity =>
         {
             entity.HasKey(r => r.Id);
@@ -97,7 +109,9 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             entity.Property(r => r.CreatedAt).HasDefaultValueSql("NOW()");
 
             // JSONB type for flexible alert condition definition
-            entity.Property(r => r.Condition).HasColumnType("jsonb");
+            entity.Property(r => r.Condition)
+                .HasColumnType("jsonb")
+                .HasConversion(jsonDocConverter);
 
             entity.HasIndex(r => r.SourceId);
 
