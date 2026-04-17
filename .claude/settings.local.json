@@ -27,7 +27,16 @@
       "Bash(pnpm tsc:*)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(du -sh .claude/worktrees/*/)",
+      "Bash(ls \"D:/project/mcp/web-crawler/.planning/phases/04-notification-engine/\"*-VALIDATION.md)",
+      "Bash(grep -h \"requirements:\" \".planning/phases/04-notification-engine/\"*-PLAN.md)",
+      "Bash(sed 's/^[[:space:]]*//')",
+      "Bash(dotnet test:*)",
+      "Bash(dotnet build:*)",
+      "Bash(dotnet add:*)",
+      "Bash(dotnet list:*)",
+      "Bash(dotnet restore:*)"
     ]
   }
 }
