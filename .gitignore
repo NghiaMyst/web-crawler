@@ -28,8 +28,8 @@ Thumbs.db
 *.user
 
 # dotnet
-apps/api/bin/
-apps/api/obj/
+**/bin/
+**/obj/
 
 .claude/worktrees/*
 .claude/worktrees/agent-*/
