@@ -95,7 +95,10 @@ try
 
     app.UseCors();
 
-    app.MapGet("/health", () => Results.Ok(new { status = "ok", service = "api" }));
+    app.MapGet("/health", async (AppDbContext db, IConnectionMultiplexer redis) =>
+        await HealthCheck.CheckHealth(
+            () => db.Database.ExecuteSqlRawAsync("SELECT 1"),
+            async () => { await redis.GetDatabase().PingAsync(); }));
 
     app.MapGroup("/api/entries").MapEntriesEndpoints();
     app.MapGroup("/api/sources").MapSourcesEndpoints();
