@@ -17,5 +17,6 @@
     <PackageReference Include="Serilog.Sinks.Console" Version="6.*" />
     <PackageReference Include="Serilog.Settings.Configuration" Version="8.*" />
     <PackageReference Include="StackExchange.Redis" Version="2.11.8" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.9.0" />
   </ItemGroup>
 </Project>
