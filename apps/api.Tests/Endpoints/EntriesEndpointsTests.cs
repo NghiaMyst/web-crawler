@@ -1,10 +1,9 @@
 using System.Text.Json;
-using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using WebCrawlerApi.Data;
 using WebCrawlerApi.Data.Entities;
 using WebCrawlerApi.Endpoints;
-using WebCrawlerApi.Models.Responses;
 
 namespace WebCrawlerApi.Tests.Endpoints;
 
@@ -55,6 +54,27 @@ public class EntriesEndpointsTests
         return db;
     }
 
+    // Use camelCase options to match ASP.NET Core's default HTTP response serialization
+    private static readonly JsonSerializerOptions CamelCaseOptions = new()
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+    };
+
+    /// <summary>
+    /// Extracts the serialized JSON body from any IResult that implements IValueHttpResult.
+    /// Works with Ok&lt;AnonymousType&gt; since we can't cast to Ok&lt;object&gt; directly.
+    /// Uses camelCase to match ASP.NET Core's default HTTP response behavior.
+    /// </summary>
+    private static JsonDocument ExtractBody(IResult result)
+    {
+        var valueResult = result as Microsoft.AspNetCore.Http.IValueHttpResult;
+        Assert.NotNull(valueResult);
+        var value = valueResult.Value;
+        Assert.NotNull(value);
+        var json = JsonSerializer.Serialize(value, CamelCaseOptions);
+        return JsonDocument.Parse(json);
+    }
+
     [Fact]
     public async Task GetEntries_NoParams_ReturnsUpTo20ItemsOrderedByCrawledAtDesc()
     {
@@ -62,10 +82,7 @@ public class EntriesEndpointsTests
 
         var result = await EntriesEndpoints.GetEntries(db);
 
-        var ok = Assert.IsType<Ok<object>>(result);
-        var body = ok.Value!;
-        var json = JsonSerializer.Serialize(body);
-        var doc = JsonDocument.Parse(json);
+        using var doc = ExtractBody(result);
         var items = doc.RootElement.GetProperty("items").EnumerateArray().ToList();
 
         Assert.Equal(20, items.Count);
@@ -85,9 +102,7 @@ public class EntriesEndpointsTests
 
         var result = await EntriesEndpoints.GetEntries(db, limit: 5);
 
-        var ok = Assert.IsType<Ok<object>>(result);
-        var json = JsonSerializer.Serialize(ok.Value!);
-        var doc = JsonDocument.Parse(json);
+        using var doc = ExtractBody(result);
         var items = doc.RootElement.GetProperty("items").EnumerateArray().ToList();
         var nextCursor = doc.RootElement.GetProperty("nextCursor");
 
@@ -103,18 +118,14 @@ public class EntriesEndpointsTests
 
         // Get page 1
         var result1 = await EntriesEndpoints.GetEntries(db, limit: 5);
-        var ok1 = Assert.IsType<Ok<object>>(result1);
-        var json1 = JsonSerializer.Serialize(ok1.Value!);
-        var doc1 = JsonDocument.Parse(json1);
+        using var doc1 = ExtractBody(result1);
         var items1 = doc1.RootElement.GetProperty("items").EnumerateArray()
             .Select(x => x.GetProperty("id").GetString()).ToHashSet();
         var cursor = doc1.RootElement.GetProperty("nextCursor").GetString();
 
         // Get page 2 using cursor
         var result2 = await EntriesEndpoints.GetEntries(db, cursor: cursor, limit: 5);
-        var ok2 = Assert.IsType<Ok<object>>(result2);
-        var json2 = JsonSerializer.Serialize(ok2.Value!);
-        var doc2 = JsonDocument.Parse(json2);
+        using var doc2 = ExtractBody(result2);
         var items2 = doc2.RootElement.GetProperty("items").EnumerateArray()
             .Select(x => x.GetProperty("id").GetString()).ToHashSet();
 
@@ -129,9 +140,7 @@ public class EntriesEndpointsTests
 
         var result = await EntriesEndpoints.GetEntries(db, limit: 10);
 
-        var ok = Assert.IsType<Ok<object>>(result);
-        var json = JsonSerializer.Serialize(ok.Value!);
-        var doc = JsonDocument.Parse(json);
+        using var doc = ExtractBody(result);
         var items = doc.RootElement.GetProperty("items").EnumerateArray().ToList();
         var nextCursor = doc.RootElement.GetProperty("nextCursor");
 
@@ -154,9 +163,7 @@ public class EntriesEndpointsTests
 
         var result = await EntriesEndpoints.GetEntries(db, category: "football");
 
-        var ok = Assert.IsType<Ok<object>>(result);
-        var json = JsonSerializer.Serialize(ok.Value!);
-        var doc = JsonDocument.Parse(json);
+        using var doc = ExtractBody(result);
         var items = doc.RootElement.GetProperty("items").EnumerateArray().ToList();
 
         Assert.Equal(2, items.Count);
@@ -179,9 +186,7 @@ public class EntriesEndpointsTests
 
         var result = await EntriesEndpoints.GetEntries(db, sourceId: source1);
 
-        var ok = Assert.IsType<Ok<object>>(result);
-        var json = JsonSerializer.Serialize(ok.Value!);
-        var doc = JsonDocument.Parse(json);
+        using var doc = ExtractBody(result);
         var items = doc.RootElement.GetProperty("items").EnumerateArray().ToList();
 
         Assert.Equal(2, items.Count);
@@ -205,9 +210,7 @@ public class EntriesEndpointsTests
         var to = baseTime.AddDays(-1).AddHours(1);
         var result = await EntriesEndpoints.GetEntries(db, from: from, to: to);
 
-        var ok = Assert.IsType<Ok<object>>(result);
-        var json = JsonSerializer.Serialize(ok.Value!);
-        var doc = JsonDocument.Parse(json);
+        using var doc = ExtractBody(result);
         var items = doc.RootElement.GetProperty("items").EnumerateArray().ToList();
 
         Assert.Equal(2, items.Count);
@@ -220,9 +223,7 @@ public class EntriesEndpointsTests
 
         var result = await EntriesEndpoints.GetEntries(db, limit: 200);
 
-        var ok = Assert.IsType<Ok<object>>(result);
-        var json = JsonSerializer.Serialize(ok.Value!);
-        var doc = JsonDocument.Parse(json);
+        using var doc = ExtractBody(result);
         var items = doc.RootElement.GetProperty("items").EnumerateArray().ToList();
 
         // Only 25 seeded entries, so return 25 (less than 100 cap)
@@ -236,9 +237,7 @@ public class EntriesEndpointsTests
 
         var result = await EntriesEndpoints.GetEntries(db, cursor: "not-valid-base64!!!", limit: 5);
 
-        var ok = Assert.IsType<Ok<object>>(result);
-        var json = JsonSerializer.Serialize(ok.Value!);
-        var doc = JsonDocument.Parse(json);
+        using var doc = ExtractBody(result);
         var items = doc.RootElement.GetProperty("items").EnumerateArray().ToList();
 
         // Should return first page (5 items) ignoring invalid cursor
@@ -264,9 +263,7 @@ public class EntriesEndpointsTests
 
         var result = await EntriesEndpoints.GetEntries(db);
 
-        var ok = Assert.IsType<Ok<object>>(result);
-        var json = JsonSerializer.Serialize(ok.Value!);
-        var doc = JsonDocument.Parse(json);
+        using var doc = ExtractBody(result);
         var firstItem = doc.RootElement.GetProperty("items").EnumerateArray().First();
         var payload = firstItem.GetProperty("payload");
 
