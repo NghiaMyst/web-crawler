@@ -36,7 +36,9 @@
       "Bash(dotnet build:*)",
       "Bash(dotnet add:*)",
       "Bash(dotnet list:*)",
-      "Bash(dotnet restore:*)"
+      "Bash(dotnet restore:*)",
+      "Bash(grep -v \"$\\(pwd\\)$\")",
+      "Bash(git cherry-pick *)"
     ]
   }
 }

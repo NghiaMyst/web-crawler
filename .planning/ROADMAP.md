@@ -167,7 +167,7 @@ Plans:
 **Plans**: 5 plans
 
 Plans:
-- [ ] 05-01: API project setup — ASP.NET Core 8, EF Core DbContext wired, Serilog request logging middleware, CORS policy
+- [x] 05-01: API project setup — ASP.NET Core 8, EF Core DbContext wired, Serilog request logging middleware, CORS policy
 - [ ] 05-02: Entries endpoint — `GET /api/entries` with category/source/date filters and cursor-based pagination
 - [ ] 05-03: Sources CRUD — `GET/POST/PUT/DELETE /api/sources` with validation and EF Core persistence
 - [ ] 05-04: Jobs + alert rules endpoints — `GET /api/jobs`, `POST /api/jobs/{id}/retry` (BullMQ Redis bridge), `GET/POST/DELETE /api/alert-rules`
