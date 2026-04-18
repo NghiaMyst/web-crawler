@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using Moq;
@@ -180,7 +181,8 @@ public class JobsEndpointsTests
 
         var result = await JobsEndpoints.RetryJob(jobId, db, mockRedis.Object);
 
-        Assert.IsType<BadRequest<object>>(result);
+        var statusResult = Assert.IsAssignableFrom<IStatusCodeHttpResult>(result);
+        Assert.Equal(400, statusResult.StatusCode);
     }
 
     [Fact]
@@ -222,8 +224,10 @@ public class JobsEndpointsTests
 
         var result = await JobsEndpoints.RetryJob(jobId, db, mockRedis.Object);
 
-        var okResult = Assert.IsType<Ok<object>>(result);
-        var json = System.Text.Json.JsonSerializer.Serialize(okResult.Value);
+        var statusResult = Assert.IsAssignableFrom<IStatusCodeHttpResult>(result);
+        Assert.Equal(200, statusResult.StatusCode);
+        var valueResult = Assert.IsAssignableFrom<IValueHttpResult>(result);
+        var json = System.Text.Json.JsonSerializer.Serialize(valueResult.Value);
         Assert.Contains(jobId.ToString(), json);
         Assert.Contains("pending", json);
     }
