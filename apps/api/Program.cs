@@ -1,7 +1,10 @@
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using StackExchange.Redis;
 using WebCrawlerApi.Data;
+using WebCrawlerApi.Endpoints;
 using WebCrawlerApi.Parsers;
 using WebCrawlerApi.Services;
 
@@ -59,12 +62,45 @@ try
     // LISTEN/NOTIFY background service
     builder.Services.AddHostedService<CrawlerEventListener>();
 
+    // ── Phase 5: REST API services ──
+    builder.Services.AddEndpointsApiExplorer();
+    builder.Services.AddSwaggerGen();
+
+    builder.Services.AddCors(options =>
+    {
+        options.AddDefaultPolicy(policy =>
+            policy.WithOrigins(
+                    Environment.GetEnvironmentVariable("CORS_ORIGINS")?.Split(',')
+                        ?? new[] { "http://localhost:3000" })
+                  .AllowAnyHeader()
+                  .AllowAnyMethod());
+    });
+
+    builder.Services.ConfigureHttpJsonOptions(options =>
+    {
+        options.SerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+        options.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+    });
+
     var app = builder.Build();
 
     // Log every HTTP request with timing
     app.UseSerilogRequestLogging();
 
+    if (app.Environment.IsDevelopment())
+    {
+        app.UseSwagger();
+        app.UseSwaggerUI();
+    }
+
+    app.UseCors();
+
     app.MapGet("/health", () => Results.Ok(new { status = "ok", service = "api" }));
+
+    app.MapGroup("/api/entries").MapEntriesEndpoints();
+    app.MapGroup("/api/sources").MapSourcesEndpoints();
+    app.MapGroup("/api/jobs").MapJobsEndpoints();
+    app.MapGroup("/api/alert-rules").MapAlertRulesEndpoints();
 
     app.Run();
 }
