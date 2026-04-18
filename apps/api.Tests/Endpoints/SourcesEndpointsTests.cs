@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebCrawlerApi.Data;
 using WebCrawlerApi.Data.Entities;
@@ -72,8 +73,9 @@ public class SourcesEndpointsTests
         using var db = CreateInMemoryDb(nameof(CreateSource_MissingName_Returns400WithNameError));
         var req = new CreateSourceRequest(Name: "", DisplayName: null, Url: "https://example.com", Category: null, ParserKey: "pk");
         var result = await SourcesEndpoints.CreateSource(req, db);
-        var problem = Assert.IsType<ValidationProblem>(result);
-        Assert.True(problem.ProblemDetails.Errors.ContainsKey("name"));
+        var problem = Assert.IsType<ProblemHttpResult>(result);
+        var details = Assert.IsType<HttpValidationProblemDetails>(problem.ProblemDetails);
+        Assert.True(details.Errors.ContainsKey("name"));
     }
 
     // Test 5: POST / with missing Url returns 400 ValidationProblem with "url" error key
@@ -83,8 +85,9 @@ public class SourcesEndpointsTests
         using var db = CreateInMemoryDb(nameof(CreateSource_MissingUrl_Returns400WithUrlError));
         var req = new CreateSourceRequest(Name: "s1", DisplayName: null, Url: "", Category: null, ParserKey: "pk");
         var result = await SourcesEndpoints.CreateSource(req, db);
-        var problem = Assert.IsType<ValidationProblem>(result);
-        Assert.True(problem.ProblemDetails.Errors.ContainsKey("url"));
+        var problem = Assert.IsType<ProblemHttpResult>(result);
+        var details = Assert.IsType<HttpValidationProblemDetails>(problem.ProblemDetails);
+        Assert.True(details.Errors.ContainsKey("url"));
     }
 
     // Test 6: POST / with missing ParserKey returns 400 ValidationProblem with "parserKey" error key
@@ -94,8 +97,9 @@ public class SourcesEndpointsTests
         using var db = CreateInMemoryDb(nameof(CreateSource_MissingParserKey_Returns400WithParserKeyError));
         var req = new CreateSourceRequest(Name: "s1", DisplayName: null, Url: "https://example.com", Category: null, ParserKey: "");
         var result = await SourcesEndpoints.CreateSource(req, db);
-        var problem = Assert.IsType<ValidationProblem>(result);
-        Assert.True(problem.ProblemDetails.Errors.ContainsKey("parserKey"));
+        var problem = Assert.IsType<ProblemHttpResult>(result);
+        var details = Assert.IsType<HttpValidationProblemDetails>(problem.ProblemDetails);
+        Assert.True(details.Errors.ContainsKey("parserKey"));
     }
 
     // Test 7: PUT /{id} updates CrawlInterval and IsActive on existing source
