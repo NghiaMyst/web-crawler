@@ -38,7 +38,17 @@
       "Bash(dotnet list:*)",
       "Bash(dotnet restore:*)",
       "Bash(grep -v \"$\\(pwd\\)$\")",
-      "Bash(git cherry-pick *)"
+      "Bash(git cherry-pick *)",
+      "Skill(gsd:progress)",
+      "Bash(git -C \"D:/project/mcp/web-crawler/.claude/worktrees/agent-a7384672\" status --short)",
+      "Bash(git -C \"D:/project/mcp/web-crawler\" status --short)",
+      "Bash(git -C \"D:/project/mcp/web-crawler/.claude/worktrees/agent-ab50d918\" status --short)",
+      "Bash(git -C \"D:/project/mcp/web-crawler/.claude/worktrees/agent-a864bbe2\" status --short)",
+      "Bash(dotnet --version)",
+      "Bash(grep -r \"TargetFramework\" apps/api/apps/api.csproj)",
+      "Bash(grep -r \"TargetFramework\" apps/api/*.csproj)",
+      "Bash(npx vitest *)",
+      "Bash(grep -v \"//\")"
     ]
   }
 }
