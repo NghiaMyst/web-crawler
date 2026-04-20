@@ -48,7 +48,8 @@
       "Bash(grep -r \"TargetFramework\" apps/api/apps/api.csproj)",
       "Bash(grep -r \"TargetFramework\" apps/api/*.csproj)",
       "Bash(npx vitest *)",
-      "Bash(grep -v \"//\")"
+      "Bash(grep -v \"//\")",
+      "Bash(grep -v \"//.*API_KEY\")"
     ]
   }
 }

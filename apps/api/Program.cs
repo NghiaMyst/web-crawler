@@ -27,12 +27,12 @@ try
 
     // Register EF Core with Npgsql and snake_case naming convention
     builder.Services.AddDbContext<AppDbContext>(opt =>
-        opt.UseNpgsql(Environment.GetEnvironmentVariable("DATABASE_URL")
-               ?? throw new InvalidOperationException("DATABASE_URL env var not set"))
+        opt.UseNpgsql(builder.Configuration["DATABASE_URL"]
+               ?? throw new InvalidOperationException("DATABASE_URL not set"))
            .UseSnakeCaseNamingConvention());
 
     // Redis connection for raw content reads (D-03)
-    var redisConnStr = Environment.GetEnvironmentVariable("REDIS_URL") ?? "localhost:6379";
+    var redisConnStr = builder.Configuration["REDIS_URL"] ?? "localhost:6379";
     var redisEndpoint = redisConnStr.Replace("redis://", "");
     builder.Services.AddSingleton<IConnectionMultiplexer>(
         ConnectionMultiplexer.Connect(redisEndpoint));

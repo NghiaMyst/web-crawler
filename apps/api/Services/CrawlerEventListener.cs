@@ -13,6 +13,7 @@ namespace WebCrawlerApi.Services;
 public class CrawlerEventListener(
     IServiceScopeFactory scopeFactory,
     IConnectionMultiplexer redis,
+    IConfiguration configuration,
     ILogger<CrawlerEventListener> logger) : BackgroundService
 {
     private const string Channel = "crawler_events";
@@ -20,7 +21,7 @@ public class CrawlerEventListener(
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         // DEDICATED connection — NOT from EF Core pool (LISTEN is session-scoped)
-        var connStr = Environment.GetEnvironmentVariable("DATABASE_URL")
+        var connStr = configuration["DATABASE_URL"]
             ?? throw new InvalidOperationException("DATABASE_URL not set");
         connStr += ";Keepalive=30";
 
