@@ -5,7 +5,7 @@ namespace WebCrawlerApi.Tests.Endpoints;
 
 public class HealthEndpointTests
 {
-    private static (int StatusCode, string Status, string Postgres, string Redis) ExtractResult(IResult result)
+    private static (int StatusCode, string Status, string Postgres, string Redis, int HubConnections) ExtractResult(IResult result)
     {
         // Use IStatusCodeHttpResult to get status code
         var statusCode = result is IStatusCodeHttpResult sc ? (sc.StatusCode ?? 200) : 200;
@@ -19,7 +19,8 @@ public class HealthEndpointTests
             statusCode,
             doc.RootElement.GetProperty("status").GetString()!,
             doc.RootElement.GetProperty("postgres").GetString()!,
-            doc.RootElement.GetProperty("redis").GetString()!
+            doc.RootElement.GetProperty("redis").GetString()!,
+            doc.RootElement.GetProperty("hub_connections").GetInt32()
         );
     }
 
@@ -30,7 +31,7 @@ public class HealthEndpointTests
             () => Task.CompletedTask,
             () => Task.CompletedTask);
 
-        var (statusCode, status, postgres, redis) = ExtractResult(result);
+        var (statusCode, status, postgres, redis, _) = ExtractResult(result);
         Assert.Equal(200, statusCode);
         Assert.Equal("ok", status);
         Assert.Equal("ok", postgres);
@@ -44,7 +45,7 @@ public class HealthEndpointTests
             () => Task.FromException(new Exception("pg down")),
             () => Task.CompletedTask);
 
-        var (statusCode, status, postgres, redis) = ExtractResult(result);
+        var (statusCode, status, postgres, redis, _) = ExtractResult(result);
         Assert.Equal(503, statusCode);
         Assert.Equal("degraded", status);
         Assert.Equal("error", postgres);
@@ -58,7 +59,7 @@ public class HealthEndpointTests
             () => Task.CompletedTask,
             () => Task.FromException(new Exception("redis down")));
 
-        var (statusCode, status, postgres, redis) = ExtractResult(result);
+        var (statusCode, status, postgres, redis, _) = ExtractResult(result);
         Assert.Equal(503, statusCode);
         Assert.Equal("degraded", status);
         Assert.Equal("ok", postgres);
@@ -72,10 +73,38 @@ public class HealthEndpointTests
             () => Task.FromException(new Exception("pg down")),
             () => Task.FromException(new Exception("redis down")));
 
-        var (statusCode, status, postgres, redis) = ExtractResult(result);
+        var (statusCode, status, postgres, redis, _) = ExtractResult(result);
         Assert.Equal(503, statusCode);
         Assert.Equal("degraded", status);
         Assert.Equal("error", postgres);
         Assert.Equal("error", redis);
+    }
+
+    [Fact]
+    public async Task CheckHealth_WithHubConnections_ReturnsCountInBody()
+    {
+        var result = await HealthCheck.CheckHealth(
+            () => Task.CompletedTask,
+            () => Task.CompletedTask,
+            hubConnections: 7);
+
+        var (statusCode, status, _, _, hubConnections) = ExtractResult(result);
+        Assert.Equal(200, statusCode);
+        Assert.Equal("ok", status);
+        Assert.Equal(7, hubConnections);
+    }
+
+    [Fact]
+    public async Task CheckHealth_HubConnectionsZero_DoesNotDegradeStatus()
+    {
+        var result = await HealthCheck.CheckHealth(
+            () => Task.CompletedTask,
+            () => Task.CompletedTask,
+            hubConnections: 0);
+
+        var (statusCode, status, _, _, hubConnections) = ExtractResult(result);
+        Assert.Equal(200, statusCode);
+        Assert.Equal("ok", status);
+        Assert.Equal(0, hubConnections);
     }
 }

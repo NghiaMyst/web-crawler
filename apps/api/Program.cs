@@ -103,10 +103,12 @@ try
     app.UseStaticFiles();
     app.MapHub<DashboardHub>("/hubs/dashboard");
 
-    app.MapGet("/health", async (AppDbContext db, IConnectionMultiplexer redis) =>
+    app.MapGet("/health", async (AppDbContext db, IConnectionMultiplexer redis,
+        HubConnectionTracker hubTracker) =>
         await HealthCheck.CheckHealth(
             () => db.Database.ExecuteSqlRawAsync("SELECT 1"),
-            async () => { await redis.GetDatabase().PingAsync(); }));
+            async () => { await redis.GetDatabase().PingAsync(); },
+            hubTracker.Count));
 
     app.MapGroup("/api/entries").MapEntriesEndpoints();
     app.MapGroup("/api/sources").MapSourcesEndpoints();
