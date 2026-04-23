@@ -1,10 +1,13 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
 using StackExchange.Redis;
 using WebCrawlerApi.Data;
+using WebCrawlerApi.Hubs;
+using WebCrawlerApi.Models.Responses;
 using WebCrawlerApi.Parsers;
 using WebCrawlerApi.Services;
 
@@ -14,6 +17,7 @@ public class CrawlerEventListener(
     IServiceScopeFactory scopeFactory,
     IConnectionMultiplexer redis,
     IConfiguration configuration,
+    IHubContext<DashboardHub> hubContext,
     ILogger<CrawlerEventListener> logger) : BackgroundService
 {
     private const string Channel = "crawler_events";
@@ -108,7 +112,8 @@ public class CrawlerEventListener(
         }
     }
 
-    private async Task EvaluateAndNotifyAsync(
+    // Exposed as internal for broadcast unit tests — see InternalsVisibleTo in WebCrawlerApi.csproj.
+    internal async Task EvaluateAndNotifyAsync(
         AppDbContext db,
         Guid sourceId,
         ParsedEntry entry,
@@ -136,6 +141,32 @@ public class CrawlerEventListener(
             {
                 logger.LogWarning("Could not find upserted entry for key {EntryKey}", entry.EntryKey);
                 return;
+            }
+
+            // D-01 + D-02: Broadcast the new entry to all connected dashboard clients.
+            // Fires independently of whether alert rules match. Runs BEFORE dispatcher
+            // so real-time clients see the entry even if notification delivery fails.
+            // Payload.RootElement.Clone() prevents ObjectDisposedException when SignalR
+            // serializes asynchronously after the JsonDocument using-scope exits
+            // (RESEARCH Pitfall 6). await is required — fire-and-forget would swallow
+            // errors silently (RESEARCH Pitfall 5).
+            try
+            {
+                var broadcastDto = new DataEntryResponse(
+                    upserted.Id,
+                    upserted.SourceId,
+                    upserted.Category,
+                    upserted.EntryKey,
+                    upserted.Payload.RootElement.Clone(),
+                    upserted.CrawledAt);
+
+                await hubContext.Clients.All.SendAsync("NewEntry", broadcastDto, ct);
+            }
+            catch (Exception broadcastEx)
+            {
+                // Log but don't rethrow — broadcast failure must not block notification dispatch
+                logger.LogError(broadcastEx,
+                    "SignalR broadcast failed for entry {EntryKey}", entry.EntryKey);
             }
 
             // Resolve NotificationDispatcher from scope
