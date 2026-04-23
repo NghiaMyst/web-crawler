@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>SignalR Dashboard Feed — Phase 6 Test Client</title>
+  <style>
+    body { font-family: -apple-system, Segoe UI, sans-serif; margin: 24px; max-width: 960px; }
+    h1 { margin-bottom: 4px; }
+    .meta { color: #555; font-size: 14px; margin-bottom: 16px; }
+    #status { padding: 6px 12px; border-radius: 4px; display: inline-block; font-weight: 600; }
+    .status-connected { background: #d4edda; color: #155724; }
+    .status-reconnecting { background: #fff3cd; color: #856404; }
+    .status-disconnected { background: #f8d7da; color: #721c24; }
+    ul { list-style: none; padding: 0; }
+    li { padding: 8px 12px; margin: 4px 0; border-left: 3px solid #007bff; background: #f6f8fa; font-family: Consolas, Monaco, monospace; font-size: 13px; word-break: break-all; }
+    li.backfill { border-left-color: #ffa500; background: #fff8e6; }
+    .timestamp { color: #666; font-size: 11px; }
+  </style>
+</head>
+<body>
+  <h1>SignalR Dashboard Feed</h1>
+  <p class="meta">
+    Dev-only test client (D-05). Phase 9 replaces this with the Next.js client.
+    Hub: <code>/hubs/dashboard</code> · Event: <code>NewEntry</code>.
+  </p>
+  <p>Status: <span id="status" class="status-disconnected">Disconnected</span></p>
+  <p class="meta">
+    Last received <code>crawledAt</code>: <span id="lastTs">(none)</span>
+  </p>
+  <h2>Entries</h2>
+  <ul id="entries"></ul>
+
+  <!-- RESEARCH D-04 + JS CDN URL: pin to 8.0.0 via cdnjs for reproducibility. -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
+  <script>
+    'use strict';
+
+    // lastReceivedAt holds the crawledAt of the most recent NewEntry seen.
+    // Used on reconnect to fetch any entries missed during the disconnect gap (D-03).
+    let lastReceivedAt = null;
+
+    const statusEl = document.getElementById('status');
+    const lastTsEl = document.getElementById('lastTs');
+    const listEl = document.getElementById('entries');
+
+    function setStatus(label, cls) {
+      statusEl.textContent = label;
+      statusEl.className = cls;
+    }
+
+    function renderEntry(entry, { backfill = false } = {}) {
+      const li = document.createElement('li');
+      if (backfill) li.className = 'backfill';
+      const ts = entry.crawledAt ? new Date(entry.crawledAt).toISOString() : '(no ts)';
+      li.innerHTML =
+        '<div class="timestamp">' + (backfill ? '[BACKFILL] ' : '') + ts + ' · ' +
+        (entry.category || '(no category)') + ' · key=' + (entry.entryKey || '') + '</div>' +
+        '<div>' + JSON.stringify(entry.payload) + '</div>';
+      listEl.prepend(li);
+    }
+
+    const connection = new signalR.HubConnectionBuilder()
+      .withUrl('/hubs/dashboard')
+      .withAutomaticReconnect([0, 2000, 10000, 30000])
+      .configureLogging(signalR.LogLevel.Information)
+      .build();
+
+    // RESEARCH Pitfall 7: register handlers BEFORE calling start().
+    connection.on('NewEntry', (entry) => {
+      if (entry && entry.crawledAt) {
+        lastReceivedAt = entry.crawledAt;
+        lastTsEl.textContent = new Date(entry.crawledAt).toISOString();
+      }
+      renderEntry(entry, { backfill: false });
+    });
+
+    // D-03 reconnect gap-fill: pull entries the server emitted while we were disconnected.
+    // `from=<lastReceivedAt>` maps to the existing Phase 5 filter e.CrawledAt >= from.Value
+    // (apps/api/Endpoints/EntriesEndpoints.cs line 41-42). limit=100 is the endpoint's clamp max.
+    connection.onreconnected(async () => {
+      setStatus('Connected (recovered)', 'status-connected');
+      if (!lastReceivedAt) return;
+      try {
+        const url = '/api/entries?from=' + encodeURIComponent(lastReceivedAt) + '&limit=100';
+        const res = await fetch(url, { credentials: 'include' });
+        if (!res.ok) {
+          console.error('Gap-fill fetch failed:', res.status, res.statusText);
+          return;
+        }
+        const data = await res.json();
+        const missed = Array.isArray(data.items) ? data.items : [];
+        // Prepend in chronological order so newest ends up on top after the loop.
+        missed.slice().reverse().forEach((e) => renderEntry(e, { backfill: true }));
+        console.log('Gap-fill prepended', missed.length, 'entries since', lastReceivedAt);
+      } catch (err) {
+        console.error('Gap-fill failed:', err);
+      }
+    });
+
+    connection.onreconnecting(() => setStatus('Reconnecting…', 'status-reconnecting'));
+    connection.onclose(() => {
+      setStatus('Disconnected', 'status-disconnected');
+      // Belt-and-braces: retry manually after withAutomaticReconnect exhausts its attempts.
+      setTimeout(start, 5000);
+    });
+
+    async function start() {
+      try {
+        await connection.start();
+        setStatus('Connected', 'status-connected');
+        console.log('SignalR Connected, connectionId=', connection.connectionId);
+      } catch (err) {
+        console.error('SignalR start failed:', err);
+        setStatus('Disconnected', 'status-disconnected');
+        setTimeout(start, 5000);
+      }
+    }
+
+    start();
+  </script>
+</body>
+</html>
