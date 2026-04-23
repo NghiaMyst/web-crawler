@@ -5,6 +5,7 @@ using Serilog;
 using StackExchange.Redis;
 using WebCrawlerApi.Data;
 using WebCrawlerApi.Endpoints;
+using WebCrawlerApi.Hubs;
 using WebCrawlerApi.Parsers;
 using WebCrawlerApi.Services;
 
@@ -66,6 +67,10 @@ try
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen();
 
+    // ── Phase 6: SignalR real-time layer ──
+    builder.Services.AddSignalR();
+    builder.Services.AddSingleton<HubConnectionTracker>();
+
     builder.Services.AddCors(options =>
     {
         options.AddDefaultPolicy(policy =>
@@ -73,7 +78,8 @@ try
                     Environment.GetEnvironmentVariable("CORS_ORIGINS")?.Split(',')
                         ?? new[] { "http://localhost:3000" })
                   .AllowAnyHeader()
-                  .AllowAnyMethod());
+                  .AllowAnyMethod()
+                  .AllowCredentials());
     });
 
     builder.Services.ConfigureHttpJsonOptions(options =>
@@ -94,6 +100,8 @@ try
     }
 
     app.UseCors();
+    app.UseStaticFiles();
+    app.MapHub<DashboardHub>("/hubs/dashboard");
 
     app.MapGet("/health", async (AppDbContext db, IConnectionMultiplexer redis) =>
         await HealthCheck.CheckHealth(
