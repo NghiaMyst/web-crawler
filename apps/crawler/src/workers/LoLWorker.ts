@@ -32,16 +32,20 @@ export function createLoLWorker(): Worker<LoLJobData> {
         // Fetch raw HTML from u.gg (axios, not cheerioFetch — we need __NEXT_DATA__ extraction)
         const response = await axios.get<string>(url, {
           headers: {
-            'User-Agent': 'PersonalCrawlerBot/1.0',
-            'Accept': 'text/html,application/xhtml+xml',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+            'Accept-Language': 'en-US,en;q=0.5',
           },
-          timeout: 10_000,
+          timeout: 15_000,
           responseType: 'text',
         });
 
         const html = response.data;
         const $ = cheerio.load(html);
         const scriptContent = $('script#__NEXT_DATA__').text();
+        if (!scriptContent) {
+          throw new Error('__NEXT_DATA__ script not found — u.gg may be blocking the request');
+        }
         const nextData = JSON.parse(scriptContent) as Record<string, unknown>;
 
         logger.info('LoL tier list fetch complete', { url, sourceId: SOURCE_ID, jobId: job.id });

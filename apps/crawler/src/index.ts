@@ -33,6 +33,8 @@ const lolWorker = createLoLWorker();
 const anilistWorker = createAniListWorker();
 const mangadexWorker = createMangaDexWorker();
 
+const jobOpts = { attempts: 3, backoff: { type: 'exponential' as const, delay: 5000 } };
+
 // Schedule football-data.org EPL standings fetch every 30 minutes
 // upsertJobScheduler is the BullMQ v5 API for repeatable jobs.
 // It upserts — safe to call on every startup; won't create duplicate schedules.
@@ -42,12 +44,11 @@ await footballDataQueue.upsertJobScheduler(
   {
     name: 'fetch-epl-standings',
     data: { competition: 'PL' },
-    opts: {
-      attempts: 3,
-      backoff: { type: 'exponential', delay: 5000 },
-    },
+    opts: jobOpts,
   },
 );
+// Fire immediately on startup so every restart runs a fresh fetch
+await footballDataQueue.add('fetch-epl-standings', { competition: 'PL' }, jobOpts);
 
 logger.info('EPL standings scheduler registered', {
   scheduleId: 'epl-standings-scheduler',
@@ -58,57 +59,33 @@ logger.info('EPL standings scheduler registered', {
 await genshinQueue.upsertJobScheduler(
   'genshin-events-scheduler',
   { every: 6 * 60 * 60 * 1000 },
-  {
-    name: 'fetch-genshin-events',
-    data: {},
-    opts: {
-      attempts: 3,
-      backoff: { type: 'exponential', delay: 5000 },
-    },
-  },
+  { name: 'fetch-genshin-events', data: {}, opts: jobOpts },
 );
+await genshinQueue.add('fetch-genshin-events', {}, jobOpts);
 
 // Schedule LoL tier list fetch every 12 hours
 await lolQueue.upsertJobScheduler(
   'lol-tierlist-scheduler',
   { every: 12 * 60 * 60 * 1000 },
-  {
-    name: 'fetch-lol-tierlist',
-    data: {},
-    opts: {
-      attempts: 3,
-      backoff: { type: 'exponential', delay: 5000 },
-    },
-  },
+  { name: 'fetch-lol-tierlist', data: {}, opts: jobOpts },
 );
+await lolQueue.add('fetch-lol-tierlist', {}, jobOpts);
 
 // Schedule AniList airing schedule fetch every 6 hours
 await anilistQueue.upsertJobScheduler(
   'anilist-airing-scheduler',
   { every: 6 * 60 * 60 * 1000 },
-  {
-    name: 'fetch-anilist-airing',
-    data: {},
-    opts: {
-      attempts: 3,
-      backoff: { type: 'exponential', delay: 5000 },
-    },
-  },
+  { name: 'fetch-anilist-airing', data: {}, opts: jobOpts },
 );
+await anilistQueue.add('fetch-anilist-airing', {}, jobOpts);
 
 // Schedule MangaDex recent chapters fetch every 1 hour
 await mangadexQueue.upsertJobScheduler(
   'mangadex-chapters-scheduler',
   { every: 60 * 60 * 1000 },
-  {
-    name: 'fetch-mangadex-chapters',
-    data: {},
-    opts: {
-      attempts: 3,
-      backoff: { type: 'exponential', delay: 5000 },
-    },
-  },
+  { name: 'fetch-mangadex-chapters', data: {}, opts: jobOpts },
 );
+await mangadexQueue.add('fetch-mangadex-chapters', {}, jobOpts);
 
 // Graceful shutdown — single registration via setupGracefulShutdown.
 // crawlWorker drains first, then additionalCleanup closes browser pool and all other workers.

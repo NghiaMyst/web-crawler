@@ -13,10 +13,19 @@ public class GenshinParser(ILogger<GenshinParser> logger) : IContentParser
             using var doc = JsonDocument.Parse(rawContent);
             var root = doc.RootElement;
 
+            // If root is a String the worker stored HTML from the cheerio fallback — nothing to parse
+            if (root.ValueKind != JsonValueKind.Object && root.ValueKind != JsonValueKind.Array)
+            {
+                logger.LogWarning("GenshinParser: raw content is not JSON object/array (got {Kind}), skipping. SourceId={SourceId}",
+                    root.ValueKind, sourceId);
+                return Task.FromResult<IReadOnlyList<ParsedEntry>>(results);
+            }
+
             // Navigate to the event list — HoYoWiki API / HoYoLab response structure
             // Try multiple known paths for robustness across different API endpoints
             JsonElement events;
             if (root.TryGetProperty("data", out var data) &&
+                data.ValueKind == JsonValueKind.Object &&
                 data.TryGetProperty("list", out events))
             {
                 // HoYoWiki API structure: { data: { list: [...] } }

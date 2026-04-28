@@ -33,15 +33,25 @@ export async function insertCrawlJobAndNotify(data: CrawlJobInsert): Promise<str
   try {
     await client.query('BEGIN');
 
+    // Resolve source name → UUID (crawl_jobs.source_id is a UUID FK)
+    const srcResult = await client.query<{ id: string }>(
+      'SELECT id FROM sources WHERE name = $1',
+      [data.sourceId],
+    );
+    if (srcResult.rows.length === 0) {
+      throw new Error(`Source '${data.sourceId}' not found — run db/seed.sql first`);
+    }
+    const sourceUuid = srcResult.rows[0].id;
+
     await client.query(
       `INSERT INTO crawl_jobs (id, source_id, url, status, content_hash, created_at)
        VALUES ($1, $2, $3, $4, $5, NOW())`,
-      [data.jobId, data.sourceId, data.url, data.status, data.contentHash],
+      [data.jobId, sourceUuid, data.url, data.status, data.contentHash],
     );
 
     const notifyPayload = JSON.stringify({
       job_id: data.jobId,
-      source_id: data.sourceId,
+      source_id: sourceUuid,
       parser_key: data.parserKey,
     });
 

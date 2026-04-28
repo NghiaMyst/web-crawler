@@ -194,6 +194,7 @@ public class CrawlerEventListener(
     {
         // Raw SQL UPSERT — ON CONFLICT on UNIQUE(source_id, entry_key) per D-04
         // All values passed as EF Core parameterized placeholders — no string concatenation (T-03-07)
+        // Pass parameters as explicit array so CancellationToken is NOT packed into params object[]
         await db.Database.ExecuteSqlRawAsync("""
             INSERT INTO data_entries (id, source_id, job_id, category, entry_key, payload, crawled_at)
             VALUES (gen_random_uuid(), {0}::uuid, {1}::uuid, {2}, {3}, {4}::jsonb, NOW())
@@ -203,8 +204,8 @@ public class CrawlerEventListener(
                 job_id = EXCLUDED.job_id,
                 crawled_at = NOW()
             """,
-            entry.SourceId, jobId, entry.Category, entry.EntryKey,
-            JsonSerializer.Serialize(entry.Payload), ct);
+            new object[] { entry.SourceId, jobId, entry.Category, entry.EntryKey, JsonSerializer.Serialize(entry.Payload) },
+            ct);
     }
 }
 
