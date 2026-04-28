@@ -195,9 +195,9 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 06-01: SignalR hub — `/hubs/dashboard` hub class, `NewEntry` event method, hub registration in DI
-- [ ] 06-02: Hub trigger integration — after `data_entries` insert, `IHubContext<DashboardHub>` broadcasts the new row as JSON
-- [ ] 06-03: Client connection test — minimal HTML page with SignalR JS client, connect/display loop, reconnect policy
+- [x] 06-01: SignalR hub — `/hubs/dashboard` hub class, `NewEntry` event method, hub registration in DI
+- [x] 06-02: Hub trigger integration — after `data_entries` insert, `IHubContext<DashboardHub>` broadcasts the new row as JSON
+- [x] 06-03: Client connection test — minimal HTML page with SignalR JS client, connect/display loop, reconnect policy
 
 **UI hint**: no
 
