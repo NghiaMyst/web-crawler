@@ -62,7 +62,7 @@ Automated monitoring delivers timely alerts for events you care about (new Gensh
 | Bloom Filter for URL dedup | O(1) lookup, ~120KB for 100k URLs vs larger Redis Set | — Pending |
 | JSONB for parsed data | Flexible schema per domain with GIN indexing; avoids rigid per-domain tables | — Pending |
 | Playwright only when needed | Heavy (Chrome process, ~150-300MB RAM); Cheerio sufficient for static pages | — Pending |
-| SignalR for real-time | Native .NET WebSocket abstraction; avoids polling complexity | — Pending |
+| SignalR for real-time | Native .NET WebSocket abstraction; avoids polling complexity | Validated in Phase 06: hub live, broadcast working, hub_connections on /health |
 | Hybrid Node.js + .NET | Crawler in Node.js (JS ecosystem, BullMQ native), API/parsers in .NET (C# strategy pattern, Serilog) | — Pending |
 
 ## Evolution
@@ -83,4 +83,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-19 — Phase 05 complete (net-rest-api: entries/sources/jobs/alert-rules/health REST endpoints, 75 tests passing)*
+*Last updated: 2026-04-28 — Phase 06 complete (signalr-real-time-layer: DashboardHub, HubConnectionTracker, NewEntry broadcast, hub_connections on /health, 88 tests passing)*
