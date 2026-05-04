@@ -1,6 +1,6 @@
 ---
 phase: 07-next-js-dashboard-core-views
-plan: "02"
+plan: "03"
 subsystem: dashboard-entries-view
 tags: [nextjs, react, server-components, client-components, cursor-pagination, url-search-params, shadcn, tailwind]
 dependency_graph:
