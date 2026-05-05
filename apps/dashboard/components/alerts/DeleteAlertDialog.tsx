@@ -39,7 +39,8 @@ export function DeleteAlertDialog({
               if (!rule) return;
               startTransition(async () => {
                 await onConfirm(rule);
-                onOpenChange(false);
+                // Parent (AlertsClient) controls close timing:
+                // it closes on success and keeps open on failure so the user sees the error.
               });
             }}
           >

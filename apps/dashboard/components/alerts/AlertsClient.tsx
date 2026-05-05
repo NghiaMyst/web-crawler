@@ -63,8 +63,11 @@ export function AlertsClient({
     if (!result.ok) {
       setBaseRules((prev) => (prev.some((r) => r.id === rule.id) ? prev : [...prev, rule]));
       setToast(result.error);
+      // Keep deleteTarget set so the dialog stays open — user can retry or cancel manually.
+      setDeleteTarget(rule);
       return;
     }
+    setDeleteTarget(null);
     setBaseRules((prev) => prev.filter((r) => r.id !== rule.id));
   }
 
