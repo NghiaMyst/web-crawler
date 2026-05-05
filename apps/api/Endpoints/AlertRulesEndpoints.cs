@@ -11,8 +11,27 @@ public static class AlertRulesEndpoints
     {
         group.MapGet("/", GetAlertRules);
         group.MapPost("/", CreateAlertRule);
+        group.MapPut("/{id:guid}", UpdateAlertRule);
         group.MapDelete("/{id:guid}", DeleteAlertRule);
         return group;
+    }
+
+    internal static async Task<IResult> UpdateAlertRule(
+        Guid id, UpdateAlertRuleRequest req, AppDbContext db)
+    {
+        var rule = await db.AlertRules.FindAsync(id);
+        if (rule is null) return Results.NotFound();
+
+        if (req.Name is not null) rule.Name = req.Name;
+        if (req.Channel is not null) rule.Channel = req.Channel;
+        if (req.MessageTpl is not null) rule.MessageTpl = req.MessageTpl;
+        if (req.IsActive.HasValue) rule.IsActive = req.IsActive.Value;
+        if (req.Condition.HasValue)
+            rule.Condition = JsonDocument.Parse(req.Condition.Value.GetRawText());
+        // SourceId is immutable — intentionally not copied from req
+
+        await db.SaveChangesAsync();
+        return Results.Ok(rule);
     }
 
     internal static async Task<IResult> GetAlertRules(AppDbContext db)
@@ -66,4 +85,12 @@ public record CreateAlertRuleRequest(
     string? MessageTpl,
     string Channel,
     bool? IsActive = true
+);
+
+public record UpdateAlertRuleRequest(
+    string? Name,
+    string? Channel,
+    string? MessageTpl,
+    bool? IsActive,
+    JsonElement? Condition
 );

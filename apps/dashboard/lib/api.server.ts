@@ -7,6 +7,9 @@ import type {
   CreateSourceRequest,
   UpdateSourceRequest,
   JobStatus,
+  AlertRule,
+  CreateAlertRuleRequest as CreateAlertRuleApiBody,
+  UpdateAlertRuleRequest as UpdateAlertRuleApiBody,
 } from '@/types/api';
 
 const BASE_URL = process.env.API_URL ?? 'http://localhost:5000';
@@ -61,4 +64,30 @@ export async function retryJob(id: string): Promise<{ jobId: string; status: 'pe
   return request<{ jobId: string; status: 'pending' }>(`/api/jobs/${id}/retry`, {
     method: 'POST',
   });
+}
+
+// ── Alert Rules (Phase 8 — DASH-05) ──────────────────────────────────
+export async function fetchAlertRules(): Promise<AlertRule[]> {
+  return request<AlertRule[]>('/api/alert-rules');
+}
+
+export async function createAlertRule(body: CreateAlertRuleApiBody): Promise<AlertRule> {
+  return request<AlertRule>('/api/alert-rules', {
+    method: 'POST',
+    body: JSON.stringify(body),
+  });
+}
+
+export async function updateAlertRule(
+  id: string,
+  body: UpdateAlertRuleApiBody,
+): Promise<AlertRule> {
+  return request<AlertRule>(`/api/alert-rules/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(body),
+  });
+}
+
+export async function deleteAlertRule(id: string): Promise<void> {
+  await request<void>(`/api/alert-rules/${id}`, { method: 'DELETE' });
 }

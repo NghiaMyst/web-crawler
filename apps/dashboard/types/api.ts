@@ -76,3 +76,40 @@ export interface UpdateSourceRequest {
   priority?: number;
   isActive?: boolean;
 }
+
+// ── Alert Rules (Phase 8 — DASH-05) ──────────────────────────────────
+export type AlertConditionType = 'new_item' | 'field_changed' | 'threshold';
+
+export type AlertCondition =
+  | { type: 'new_item' }
+  | { type: 'field_changed'; fieldPath: string }
+  | { type: 'threshold'; fieldPath: string; threshold: number };
+
+// Mirrors apps/api/Data/Entities/AlertRule.cs serialized via JsonNamingPolicy.CamelCase
+export interface AlertRule {
+  id: string;
+  sourceId: string;
+  name: string;
+  condition: AlertCondition;
+  messageTpl: string;
+  channel: 'telegram' | 'discord';
+  isActive: boolean;
+  createdAt: string;
+}
+
+export interface CreateAlertRuleRequest {
+  sourceId: string;
+  name: string;
+  condition: AlertCondition;
+  messageTpl?: string;
+  channel: 'telegram' | 'discord';
+  isActive?: boolean;
+}
+
+export interface UpdateAlertRuleRequest {
+  name?: string;
+  channel?: 'telegram' | 'discord';
+  messageTpl?: string;
+  isActive?: boolean;
+  condition?: AlertCondition;
+}
