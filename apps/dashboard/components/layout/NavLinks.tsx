@@ -2,13 +2,14 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Database, Settings2, ListTodo } from 'lucide-react';
+import { Database, Settings2, ListTodo, Bell } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const NAV_ITEMS = [
   { href: '/entries', label: 'Entries', Icon: Database },
   { href: '/sources', label: 'Sources', Icon: Settings2 },
-  { href: '/jobs', label: 'Jobs', Icon: ListTodo },
+  { href: '/jobs',    label: 'Jobs',    Icon: ListTodo },
+  { href: '/alerts',  label: 'Alerts',  Icon: Bell },
 ] as const;
 
 export function NavLinks({ onNavigate }: { onNavigate?: () => void }): React.JSX.Element {
