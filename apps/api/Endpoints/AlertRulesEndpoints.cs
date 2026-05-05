@@ -7,6 +7,8 @@ namespace WebCrawlerApi.Endpoints;
 
 public static class AlertRulesEndpoints
 {
+    static readonly string[] ValidConditionTypes = ["new_item", "field_changed", "threshold"];
+
     public static RouteGroupBuilder MapAlertRulesEndpoints(this RouteGroupBuilder group)
     {
         group.MapGet("/", GetAlertRules);
@@ -21,6 +23,18 @@ public static class AlertRulesEndpoints
     {
         var rule = await db.AlertRules.FindAsync(id);
         if (rule is null) return Results.NotFound();
+
+        if (req.Condition.HasValue)
+        {
+            if (!req.Condition.Value.TryGetProperty("type", out var typeProp)
+                || !ValidConditionTypes.Contains(typeProp.GetString()))
+            {
+                return TypedResults.ValidationProblem(new Dictionary<string, string[]>
+                {
+                    ["condition"] = ["condition.type must be one of: new_item, field_changed, threshold"]
+                });
+            }
+        }
 
         if (req.Name is not null) rule.Name = req.Name;
         if (req.Channel is not null) rule.Channel = req.Channel;
@@ -47,6 +61,14 @@ public static class AlertRulesEndpoints
         if (string.IsNullOrWhiteSpace(req.Name)) errors["name"] = new[] { "Name is required" };
         if (req.SourceId == Guid.Empty) errors["sourceId"] = new[] { "SourceId is required" };
         if (string.IsNullOrWhiteSpace(req.Channel)) errors["channel"] = new[] { "Channel is required" };
+        if (req.Condition is not null)
+        {
+            if (!req.Condition.Value.TryGetProperty("type", out var typeProp)
+                || !ValidConditionTypes.Contains(typeProp.GetString()))
+            {
+                errors["condition"] = new[] { "condition.type must be one of: new_item, field_changed, threshold" };
+            }
+        }
         if (errors.Count > 0) return TypedResults.ValidationProblem(errors);
 
         var rule = new AlertRule
