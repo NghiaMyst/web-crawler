@@ -122,7 +122,10 @@ export function AlertRuleModal({
         if (result.fieldErrors) {
           for (const [field, msgs] of Object.entries(result.fieldErrors)) {
             if (msgs?.[0]) {
-              setError(field as keyof AlertRuleFormData, { message: msgs[0] });
+              // Cast to Parameters<typeof setError>[0] so dot-notation paths like
+              // "condition.fieldPath" are forwarded correctly to react-hook-form
+              // instead of being truncated to the parent key by a keyof cast.
+              setError(field as Parameters<typeof setError>[0], { message: msgs[0] });
             }
           }
         }
