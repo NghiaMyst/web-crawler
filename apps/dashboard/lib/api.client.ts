@@ -26,4 +26,11 @@ export async function fetchEntriesClient(filters: EntryFilters): Promise<Paginat
   return request<PaginatedEntries>(`/api/entries${qs ? `?${qs}` : ''}`);
 }
 
+export async function fetchEntriesFrom(from: string, limit = 50): Promise<PaginatedEntries> {
+  const params = new URLSearchParams();
+  params.set('from', from);
+  params.set('limit', String(limit));
+  return request<PaginatedEntries>(`/api/entries?${params.toString()}`);
+}
+
 export type { DataEntry, PaginatedEntries, EntryFilters };

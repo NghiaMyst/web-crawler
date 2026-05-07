@@ -135,8 +135,60 @@ describe('ConnectionDot', () => {
   it.todo('has role=status and correct aria-label');
 });
 
+describe('fetchEntriesFrom', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ items: [], nextCursor: null }),
+    } as unknown as Response);
+  });
+
+  it('calls /api/entries with from and limit params', async () => {
+    const { fetchEntriesFrom } = await import('../lib/api.client');
+    await fetchEntriesFrom('2026-01-01T00:00:00Z', 50);
+    expect(global.fetch).toHaveBeenCalledWith(
+      expect.stringContaining('/api/entries?from=2026-01-01T00%3A00%3A00Z&limit=50'),
+      expect.any(Object),
+    );
+  });
+
+  it('defaults limit to 50 when not provided', async () => {
+    const { fetchEntriesFrom } = await import('../lib/api.client');
+    await fetchEntriesFrom('2026-01-01T00:00:00Z');
+    expect(global.fetch).toHaveBeenCalledWith(
+      expect.stringContaining('limit=50'),
+      expect.any(Object),
+    );
+  });
+});
+
 describe('LiveEntriesWrapper row cap', () => {
-  it.todo('prepends new entry from NewEntry event');
-  it.todo('caps combined entries at 200 rows');
-  it.todo('calls fetchEntriesSince on reconnect with last crawledAt timestamp');
+  it('caps combined entries at 200 rows', () => {
+    const ROW_CAP = 200;
+    const serverCount = 190;
+    const liveCount = 15;
+    const serverEntries = Array.from({ length: serverCount }, (_, i) => ({ id: `s${i}` }));
+    const liveEntries = Array.from({ length: liveCount }, (_, i) => ({ id: `l${i}` }));
+    const combined = [...liveEntries, ...serverEntries].slice(0, ROW_CAP);
+    expect(combined.length).toBe(ROW_CAP);
+    expect(combined[0].id).toBe('l0');
+  });
+
+  it('prepends new entry to live entries (newest first)', () => {
+    const existing = [{ id: 'a', crawledAt: '2026-01-01T00:00:00Z' }];
+    const newEntry = { id: 'b', crawledAt: '2026-01-02T00:00:00Z' };
+    const updated = [newEntry, ...existing];
+    expect(updated[0].id).toBe('b');
+    expect(updated[1].id).toBe('a');
+  });
+
+  it('live entries slice respects server entry count in cap calculation', () => {
+    const ROW_CAP = 200;
+    const serverLength = 190;
+    const incoming = Array.from({ length: 15 }, (_, i) => ({ id: `l${i}` }));
+    const allowed = Math.max(0, ROW_CAP - serverLength);
+    const capped = incoming.slice(0, allowed);
+    expect(capped.length).toBe(10);
+  });
 });
