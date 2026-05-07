@@ -5,6 +5,7 @@ import { Menu } from 'lucide-react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { NavLinks } from './NavLinks';
+import { ConnectionDot } from '@/components/connection/connection-dot';
 
 export function MobileNav(): React.JSX.Element {
   const [open, setOpen] = useState(false);
@@ -21,7 +22,10 @@ export function MobileNav(): React.JSX.Element {
           <NavLinks onNavigate={() => setOpen(false)} />
         </SheetContent>
       </Sheet>
-      <span className="font-semibold text-zinc-900">Web Crawler</span>
+      <div className="inline-flex items-center gap-1.5">
+        <span className="font-semibold text-zinc-900">Web Crawler</span>
+        <ConnectionDot />
+      </div>
     </header>
   );
 }
