@@ -27,25 +27,36 @@ import * as signalr from '@microsoft/signalr';
 import { toast } from 'sonner';
 import { createMockConnection } from './__mocks__/signalr';
 
+type MockBuilder = {
+  // Use explicit callable signatures instead of ReturnType<typeof vi.fn>
+  // so TypeScript allows calling these methods without "not callable" errors
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  withUrl: (...args: any[]) => MockBuilder;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  withAutomaticReconnect: (...args: any[]) => MockBuilder;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  configureLogging: (...args: any[]) => MockBuilder;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  build: (...args: any[]) => unknown;
+  mock: { calls: unknown[][] };
+};
+
+/** Calls the vi.fn() HubConnectionBuilder mock as a plain function (not constructor). */
+function callBuilderMock(): MockBuilder {
+  const builderFn = signalr.HubConnectionBuilder as unknown;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (builderFn as any)() as MockBuilder;
+}
+
 describe('SignalRProvider', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   it('creates a HubConnection on mount with correct URL', () => {
-    // The mock HubConnectionBuilder is a vi.fn() that returns a builder object when called
-    // (arrow function mock — cannot use `new`, call directly)
-    const mockBuilderFn = signalr.HubConnectionBuilder as unknown as () => {
-      withUrl: ReturnType<typeof vi.fn>;
-      withAutomaticReconnect: ReturnType<typeof vi.fn>;
-      configureLogging: ReturnType<typeof vi.fn>;
-      build: ReturnType<typeof vi.fn>;
-    };
-    const builderInstance = mockBuilderFn();
-    builderInstance.withUrl('http://localhost:5000/hubs/dashboard');
-    expect(builderInstance.withUrl).toHaveBeenCalledWith(
-      expect.stringContaining('/hubs/dashboard'),
-    );
+    const builder = callBuilderMock();
+    builder.withUrl('http://localhost:5000/hubs/dashboard');
+    expect(builder.withUrl).toHaveBeenCalledWith(expect.stringContaining('/hubs/dashboard'));
   });
 
   it('calls connection.start() on mount', async () => {
@@ -95,14 +106,7 @@ describe('SignalRProvider', () => {
   });
 
   it('HubConnectionBuilder chain uses withAutomaticReconnect with correct delays', () => {
-    // Call the mock factory (arrow fn — not a constructor)
-    const mockBuilderFn = signalr.HubConnectionBuilder as unknown as () => {
-      withUrl: ReturnType<typeof vi.fn>;
-      withAutomaticReconnect: ReturnType<typeof vi.fn>;
-      configureLogging: ReturnType<typeof vi.fn>;
-      build: ReturnType<typeof vi.fn>;
-    };
-    const builder = mockBuilderFn();
+    const builder = callBuilderMock();
     builder
       .withUrl('http://localhost:5000/hubs/dashboard')
       .withAutomaticReconnect([0, 2000, 10000, 30000])
