@@ -2,7 +2,7 @@ import { Suspense } from 'react';
 import type { EntryFilters } from '@/types/api';
 import { fetchEntries, fetchSources } from '@/lib/api.server';
 import { EntriesFilters } from '@/components/entries/entries-filters';
-import { EntriesTable } from '@/components/entries/entries-table';
+import { LiveEntriesWrapper } from '@/components/entries/live-entries-wrapper';
 import { LoadMoreButton } from '@/components/entries/load-more-button';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { Metadata } from 'next';
@@ -57,7 +57,7 @@ async function EntriesContent({
   return (
     <div className="space-y-4">
       <EntriesFilters sources={sources} />
-      <EntriesTable entries={result.items} />
+      <LiveEntriesWrapper serverEntries={result.items} />
       <LoadMoreButton
         initialCursor={result.nextCursor}
         filters={filters}
