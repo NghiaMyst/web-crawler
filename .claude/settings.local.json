@@ -49,7 +49,9 @@
       "Bash(grep -r \"TargetFramework\" apps/api/*.csproj)",
       "Bash(npx vitest *)",
       "Bash(grep -v \"//\")",
-      "Bash(grep -v \"//.*API_KEY\")"
+      "Bash(grep -v \"//.*API_KEY\")",
+      "Bash(node \".claude/get-shit-done/bin/gsd-tools.cjs\" config-get workflow._auto_chain_active)",
+      "Bash(node \".claude/get-shit-done/bin/gsd-tools.cjs\" config-get workflow.auto_advance)"
     ]
   }
 }
