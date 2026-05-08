@@ -12,7 +12,8 @@ Automated monitoring delivers timely alerts for events you care about (new Gensh
 
 ### Validated
 
-(None yet — ship to validate)
+- [x] Config-driven alert rule engine (new_item, field_changed, threshold conditions) — Validated in Phase 08: alertRuleSchema discriminated union, AlertRuleModal watch-driven conditional fields, PUT endpoint live
+- [x] Source management UI (add/edit/delete/enable/disable crawl sources) — Validated in Phase 07: SourcesClient, SourceModal, CRUD fully wired
 
 ### Active
 
@@ -83,4 +84,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-28 — Phase 06 complete (signalr-real-time-layer: DashboardHub, HubConnectionTracker, NewEntry broadcast, hub_connections on /health, 88 tests passing)*
+*Last updated: 2026-05-05 — Phase 08 complete (next-js-dashboard-alerts-charts: /alerts CRUD page, Zod discriminated union conditions, AlertRuleModal watch-driven fields, PUT /api/alert-rules/{id}, Bell nav entry, 34 tests passing)*

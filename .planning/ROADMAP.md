@@ -251,7 +251,7 @@ Plans:
 **Plans**: 4 plans
 
 Plans:
-- [ ] 08-01: Alert rule CRUD page — list with condition summary, add/edit form with condition type selector and dynamic field inputs, delete
+- [x] 08-01: Alert rule CRUD page — list with condition summary, add/edit form with condition type selector and dynamic field inputs, delete
 - [ ] 08-02: Notification history page — table with status/channel/message/timestamp columns, filter by source or channel
 - [ ] 08-03: Charts page — entry volume over time (line chart), per-source breakdown (bar or stacked), date range selector
 - [ ] 08-04: Chart data endpoint — `GET /api/stats/volume?groupBy=day&range=7d` added to .NET API, aggregates `data_entries` by source and date
@@ -278,9 +278,9 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 09-01: SignalR client hook — `useSignalR` React hook wrapping `@microsoft/signalr` JS client, connection state management, auto-reconnect policy
-- [ ] 09-02: Live data table integration — hook into data table, prepend new entries from `NewEntry` events, cap at 200 rows before trimming old
-- [ ] 09-03: Connection status indicator — nav bar component reflecting hub connection state, toast notification on reconnect
+- [x] 09-01: SignalR client hook — `useSignalR` React hook wrapping `@microsoft/signalr` JS client, connection state management, auto-reconnect policy
+- [x] 09-02: Live data table integration — hook into data table, prepend new entries from `NewEntry` events, cap at 200 rows before trimming old
+- [x] 09-03: Connection status indicator — nav bar component reflecting hub connection state, toast notification on reconnect
 
 **UI hint**: yes
 

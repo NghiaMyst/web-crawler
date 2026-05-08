@@ -1,5 +1,8 @@
-{
+ {
   "model_profile": "balanced",
+  "models": {
+    "planning": "claude-opus-4.6"
+  },
   "commit_docs": false,
   "parallelization": true,
   "search_gitignored": false,
