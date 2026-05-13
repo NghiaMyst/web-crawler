@@ -34,3 +34,9 @@ Thumbs.db
 
 .claude/worktrees/*
 .claude/worktrees/agent-*/
+
+# Production env files — never commit
+.env.prod
+apps/api/.env.prod
+apps/crawler/.env.prod
+apps/dashboard/.env.prod
