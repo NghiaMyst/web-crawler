@@ -16,6 +16,8 @@ import {
 } from '@microsoft/signalr';
 import { toast } from 'sonner';
 
+const CONN_TOAST_ID = 'signalr-connection-status';
+
 interface SignalRContextValue {
   connection: HubConnection | null;
   state: HubConnectionState;
@@ -56,10 +58,15 @@ export function SignalRProvider({ children }: { children: React.ReactNode }) {
 
     conn.onreconnecting(() => {
       setState(HubConnectionState.Reconnecting);
+      toast.error('Connection lost — reconnecting…', {
+        id: CONN_TOAST_ID,
+        duration: Infinity,
+      });
     });
 
     conn.onreconnected(async () => {
       setState(HubConnectionState.Connected);
+      toast.dismiss(CONN_TOAST_ID);
       const gapFn = onReconnectRef.current;
       if (gapFn) {
         try {
@@ -76,13 +83,22 @@ export function SignalRProvider({ children }: { children: React.ReactNode }) {
     // withAutomaticReconnect. Manually retry until reconnected or component unmounts.
     const startWithRetry = (delayMs: number) => {
       if (unmounted) return;
-      setTimeout(() => {
+      setTimeout(async () => {
         if (unmounted) return;
-        setState(HubConnectionState.Reconnecting);
         conn
           .start()
-          .then(() => {
+          .then(async () => {
             setState(HubConnectionState.Connected);
+            toast.dismiss(CONN_TOAST_ID);
+            const gapFn = onReconnectRef.current;
+            if (gapFn) {
+              try {
+                await gapFn();
+                return;
+              } catch {
+                // gap recovery failed — fall through to default toast
+              }
+            }
             toast.success('Reconnected — no missed entries');
           })
           .catch(() => startWithRetry(Math.min(delayMs * 2, 30000)));
@@ -91,7 +107,12 @@ export function SignalRProvider({ children }: { children: React.ReactNode }) {
 
     conn.onclose(() => {
       if (unmounted) return;
-      setState(HubConnectionState.Disconnected);
+      // Skip straight to Reconnecting — we immediately start retrying, so no Disconnected flash
+      setState(HubConnectionState.Reconnecting);
+      toast.error('Connection lost — reconnecting…', {
+        id: CONN_TOAST_ID,
+        duration: Infinity,
+      });
       startWithRetry(2000);
     });
 
