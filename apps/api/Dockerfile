@@ -2,11 +2,11 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-COPY apps/api/*.csproj ./
+COPY *.csproj ./
 RUN dotnet restore
 
-COPY apps/api/ ./
-RUN dotnet build --configuration Release --no-restore
+COPY . ./
+RUN dotnet build --configuration Release
 RUN dotnet publish --configuration Release --no-build --output /app/publish
 
 # Runtime stage — multi-arch (ARM64 compatible)

@@ -1,0 +1,8 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "nextjs",
+  "buildCommand": "cd ../.. && pnpm install --frozen-lockfile --filter @web-crawler/dashboard... && pnpm --filter @web-crawler/shared-types build && pnpm --filter @web-crawler/dashboard build",
+  "installCommand": "echo 'install handled in buildCommand to share workspace context'",
+  "outputDirectory": ".next",
+  "regions": ["sin1"]
+}

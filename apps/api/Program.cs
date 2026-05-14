@@ -75,7 +75,7 @@ try
     {
         options.AddDefaultPolicy(policy =>
             policy.WithOrigins(
-                    Environment.GetEnvironmentVariable("CORS_ORIGINS")?.Split(',')
+                    Environment.GetEnvironmentVariable("CORS_ALLOWED_ORIGINS")?.Split(',')
                         ?? new[] { "http://localhost:3000" })
                   .AllowAnyHeader()
                   .AllowAnyMethod()
@@ -89,6 +89,12 @@ try
     });
 
     var app = builder.Build();
+
+    using (var scope = app.Services.CreateScope())
+    {
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        db.Database.Migrate();
+    }
 
     // Log every HTTP request with timing
     app.UseSerilogRequestLogging();

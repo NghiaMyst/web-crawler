@@ -17,8 +17,8 @@ Ten phases that build a personal data aggregation system from an empty monorepo 
 - [ ] **Phase 6: SignalR Real-Time Layer** - SignalR hub pushing new entries to connected clients without polling
 - [ ] **Phase 7: Next.js Dashboard — Core Views** - Data table with filters, source management UI, job management UI
 - [ ] **Phase 8: Next.js Dashboard — Alerts & Charts** - Alert rule CRUD UI, notification history, volume trend charts
-- [ ] **Phase 9: Real-Time Dashboard Integration** - SignalR client wired to dashboard, new entries appear live
-- [ ] **Phase 10: Production Deployment** - docker-compose.prod.yml on Oracle Cloud ARM, Nginx/Caddy HTTPS, Vercel dashboard, Redis + Bloom Filter persistence
+- [x] **Phase 9: Real-Time Dashboard Integration** - SignalR client wired to dashboard, new entries appear live (completed 2026-05-14)
+- [x] **Phase 10: Production Deployment** - docker-compose.prod.yml on Oracle Cloud ARM, Nginx/Caddy HTTPS, Vercel dashboard, Redis + Bloom Filter persistence (completed 2026-05-13)
 
 ---
 
@@ -306,11 +306,11 @@ Plans:
 **Plans**: 5 plans
 
 Plans:
-- [ ] 10-01: `docker-compose.prod.yml` — production overrides (restart policies, resource limits, no volume mounts for source, ARM64 image tags)
-- [ ] 10-02: Nginx/Caddy config — reverse proxy rules for API and SignalR hub (`/hubs/` path WebSocket upgrade), Let's Encrypt HTTPS, Oracle Cloud VCN + iptables firewall rules documented
-- [ ] 10-03: Redis persistence — `appendonly yes` + `appendfsync everysec` in Redis config, validate AOF file written after first crawl
-- [ ] 10-04: Bloom Filter persistence validation — trigger shutdown, confirm Redis key written, restart, confirm dedup still works for previously-seen URL
-- [ ] 10-05: Vercel dashboard deployment — `NEXT_PUBLIC_API_URL` pointed at production API, SignalR WSS upgrade verified, smoke test all pages
+- [x] 10-01: `docker-compose.prod.yml` — production overrides (restart policies, resource limits, no volume mounts for source, ARM64 image tags)
+- [x] 10-02: Nginx/Caddy config — reverse proxy rules for API and SignalR hub (`/hubs/` path WebSocket upgrade), Let's Encrypt HTTPS, Oracle Cloud VCN + iptables firewall rules documented
+- [x] 10-03: Redis persistence — `appendonly yes` + `appendfsync everysec` in Redis config, validate AOF file written after first crawl
+- [x] 10-04: Bloom Filter persistence validation — trigger shutdown, confirm Redis key written, restart, confirm dedup still works for previously-seen URL
+- [x] 10-05: Vercel dashboard deployment — `NEXT_PUBLIC_API_URL` pointed at production API, SignalR WSS upgrade verified, smoke test all pages
 
 **UI hint**: no
 
@@ -330,5 +330,5 @@ Plans:
 | 6. SignalR Real-Time Layer | 0/3 | Not started | - |
 | 7. Next.js Dashboard — Core Views | 0/5 | Not started | - |
 | 8. Next.js Dashboard — Alerts & Charts | 0/4 | Not started | - |
-| 9. Real-Time Dashboard Integration | 0/3 | Not started | - |
-| 10. Production Deployment | 0/5 | Not started | - |
+| 9. Real-Time Dashboard Integration | 3/3 | Complete    | 2026-05-14 |
+| 10. Production Deployment | 6/6 | Complete   | 2026-05-14 |

@@ -39,14 +39,21 @@ export function SignalRProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const hubUrl = `${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:5000'}/hubs/dashboard`;
+    // Tracks intentional cleanup so onclose doesn't start a reconnect loop after unmount
+    let unmounted = false;
 
     const conn = new HubConnectionBuilder()
       .withUrl(hubUrl)
-      .withAutomaticReconnect([0, 2000, 10000, 30000])
+      .withAutomaticReconnect({
+        // Infinite reconnect for transport-level drops: 0 → 2s → 10s → 30s forever
+        nextRetryDelayInMilliseconds: (ctx) => {
+          const delays = [0, 2000, 10000];
+          return delays[ctx.previousRetryCount] ?? 30000;
+        },
+      })
       .configureLogging(LogLevel.Warning)
       .build();
 
-    // Register lifecycle callbacks BEFORE start()
     conn.onreconnecting(() => {
       setState(HubConnectionState.Reconnecting);
     });
@@ -57,15 +64,35 @@ export function SignalRProvider({ children }: { children: React.ReactNode }) {
       if (gapFn) {
         try {
           await gapFn();
+          return;
         } catch {
-          // gap recovery is best-effort
+          // gap recovery failed — fall through to default toast
         }
       }
+      toast.success('Reconnected — no missed entries');
     });
 
+    // onclose fires on graceful server shutdown (SignalR Close message) which bypasses
+    // withAutomaticReconnect. Manually retry until reconnected or component unmounts.
+    const startWithRetry = (delayMs: number) => {
+      if (unmounted) return;
+      setTimeout(() => {
+        if (unmounted) return;
+        setState(HubConnectionState.Reconnecting);
+        conn
+          .start()
+          .then(() => {
+            setState(HubConnectionState.Connected);
+            toast.success('Reconnected — no missed entries');
+          })
+          .catch(() => startWithRetry(Math.min(delayMs * 2, 30000)));
+      }, delayMs);
+    };
+
     conn.onclose(() => {
+      if (unmounted) return;
       setState(HubConnectionState.Disconnected);
-      toast.error('Live updates disconnected');
+      startWithRetry(2000);
     });
 
     setConnection(conn);
@@ -76,6 +103,7 @@ export function SignalRProvider({ children }: { children: React.ReactNode }) {
       .catch(() => setState(HubConnectionState.Disconnected));
 
     return () => {
+      unmounted = true;
       conn.stop();
     };
   }, []);
