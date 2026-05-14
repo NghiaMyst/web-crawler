@@ -42,7 +42,13 @@ export function SignalRProvider({ children }: { children: React.ReactNode }) {
 
     const conn = new HubConnectionBuilder()
       .withUrl(hubUrl)
-      .withAutomaticReconnect([0, 2000, 10000, 30000])
+      .withAutomaticReconnect({
+        nextRetryDelayInMilliseconds: (ctx) => {
+          // Infinite reconnect: 0 → 2s → 10s → 30s (forever)
+          const delays = [0, 2000, 10000];
+          return delays[ctx.previousRetryCount] ?? 30000;
+        },
+      })
       .configureLogging(LogLevel.Warning)
       .build();
 
