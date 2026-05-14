@@ -58,7 +58,7 @@ Complete production deployment first:
 - The page was **not** refreshed (browser tab title doesn't flash, scroll position unchanged)
 - The row contains real data from the crawl
 
-**Pass / Fail:** ___________
+**Pass / Fail:** _____PASSED______
 
 ---
 

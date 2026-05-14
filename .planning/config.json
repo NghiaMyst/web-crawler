@@ -1,4 +1,4 @@
- {
+{
   "model_profile": "balanced",
   "models": {
     "planning": "claude-opus-4.6"

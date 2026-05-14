@@ -1,4 +1,5 @@
-import { BloomFilter } from 'bloom-filters';
+import pkg from 'bloom-filters';
+const { BloomFilter } = pkg;
 import { connection } from '../connection.js';
 
 const BLOOM_REDIS_KEY = 'bloom:filter';
