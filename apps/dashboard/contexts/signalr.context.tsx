@@ -63,10 +63,12 @@ export function SignalRProvider({ children }: { children: React.ReactNode }) {
       if (gapFn) {
         try {
           await gapFn();
+          return;
         } catch {
-          // gap recovery is best-effort
+          // gap recovery failed — fall through to default toast
         }
       }
+      toast.success('Reconnected — no missed entries');
     });
 
     conn.onclose(() => {
