@@ -1,0 +1,53 @@
+{
+  "version": "1.0",
+  "timestamp": "2026-05-14T02:20:09.095Z",
+  "phase": "10",
+  "phase_name": "production-deployment",
+  "phase_dir": ".planning/phases/10-production-deployment",
+  "plan": 6,
+  "task": 3,
+  "total_tasks": 3,
+  "status": "paused",
+  "completed_tasks": [
+    {"id": 1, "name": "Implement Redis-backed bloom filter in bloomFilter.ts", "status": "done", "commit": "f97a839"},
+    {"id": 2, "name": "Wire loadBloomFilter/saveBloomFilter in index.ts startup/shutdown", "status": "done", "commit": "086da70"},
+    {"id": 3, "name": "Add Redis persistence tests to bloomFilter.test.ts", "status": "done", "commit": "7d5f42c"}
+  ],
+  "remaining_tasks": [],
+  "blockers": [
+    {
+      "description": "CR-01: apps/api/.env.prod.example uses ConnectionStrings__DefaultConnection but Program.cs reads DATABASE_URL — operators following runbook get API crash at startup",
+      "type": "technical",
+      "workaround": "Fix the key name in .env.prod.example and update docs/deployment/production-deploy.md line 81"
+    },
+    {
+      "description": "CR-02: saveBloomFilter() has no try/catch in index.ts additionalCleanup — Redis failure at shutdown skips browserPool.closeAll() and all worker.close() calls",
+      "type": "technical",
+      "workaround": "Wrap await saveBloomFilter() in try/catch in the additionalCleanup callback in index.ts"
+    }
+  ],
+  "human_actions_pending": [
+    {
+      "action": "Run manual UAT tests documented in docs/MANUAL-UAT.md",
+      "context": "Phase 09 (3 tests: live push, reconnect, visual indicator) and Phase 10 (2 tests: Oracle smoke test, SignalR WSS) — require live local stack and live Oracle Cloud + Vercel deployment",
+      "blocking": false
+    },
+    {
+      "action": "Fix CR-01 and CR-02 from code review before production deploy",
+      "context": "CR-01 causes API container crash on startup; CR-02 leaks Playwright subprocesses on Redis failure during shutdown",
+      "blocking": true
+    }
+  ],
+  "decisions": [
+    {"decision": "bloom:filter Redis key with TTL 604800 (7 days)", "rationale": "Long enough for any restart cycle; matches BLOOM_KEY_PREFIX='bloom:' in verify-bloom-persistence.sh", "phase": "10"},
+    {"decision": "saveBloomFilter runs first in additionalCleanup", "rationale": "After worker.close() drains jobs (all markUrlSeen calls complete), before connection.quit() closes Redis", "phase": "10"},
+    {"decision": "loadBloomFilter has try/catch fallback to fresh filter", "rationale": "Redis unavailable at startup should not crash crawler — T-10-22 mitigation", "phase": "10"},
+    {"decision": "Phase 09 and 10 human UAT approved by owner", "rationale": "All automated checks pass; runtime tests require live hardware; deferred to docs/MANUAL-UAT.md", "phase": "10"}
+  ],
+  "uncommitted_files": [
+    ".claude/settings.local.json",
+    ".planning/config.json"
+  ],
+  "next_action": "Fix CR-01 (apps/api/.env.prod.example key name) and CR-02 (try/catch around saveBloomFilter in index.ts) — run /gsd-code-review-fix 10 or fix manually",
+  "context_notes": "Phase 10 gap closure (Plan 10-06) is fully committed and tested. The code review found 2 critical bugs introduced in earlier Phase 10 plans (not Plan 10-06). Both are pre-deploy fixes. All planning artifacts are committed. Phase 09 and 10 are both marked complete in ROADMAP/STATE. Manual UAT guide is at docs/MANUAL-UAT.md."
+}
