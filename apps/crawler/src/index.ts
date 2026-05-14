@@ -12,8 +12,10 @@ import { createGenshinWorker } from './workers/GenshinWorker.js';
 import { createLoLWorker } from './workers/LoLWorker.js';
 import { createAniListWorker } from './workers/AniListWorker.js';
 import { createMangaDexWorker } from './workers/MangaDexWorker.js';
+import { loadBloomFilter, saveBloomFilter } from './services/bloomFilter.js';
 
 logger.info('Crawler service starting', { service: 'crawler' });
+await loadBloomFilter();
 
 // Initialize Playwright browser pool
 await browserPool.initialize();
@@ -90,6 +92,7 @@ await mangadexQueue.add('fetch-mangadex-chapters', {}, jobOpts);
 // Graceful shutdown — single registration via setupGracefulShutdown.
 // crawlWorker drains first, then additionalCleanup closes browser pool and all other workers.
 await setupGracefulShutdown(crawlWorker, async () => {
+  await saveBloomFilter();
   await browserPool.closeAll();
   await footballWorker.close();
   await genshinWorker.close();
