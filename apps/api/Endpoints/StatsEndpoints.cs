@@ -39,13 +39,19 @@ public static class StatsEndpoints
             {
                 sourceId   = g.Key.SourceId,
                 sourceName = g.Key.DisplayName,
-                date       = g.Key.Date.ToString("yyyy-MM-dd"),
+                date       = g.Key.Date,
                 count      = g.Count(),
             })
             .OrderBy(r => r.date)
             .ThenBy(r => r.sourceName)
             .ToListAsync();
 
-        return Results.Ok(rows);
+        return Results.Ok(rows.Select(r => new
+        {
+            r.sourceId,
+            r.sourceName,
+            date  = r.date.ToString("yyyy-MM-dd"),
+            r.count,
+        }));
     }
 }

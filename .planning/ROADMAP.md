@@ -10,13 +10,13 @@ Ten phases that build a personal data aggregation system from an empty monorepo 
 
 - [x] **Phase 1: Monorepo Foundation & Crawler Skeleton** - Turborepo monorepo wired, Docker Compose running, Cheerio + Playwright workers verified on ARM, BullMQ queue proven with football-data.org as the first live source
  (completed 2026-04-07)
-- [ ] **Phase 2: Full URL Frontier & Crawl Hardening** - Bloom Filter dedup, per-domain politeness queues, robots.txt caching, exponential backoff, dead-letter queue, and all five data sources crawling
-- [ ] **Phase 3: PostgreSQL Schema & LISTEN/NOTIFY Handoff** - Database schema live with EF Core Migrations, Node→.NET handoff via LISTEN/NOTIFY, keyed-service parser dispatch, JSONB entries stored
+- [x] **Phase 2: Full URL Frontier & Crawl Hardening** - Bloom Filter dedup, per-domain politeness queues, robots.txt caching, exponential backoff, dead-letter queue, and all five data sources crawling
+- [x] **Phase 3: PostgreSQL Schema & LISTEN/NOTIFY Handoff** - Database schema live with EF Core Migrations, Node→.NET handoff via LISTEN/NOTIFY, keyed-service parser dispatch, JSONB entries stored
 - [x] **Phase 4: Notification Engine** - Diff engine evaluating alert rules, Telegram and Discord delivery, notification logs persisted (completed 2026-04-16)
-- [ ] **Phase 5: .NET REST API** - Full CRUD for sources and alert rules, job management endpoints, paginated entries query, health check
-- [ ] **Phase 6: SignalR Real-Time Layer** - SignalR hub pushing new entries to connected clients without polling
+- [x] **Phase 5: .NET REST API** - Full CRUD for sources and alert rules, job management endpoints, paginated entries query, health check
+- [x] **Phase 6: SignalR Real-Time Layer** - SignalR hub pushing new entries to connected clients without polling
 - [ ] **Phase 7: Next.js Dashboard — Core Views** - Data table with filters, source management UI, job management UI
-- [ ] **Phase 8: Next.js Dashboard — Alerts & Charts** - Alert rule CRUD UI, notification history, volume trend charts
+- [x] **Phase 8: Next.js Dashboard — Alerts & Charts** - Alert rule CRUD UI, notification history, volume trend charts (completed 2026-05-15)
 - [x] **Phase 9: Real-Time Dashboard Integration** - SignalR client wired to dashboard, new entries appear live (completed 2026-05-14)
 - [x] **Phase 10: Production Deployment** - docker-compose.prod.yml on Oracle Cloud ARM, Nginx/Caddy HTTPS, Vercel dashboard, Redis + Bloom Filter persistence (completed 2026-05-13)
 
@@ -222,11 +222,11 @@ Plans:
 **Plans**: 5 plans
 
 Plans:
-- [ ] 07-01: Next.js project setup — App Router, Tailwind CSS, API client module (typed fetch wrappers around .NET API), environment config (`NEXT_PUBLIC_API_URL` vs `API_URL`)
-- [ ] 07-02: Data table page — server component fetch, client-side filter controls (category, source, date range), cursor pagination with "Load more"
-- [ ] 07-03: Source management page — list view, add/edit modal form, delete confirmation, optimistic UI updates
-- [ ] 07-04: Job management page — status-filtered job table, retry button with loading state, auto-refresh every 30s
-- [ ] 07-05: Shared layout — navigation sidebar, responsive shell, loading skeletons, error boundary components
+- [x] 07-01: Next.js project setup — App Router, Tailwind CSS, API client module (typed fetch wrappers around .NET API), environment config (`NEXT_PUBLIC_API_URL` vs `API_URL`)
+- [x] 07-02: Shared layout — navigation sidebar, responsive shell, loading skeletons, error boundary components (executed early, was planned as 07-05)
+- [x] 07-03: Data table page — server component fetch, client-side filter controls (category, source, date range), cursor pagination with "Load more"
+- [ ] 07-04: Job management page — status-filtered job table, retry button with loading state, auto-refresh every 30s (NOT BUILT — /jobs returns 404)
+- [x] 07-05: Source management page — list view, add/edit modal form, delete confirmation, optimistic UI updates (executed as 07-04)
 
 **UI hint**: yes
 
@@ -252,9 +252,9 @@ Plans:
 
 Plans:
 - [x] 08-01: Alert rule CRUD page — list with condition summary, add/edit form with condition type selector and dynamic field inputs, delete
-- [ ] 08-02: Notification history page — table with status/channel/message/timestamp columns, filter by source or channel
-- [ ] 08-03: Charts page — entry volume over time (line chart), per-source breakdown (bar or stacked), date range selector
-- [ ] 08-04: Chart data endpoint — `GET /api/stats/volume?groupBy=day&range=7d` added to .NET API, aggregates `data_entries` by source and date
+- [x] 08-02: Notification history page — table with status/channel/message/timestamp columns, filter by source or channel
+- [x] 08-03: Charts page — entry volume over time (line chart), per-source breakdown (bar or stacked), date range selector
+- [x] 08-04: Chart data endpoint — `GET /api/stats/volume?groupBy=day&range=7d` added to .NET API, aggregates `data_entries` by source and date
 
 **UI hint**: yes
 
@@ -323,12 +323,12 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Monorepo Foundation & Crawler Skeleton | 2/1 | Complete   | 2026-04-07 |
-| 2. Full URL Frontier & Crawl Hardening | 0/6 | Not started | - |
-| 3. PostgreSQL Schema, Parsers & LISTEN/NOTIFY Handoff | 0/5 | Not started | - |
+| 2. Full URL Frontier & Crawl Hardening | 6/6 | Complete | 2026-05-01 |
+| 3. PostgreSQL Schema, Parsers & LISTEN/NOTIFY Handoff | 5/5 | Complete | 2026-05-01 |
 | 4. Notification Engine | 5/5 | Complete   | 2026-04-16 |
-| 5. .NET REST API | 0/5 | Not started | - |
-| 6. SignalR Real-Time Layer | 0/3 | Not started | - |
-| 7. Next.js Dashboard — Core Views | 0/5 | Not started | - |
-| 8. Next.js Dashboard — Alerts & Charts | 0/4 | Not started | - |
+| 5. .NET REST API | 5/5 | Complete | 2026-05-03 |
+| 6. SignalR Real-Time Layer | 3/3 | Complete | 2026-05-03 |
+| 7. Next.js Dashboard — Core Views | 4/5 | Partial (job mgmt page missing) | - |
+| 8. Next.js Dashboard — Alerts & Charts | 4/4 | Complete    | 2026-05-15 |
 | 9. Real-Time Dashboard Integration | 3/3 | Complete    | 2026-05-14 |
 | 10. Production Deployment | 6/6 | Complete   | 2026-05-14 |

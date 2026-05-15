@@ -87,7 +87,8 @@
       "Bash(curl -s http://localhost:3000/ -o /dev/null -w \"%{http_code}\")",
       "Bash(curl -s http://localhost:3000/entries)",
       "Bash(npx tsc *)",
-      "Bash(curl -s http://localhost:3000/entries)"
+      "Bash(curl -s http://localhost:3000/entries)",
+      "Bash(python3 *)"
     ]
   }
 }

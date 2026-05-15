@@ -1,9 +1,9 @@
-# Manual UAT Instructions — Phase 09 & Phase 10
+# Manual UAT Instructions — Phase 08, Phase 09 & Phase 10
 
 This file contains the step-by-step manual tests that cannot be automated: they require
 a running backend, a live browser session, or a real cloud deployment.
 
-Complete **Phase 09** tests first (local stack), then **Phase 10** tests (Oracle Cloud).
+Complete **Phase 08** tests first, then **Phase 09** (local stack), then **Phase 10** (Oracle Cloud).
 
 ---
 
@@ -28,6 +28,131 @@ curl http://localhost:5000/health  # {"status":"Healthy"}
 Complete production deployment first:
 - Follow `docs/deployment/production-deploy.md` from Step 0 to Step 9
 - Ensure Vercel dashboard is deployed and `CORS_ALLOWED_ORIGINS` is set to the Vercel URL
+
+---
+
+## Phase 08 — Next.js Dashboard: Alerts & Charts
+
+**Goal:** Alert rule CRUD, notification history log, and volume trend charts all work end-to-end against live API data.
+
+### Prerequisites
+
+```bash
+docker compose up -d              # postgres, redis, crawler, api
+pnpm --filter dashboard dev       # Next.js on http://localhost:3000
+curl http://localhost:5000/health  # {"status":"Healthy"}
+```
+
+---
+
+### Test 08-SC1: Alert Rule CRUD
+
+**What to test:** Create, edit, and delete an alert rule; verify form pre-population on edit.
+
+**Steps:**
+1. Navigate to `http://localhost:3000/alerts`
+2. Click **Add Rule** — the modal opens
+3. Select a source from the Source dropdown
+4. Set **Condition type** to `New item` — confirm no extra fields appear
+5. Enter a name and submit → the new rule appears in the list
+6. Click the **edit** icon on the rule:
+   - Confirm the form pre-populates with the saved values
+   - Confirm the **Source** dropdown is **disabled** (greyed out)
+7. Change the condition type to `Field changed` → confirm a **Field path** input appears
+8. Change to `Threshold` → confirm both **Field path** and **Threshold value** inputs appear
+9. Change back to `New item` → confirm extra inputs disappear
+10. Save the edit → list reflects the update
+11. Click the **delete** icon → confirmation dialog appears → confirm delete → rule removed from list
+
+**Expected result:**
+- All three condition types show/hide fields correctly
+- Edit modal pre-populates all fields (including condition sub-fields for `field_changed` / `threshold` rules)
+- Source selector is disabled in edit mode
+- Optimistic delete: row disappears immediately; if API fails, it reappears
+
+**Pass / Fail:** ___________
+
+---
+
+### Test 08-SC2: Notification History
+
+**What to test:** The notifications page shows delivery logs and the source filter works.
+
+**Steps:**
+1. Navigate to `http://localhost:3000/notifications`
+2. Confirm the table shows columns: **Source**, **Channel**, **Status**, **Message** (truncated), **Sent at**
+3. If the table is empty, trigger a crawl that matches an alert rule:
+   ```bash
+   curl -X POST http://localhost:5000/api/jobs \
+     -H 'Content-Type: application/json' \
+     -d '{"sourceId": "<SOURCE_ID>"}'
+   ```
+   Wait ~10 seconds, then refresh
+4. Select a source from the **Source** filter dropdown → confirm the table filters to that source only
+5. Select **All sources** → confirm all rows return
+6. Confirm each row shows one of: `sent` or `failed` in the Status column
+
+**Expected result:**
+- At least one notification log row visible after a crawl
+- Source filter updates URL params and filters rows without full page reload
+- Status badge correctly coloured (green for `sent`, red for `failed`)
+
+**Pass / Fail:** ___________
+
+---
+
+### Test 08-SC3: Volume Charts
+
+**What to test:** The charts page renders entry counts per source over time, with the date range selector working.
+
+**Steps:**
+1. Navigate to `http://localhost:3000/charts`
+2. Confirm the page loads without error (no red error boundary)
+3. Confirm a **line chart** is visible with at least one labelled series (source name in the legend)
+4. Confirm a **stacked bar chart** is visible below the line chart
+5. Click **30d** in the date range selector → page refetches and charts update
+6. Click **90d** → charts update again
+7. Click **7d** → returns to default view
+8. Hover over a data point → confirm a tooltip appears showing source name, date, and count
+
+**Expected result:**
+- Both charts render with real data (not empty) if entries exist in the last 7 days
+- Date range selector changes reflect in chart data
+- Tooltip shows on hover
+- No console errors (check DevTools)
+
+**Pass / Fail:** ___________
+
+---
+
+### Test 08-SC4: Chart Data API
+
+**What to test:** The `/api/stats/volume` endpoint returns correctly structured data.
+
+**Steps:**
+```bash
+# Default 7d range
+curl -s "http://localhost:5000/api/stats/volume?groupBy=day&range=7d" | jq '.[0]'
+
+# Expected shape:
+# {
+#   "sourceId": "...",
+#   "sourceName": "...",
+#   "date": "2026-05-14",
+#   "count": 3
+# }
+
+# Test other ranges
+curl -s "http://localhost:5000/api/stats/volume?groupBy=day&range=30d" | jq 'length'
+curl -s "http://localhost:5000/api/stats/volume?groupBy=day&range=90d" | jq 'length'
+```
+
+**Expected result:**
+- Response is a JSON array (may be empty `[]` if no entries in range)
+- Each element has `sourceId`, `sourceName`, `date` (format `YYYY-MM-DD`), `count`
+- HTTP 200 (not 500)
+
+**Pass / Fail:** ___________
 
 ---
 
@@ -209,13 +334,17 @@ sleep 30   # wait for crawl to complete and bloom filter to be populated
 
 | Phase | Test | Result | Date |
 |-------|------|--------|------|
+| 08 | SC-1: Alert rule CRUD | | |
+| 08 | SC-2: Notification history | | |
+| 08 | SC-3: Volume charts | | |
+| 08 | SC-4: Chart data API | | |
 | 09 | SC-1: Live entry push | | |
 | 09 | SC-2: Reconnect and gap recovery | | |
 | 09 | SC-3: Connection indicator visual | | |
 | 10 | SC-DEPLOY: Full end-to-end smoke test | | |
 | 10 | WSS: SignalR WebSocket upgrade | | |
 
-Once all rows show **PASS**, phases 09 and 10 are fully signed off.
+Once all rows show **PASS**, phases 08, 09 and 10 are fully signed off.
 
 ---
 
