@@ -83,7 +83,8 @@ Recent decisions affecting current work:
 
 ### Pending Todos
 
-None yet.
+- **swagger-api-docs** — Expose Swagger UI in .NET API for all environments (currently dev-only). See `.planning/todos/swagger-api-docs.md`
+- **verify-dashboard-api-endpoints** — Fix broken `POST /api/jobs` references in MANUAL-UAT.md (endpoint does not exist); all dashboard→API calls are otherwise compatible. See `.planning/todos/verify-dashboard-api-endpoints.md`
 
 ### Blockers/Concerns
 
