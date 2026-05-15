@@ -113,3 +113,28 @@ export interface UpdateAlertRuleRequest {
   isActive?: boolean;
   condition?: AlertCondition;
 }
+
+// ── Notification Logs (Phase 8 — DASH-06) ────────────────────────────
+export interface NotificationLog {
+  id: string;
+  alertRuleId: string;
+  alertRuleName: string;
+  sourceId: string;
+  sourceName: string;
+  channel: 'telegram' | 'discord';
+  message: string;
+  status: 'sent' | 'failed';
+  sentAt: string;
+}
+
+export interface NotificationLogFilters {
+  sourceId?: string;
+}
+
+// ── Volume Stats (Phase 8 — DASH-02) ─────────────────────────────────
+export interface VolumeDataPoint {
+  sourceId: string;
+  sourceName: string;
+  date: string;
+  count: number;
+}

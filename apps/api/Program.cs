@@ -120,6 +120,8 @@ try
     app.MapGroup("/api/sources").MapSourcesEndpoints();
     app.MapGroup("/api/jobs").MapJobsEndpoints();
     app.MapGroup("/api/alert-rules").MapAlertRulesEndpoints();
+    app.MapGroup("/api/notifications").MapNotificationsEndpoints();
+    app.MapGroup("/api/stats").MapStatsEndpoints();
 
     app.Run();
 }

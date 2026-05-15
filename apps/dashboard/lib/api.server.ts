@@ -10,6 +10,8 @@ import type {
   AlertRule,
   CreateAlertRuleRequest as CreateAlertRuleApiBody,
   UpdateAlertRuleRequest as UpdateAlertRuleApiBody,
+  NotificationLog,
+  VolumeDataPoint,
 } from '@/types/api';
 
 const BASE_URL = process.env.API_URL ?? 'http://localhost:5000';
@@ -90,4 +92,17 @@ export async function updateAlertRule(
 
 export async function deleteAlertRule(id: string): Promise<void> {
   await request<void>(`/api/alert-rules/${id}`, { method: 'DELETE' });
+}
+
+// ── Notification Logs (Phase 8 — DASH-06) ────────────────────────────
+export async function fetchNotifications(filters?: { sourceId?: string }): Promise<NotificationLog[]> {
+  const params = new URLSearchParams();
+  if (filters?.sourceId) params.set('sourceId', filters.sourceId);
+  const qs = params.toString();
+  return request<NotificationLog[]>(`/api/notifications${qs ? `?${qs}` : ''}`);
+}
+
+// ── Volume Stats (Phase 8 — DASH-02) ─────────────────────────────────
+export async function fetchVolumeStats(range: '7d' | '30d' | '90d' = '7d'): Promise<VolumeDataPoint[]> {
+  return request<VolumeDataPoint[]>(`/api/stats/volume?groupBy=day&range=${range}`);
 }
