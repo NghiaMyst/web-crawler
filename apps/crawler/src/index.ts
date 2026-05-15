@@ -92,7 +92,7 @@ await mangadexQueue.add('fetch-mangadex-chapters', {}, jobOpts);
 // Graceful shutdown — single registration via setupGracefulShutdown.
 // crawlWorker drains first, then additionalCleanup closes browser pool and all other workers.
 await setupGracefulShutdown(crawlWorker, async () => {
-  await saveBloomFilter();
+  try { await saveBloomFilter(); } catch (err) { logger.error('saveBloomFilter failed during shutdown', { err }); }
   await browserPool.closeAll();
   await footballWorker.close();
   await genshinWorker.close();

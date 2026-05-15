@@ -78,7 +78,7 @@ Edit `/opt/webcrawler/.env.prod`:
 - `RIOT_API_KEY`: optional, from Riot dev portal
 
 Edit `apps/api/.env.prod`:
-- `ConnectionStrings__DefaultConnection`: replace `CHANGE_ME_STRONG_PASSWORD` with the same value used in root `.env.prod`
+- `DATABASE_URL`: replace `CHANGE_ME_STRONG_PASSWORD` with the same value used in root `.env.prod`
 
 Edit `apps/crawler/.env.prod`:
 - `DATABASE_URL`: replace `CHANGE_ME_STRONG_PASSWORD` with the same Postgres password
@@ -226,9 +226,9 @@ From your laptop browser, open `https://<your-project-name>.vercel.app`.
 
 First, trigger at least one crawl so the bloom filter has state:
 ```bash
-curl -X POST https://${DUCKDNS_DOMAIN}/api/jobs \
-  -H 'Content-Type: application/json' \
-  -d '{"sourceId": "<a-source-uuid-from-/api/sources>"}'
+# Find a failed job ID, then retry it:
+curl -s "https://${DUCKDNS_DOMAIN}/api/jobs?status=failed" | jq '.[0].id'
+curl -X POST https://${DUCKDNS_DOMAIN}/api/jobs/<JOB_ID>/retry
 sleep 30  # wait for crawl to complete
 ```
 

@@ -12,12 +12,14 @@ Complete **Phase 08** tests first, then **Phase 09** (local stack), then **Phase
 ### For Phase 09 tests (local)
 
 All services running locally:
+
 ```bash
 docker compose up -d          # postgres, redis, crawler, api
 pnpm --filter dashboard dev   # Next.js dashboard on http://localhost:3000
 ```
 
 Verify the stack is healthy:
+
 ```bash
 docker compose ps             # all services "running"
 curl http://localhost:5000/health  # {"status":"Healthy"}
@@ -26,6 +28,7 @@ curl http://localhost:5000/health  # {"status":"Healthy"}
 ### For Phase 10 tests (Oracle Cloud)
 
 Complete production deployment first:
+
 - Follow `docs/deployment/production-deploy.md` from Step 0 to Step 9
 - Ensure Vercel dashboard is deployed and `CORS_ALLOWED_ORIGINS` is set to the Vercel URL
 
@@ -50,6 +53,7 @@ curl http://localhost:5000/health  # {"status":"Healthy"}
 **What to test:** Create, edit, and delete an alert rule; verify form pre-population on edit.
 
 **Steps:**
+
 1. Navigate to `http://localhost:3000/alerts`
 2. Click **Add Rule** — the modal opens
 3. Select a source from the Source dropdown
@@ -65,12 +69,13 @@ curl http://localhost:5000/health  # {"status":"Healthy"}
 11. Click the **delete** icon → confirmation dialog appears → confirm delete → rule removed from list
 
 **Expected result:**
+
 - All three condition types show/hide fields correctly
 - Edit modal pre-populates all fields (including condition sub-fields for `field_changed` / `threshold` rules)
 - Source selector is disabled in edit mode
 - Optimistic delete: row disappears immediately; if API fails, it reappears
 
-**Pass / Fail:** ___________
+**Pass / Fail:** \***\*\_\_\_\*\***
 
 ---
 
@@ -79,25 +84,29 @@ curl http://localhost:5000/health  # {"status":"Healthy"}
 **What to test:** The notifications page shows delivery logs and the source filter works.
 
 **Steps:**
+
 1. Navigate to `http://localhost:3000/notifications`
 2. Confirm the table shows columns: **Source**, **Channel**, **Status**, **Message** (truncated), **Sent at**
 3. If the table is empty, trigger a crawl that matches an alert rule:
    ```bash
-   curl -X POST http://localhost:5000/api/jobs \
-     -H 'Content-Type: application/json' \
-     -d '{"sourceId": "<SOURCE_ID>"}'
+   # Find a failed job ID for your target source, then retry it:
+   curl -s "http://localhost:5000/api/jobs?status=failed" | jq '.[0].id'
+   # Copy the ID, then:
+   curl -X POST http://localhost:5000/api/jobs/<JOB_ID>/retry
    ```
-   Wait ~10 seconds, then refresh
+   If no failed jobs exist, wait for the next scheduled crawl (sources run on their configured interval).
+   Wait ~10 seconds after the crawl completes, then refresh.
 4. Select a source from the **Source** filter dropdown → confirm the table filters to that source only
 5. Select **All sources** → confirm all rows return
 6. Confirm each row shows one of: `sent` or `failed` in the Status column
 
 **Expected result:**
+
 - At least one notification log row visible after a crawl
 - Source filter updates URL params and filters rows without full page reload
 - Status badge correctly coloured (green for `sent`, red for `failed`)
 
-**Pass / Fail:** ___________
+**Pass / Fail:** \***\*\_\_PASSED\_\*\***
 
 ---
 
@@ -106,6 +115,7 @@ curl http://localhost:5000/health  # {"status":"Healthy"}
 **What to test:** The charts page renders entry counts per source over time, with the date range selector working.
 
 **Steps:**
+
 1. Navigate to `http://localhost:3000/charts`
 2. Confirm the page loads without error (no red error boundary)
 3. Confirm a **line chart** is visible with at least one labelled series (source name in the legend)
@@ -116,12 +126,13 @@ curl http://localhost:5000/health  # {"status":"Healthy"}
 8. Hover over a data point → confirm a tooltip appears showing source name, date, and count
 
 **Expected result:**
+
 - Both charts render with real data (not empty) if entries exist in the last 7 days
 - Date range selector changes reflect in chart data
 - Tooltip shows on hover
 - No console errors (check DevTools)
 
-**Pass / Fail:** ___________
+**Pass / Fail:** \_**\_PASSED**\_\*\*\*\*
 
 ---
 
@@ -130,6 +141,7 @@ curl http://localhost:5000/health  # {"status":"Healthy"}
 **What to test:** The `/api/stats/volume` endpoint returns correctly structured data.
 
 **Steps:**
+
 ```bash
 # Default 7d range
 curl -s "http://localhost:5000/api/stats/volume?groupBy=day&range=7d" | jq '.[0]'
@@ -148,11 +160,12 @@ curl -s "http://localhost:5000/api/stats/volume?groupBy=day&range=90d" | jq 'len
 ```
 
 **Expected result:**
+
 - Response is a JSON array (may be empty `[]` if no entries in range)
 - Each element has `sourceId`, `sourceName`, `date` (format `YYYY-MM-DD`), `count`
 - HTTP 200 (not 500)
 
-**Pass / Fail:** ___________
+**Pass / Fail:** \***\*\_\_PASSED\_\*\***
 
 ---
 
@@ -165,25 +178,26 @@ curl -s "http://localhost:5000/api/stats/volume?groupBy=day&range=90d" | jq 'len
 **What to test:** A new crawl result appears at the top of the Entries table within ~3 seconds, pushed via SignalR WebSocket — no page refresh.
 
 **Steps:**
+
 1. Open the dashboard in a browser: `http://localhost:3000/entries`
 2. Confirm the ConnectionDot in the sidebar shows a **green dot** (Connected)
 3. Trigger a crawl via the API:
    ```bash
-   curl -s http://localhost:5000/api/sources | jq '.[0].id'
-   # Copy the source ID, then:
-   curl -X POST http://localhost:5000/api/jobs \
-     -H 'Content-Type: application/json' \
-     -d '{"sourceId": "<PASTE_ID_HERE>"}'
+   # Find a failed job and retry it:
+   curl -s "http://localhost:5000/api/jobs?status=failed" | jq '.[0].id'
+   # Copy the job ID, then:
+   curl -X POST http://localhost:5000/api/jobs/<JOB_ID>/retry
    ```
    Alternatively, wait for the next scheduled crawl (EPL standings every 30 min)
 4. Watch the Entries table for ~10 seconds
 
 **Expected result:**
+
 - A new row appears at the **top** of the table within 3 seconds
 - The page was **not** refreshed (browser tab title doesn't flash, scroll position unchanged)
 - The row contains real data from the crawl
 
-**Pass / Fail:** _____PASSED______
+**Pass / Fail:** **\_**PASSED**\_\_**
 
 ---
 
@@ -192,6 +206,7 @@ curl -s "http://localhost:5000/api/stats/volume?groupBy=day&range=90d" | jq 'len
 **What to test:** SignalR auto-reconnects after a network interruption and recovers missed entries.
 
 **Steps:**
+
 1. Open the dashboard at `http://localhost:3000/entries`
 2. Confirm ConnectionDot is **green** (Connected)
 3. Trigger a crawl right now so there is a baseline timestamp:
@@ -204,13 +219,14 @@ curl -s "http://localhost:5000/api/stats/volume?groupBy=day&range=90d" | jq 'len
 5. Watch the ConnectionDot and toast notifications
 
 **Expected result:**
+
 - ConnectionDot transitions: **green → yellow pulsing** (Reconnecting) **→ green** (Connected)
 - A toast appears at the bottom-right:
   - `"Reconnected — loaded N missed entries"` if crawls ran during the gap, OR
   - `"Reconnected — no missed entries"` if nothing was crawled
 - Any entries published during the gap appear in the table after reconnect
 
-**Pass / Fail:** ___________
+**Pass / Fail:** \***\*\_\_\_\*\***
 
 ---
 
@@ -219,6 +235,7 @@ curl -s "http://localhost:5000/api/stats/volume?groupBy=day&range=90d" | jq 'len
 **What to test:** The ConnectionDot renders correctly in both desktop sidebar and mobile header across all three states.
 
 **Steps:**
+
 1. Open the dashboard at `http://localhost:3000`
 2. **Desktop (Connected state):**
    - Confirm a small **green dot** is visible immediately to the right of the "Web Crawler" brand text in the left sidebar
@@ -236,12 +253,13 @@ curl -s "http://localhost:5000/api/stats/volume?groupBy=day&range=90d" | jq 'len
    - `docker compose start api` immediately to confirm it returns green
 
 **Expected result:**
+
 - Connected: green dot (`bg-green-500`), `aria-label="Connected"`
 - Reconnecting: yellow pulsing dot (`bg-yellow-400 animate-pulse`), `aria-label="Reconnecting"`
 - Disconnected: red dot (`bg-red-500`), `aria-label="Disconnected"`
 - Dot visible in both desktop sidebar AND mobile nav header
 
-**Pass / Fail:** ___________
+**Pass / Fail:** \***\*\_\_\_\*\***
 
 ---
 
@@ -257,12 +275,14 @@ curl -s "http://localhost:5000/api/stats/volume?groupBy=day&range=90d" | jq 'len
 Follow `docs/deployment/production-deploy.md` exactly, from Step 0 (preflight) through Step 9 (sign-off). The key checkpoints:
 
 **Step 0 — Preflight:**
+
 ```bash
 bash scripts/preflight-prod-compose.sh
 # Expected: "All 19 checks passed"
 ```
 
 **Step 5 — Bring up stack:**
+
 ```bash
 docker compose -f docker-compose.prod.yml up -d
 docker compose -f docker-compose.prod.yml ps
@@ -270,21 +290,25 @@ docker compose -f docker-compose.prod.yml ps
 ```
 
 **SC-1 — Health check through Nginx:**
+
 ```bash
 curl -I https://<DUCKDNS_DOMAIN>/health
 # Expected: HTTP/2 200, header "X-Powered-By: ASP.NET" absent (proxied), no cert warnings
 ```
 
 **SC-2 — HTTPS with valid cert:**
+
 - Open `https://<DUCKDNS_DOMAIN>` in browser
 - Expected: padlock icon, no "Not Secure" warning, cert issued by Let's Encrypt
 
 **SC-3 — Dashboard loads with real data:**
+
 - Open Vercel URL in browser
 - Navigate to `/entries`
 - Expected: table populated with entries fetched from `https://<DUCKDNS_DOMAIN>/api/entries`
 
 **SC-4 — Bloom Filter survives Redis restart:**
+
 ```bash
 # Trigger a crawl first (so bloom filter has state):
 curl -X POST https://<DUCKDNS_DOMAIN>/api/jobs \
@@ -298,6 +322,7 @@ sleep 30   # wait for crawl to complete and bloom filter to be populated
 ```
 
 **SC-5 — BullMQ jobs survive crawler restart:**
+
 ```bash
 ./scripts/verify-bullmq-survival.sh
 # Expected: "[verify-bullmq] PASS — N bull keys present, all :id counters monotonic"
@@ -305,7 +330,7 @@ sleep 30   # wait for crawl to complete and bloom filter to be populated
 
 **Expected result:** All 5 SC checkboxes ticked in the runbook.
 
-**Pass / Fail:** ___________
+**Pass / Fail:** \***\*\_\_\_\*\***
 
 ---
 
@@ -314,40 +339,42 @@ sleep 30   # wait for crawl to complete and bloom filter to be populated
 **What to test:** The Vercel dashboard connects to the Oracle API over WSS (not Long Polling), confirming the Nginx `/hubs/` proxy is correctly configured.
 
 **Steps:**
+
 1. Open the Vercel-deployed dashboard URL in Chrome/Firefox
 2. Open DevTools → **Network** tab → filter by **WS** (WebSocket)
 3. Refresh the page
 4. Look for a WebSocket entry to `wss://<DUCKDNS_DOMAIN>/hubs/dashboard?id=...`
 
 **Expected result:**
+
 - Status: **101 Switching Protocols** (not 200)
 - Protocol: **websocket** (not long-polling)
 - The ConnectionDot in the nav bar shows **green** within 5 seconds
 - No mixed-content warnings in DevTools Console
 - No CORS errors in Console
 
-**Pass / Fail:** ___________
+**Pass / Fail:** \***\*\_\_\_\*\***
 
 ---
 
 ## Sign-Off Checklist
 
-| Phase | Test | Result | Date |
-|-------|------|--------|------|
-| 08 | SC-1: Alert rule CRUD | | |
-| 08 | SC-2: Notification history | | |
-| 08 | SC-3: Volume charts | | |
-| 08 | SC-4: Chart data API | | |
-| 09 | SC-1: Live entry push | | |
-| 09 | SC-2: Reconnect and gap recovery | | |
-| 09 | SC-3: Connection indicator visual | | |
-| 10 | SC-DEPLOY: Full end-to-end smoke test | | |
-| 10 | WSS: SignalR WebSocket upgrade | | |
+| Phase | Test                                  | Result | Date |
+| ----- | ------------------------------------- | ------ | ---- |
+| 08    | SC-1: Alert rule CRUD                 |        |      |
+| 08    | SC-2: Notification history            |        |      |
+| 08    | SC-3: Volume charts                   |        |      |
+| 08    | SC-4: Chart data API                  |        |      |
+| 09    | SC-1: Live entry push                 |        |      |
+| 09    | SC-2: Reconnect and gap recovery      |        |      |
+| 09    | SC-3: Connection indicator visual     |        |      |
+| 10    | SC-DEPLOY: Full end-to-end smoke test |        |      |
+| 10    | WSS: SignalR WebSocket upgrade        |        |      |
 
 Once all rows show **PASS**, phases 08, 09 and 10 are fully signed off.
 
 ---
 
-*Generated: 2026-05-14*
-*Phase 09 automated score: 9/12 truths verified*
-*Phase 10 automated score: 5/5 must-haves verified*
+_Generated: 2026-05-14_
+_Phase 09 automated score: 9/12 truths verified_
+_Phase 10 automated score: 5/5 must-haves verified_

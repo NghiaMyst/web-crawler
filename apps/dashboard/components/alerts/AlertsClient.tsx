@@ -73,7 +73,6 @@ export function AlertsClient({
 
   function handleSaveSuccess(saved: AlertRule, mode: 'add' | 'edit'): void {
     if (mode === 'add') {
-      dispatchOptimistic({ type: 'add', rule: saved });
       setBaseRules((prev) => [...prev, saved]);
     } else {
       setBaseRules((prev) => prev.map((r) => (r.id === saved.id ? saved : r)));

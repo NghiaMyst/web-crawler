@@ -1,10 +1,9 @@
-# Production compose for Oracle Cloud Ampere A1 (ARM64, 4 vCPU, 24GB RAM).
+# Production compose — architecture-agnostic (amd64 laptop or ARM64 Oracle Cloud).
 # Standalone — does NOT extend docker-compose.yml.
-# Deploy: SSH to Oracle server → git pull → docker compose -f docker-compose.prod.yml build → up -d
+# Deploy: SSH to server → git pull → docker compose -f docker-compose.prod.yml build → up -d
 services:
   postgres:
     image: postgres:16-alpine
-    platform: linux/arm64
     restart: always
     environment:
       POSTGRES_DB: webcrawler
@@ -29,7 +28,6 @@ services:
 
   redis:
     image: redis:7-alpine
-    platform: linux/arm64
     restart: always
     # D-07: AOF persistence + noeviction (required by BullMQ).
     # everysec = fsync once per second (durability/performance balance).
@@ -55,7 +53,6 @@ services:
     build:
       context: .
       dockerfile: apps/crawler/Dockerfile
-    platform: linux/arm64
     restart: always
     env_file:
       - ./apps/crawler/.env.prod
@@ -86,7 +83,6 @@ services:
     build:
       context: .
       dockerfile: apps/api/Dockerfile
-    platform: linux/arm64
     restart: always
     env_file:
       - ./apps/api/.env.prod
@@ -119,7 +115,6 @@ services:
 
   nginx:
     image: nginx:1.27-alpine
-    platform: linux/arm64
     restart: always
     ports:
       - "80:80"
