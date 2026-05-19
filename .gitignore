@@ -24,6 +24,7 @@ Thumbs.db
 
 # IDE
 .vscode/
+.vs/
 .idea/
 *.suo
 *.user
