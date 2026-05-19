@@ -39,4 +39,25 @@ Tracks every step of the Phase 10 deployment to GCP for learning and reference.
 
 ---
 
+### 2026-05-19 — Docker Installed on VM
+
+**What:** Installed Docker Engine and Docker Compose plugin on the GCP VM.
+
+**Commands run:**
+```bash
+sudo apt update && sudo apt upgrade -y
+curl -fsSL https://get.docker.com | sh
+sudo usermod -aG docker gcp-webcrawler
+newgrp docker
+```
+
+**Verified:**
+- Docker version 29.5.1, build 2518b52 ✓
+- Docker Compose version v5.1.3 ✓
+- `docker ps` returns empty table (no errors) ✓
+
+**Next:** Clone the project repo onto the VM.
+
+---
+
 <!-- Add new entries below as deployment progresses -->
