@@ -17,6 +17,20 @@ public static class MessageBuilder
     {
         var msg = match.Rule.MessageTpl;
 
+        // Fallback: auto-generate message when template is empty or whitespace
+        if (string.IsNullOrWhiteSpace(msg))
+        {
+            msg = match.ConditionType switch
+            {
+                "new_item" => $"[{match.Rule.Name}] New item detected",
+                "field_changed" when match.Rule.Condition.RootElement.TryGetProperty("field", out var f)
+                    => $"[{match.Rule.Name}] Field '{f.GetString()}' changed",
+                "threshold" when match.Rule.Condition.RootElement.TryGetProperty("field", out var tf)
+                    => $"[{match.Rule.Name}] Threshold breached on '{tf.GetString()}'",
+                _ => $"[{match.Rule.Name}] Alert fired"
+            };
+        }
+
         // Step 1: {token} substitution from new payload (threat T-04-04: string.Replace only, no eval)
         foreach (var prop in match.NewPayload.RootElement.EnumerateObject())
         {

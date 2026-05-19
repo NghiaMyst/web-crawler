@@ -34,6 +34,7 @@ const alertRuleFormSchema = z.object({
   channel: z.enum(['telegram', 'discord']),
   isActive: z.boolean(),
   condition: conditionFormSchema,
+  messageTpl: z.string().max(2000).optional(),
 });
 
 type AlertRuleFormData = z.infer<typeof alertRuleFormSchema>;
@@ -44,6 +45,7 @@ const DEFAULTS: AlertRuleFormData = {
   channel: 'telegram',
   isActive: true,
   condition: { type: 'new_item' },
+  messageTpl: '',
 };
 
 export function AlertRuleModal({
@@ -80,6 +82,7 @@ export function AlertRuleModal({
           channel: rule.channel,
           isActive: rule.isActive,
           condition: rule.condition as AlertRuleFormData['condition'],
+          messageTpl: rule.messageTpl ?? '',
         });
       } else {
         reset(DEFAULTS);
@@ -114,6 +117,7 @@ export function AlertRuleModal({
             channel: data.channel,
             isActive: data.isActive,
             condition: data.condition,
+            messageTpl: data.messageTpl ?? '',
           })
         : await createAlertRuleAction(data);
 
@@ -210,6 +214,14 @@ export function AlertRuleModal({
               />
             </FormField>
           )}
+
+          <FormField label="Message template" htmlFor="messageTpl" error={errors.messageTpl?.message}>
+            <Input
+              id="messageTpl"
+              {...register('messageTpl')}
+              placeholder="e.g. New anime: {title} — Ep {episode}  (leave blank for auto)"
+            />
+          </FormField>
 
           <FormField label="Notification channel" htmlFor="channel" error={errors.channel?.message}>
             <Select

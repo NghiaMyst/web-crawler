@@ -88,7 +88,18 @@
       "Bash(curl -s http://localhost:3000/entries)",
       "Bash(npx tsc *)",
       "Bash(curl -s http://localhost:3000/entries)",
-      "Bash(python3 *)"
+      "Bash(python3 *)",
+      "PowerShell(docker exec *)",
+      "PowerShell(docker exec -i web-crawler-api-1 sh -c \"PGPASSWORD=postgres psql -h host.docker.internal -p 5432 -U postgres -d webcrawler -c \\\\\"SELECT id, name, category FROM sources WHERE category IN \\('manga', 'anime'\\) ORDER BY category, name;\\\\\"\" 2>&1)",
+      "PowerShell(docker run *)",
+      "PowerShell(Get-Command *)",
+      "PowerShell(Invoke-RestMethod -Uri \"http://localhost:5000/api/sources\" -Method Get 2>&1)",
+      "PowerShell(Invoke-RestMethod -Uri \"http://localhost:5000/api/alert-rules\" -Method Get 2>&1)",
+      "PowerShell(Invoke-RestMethod -Uri \"http://localhost:5000/api/notifications?page=1&pageSize=20\" -Method Get 2>&1)",
+      "PowerShell(Invoke-RestMethod -Uri \"http://localhost:5000/api/entries?page=1&pageSize=5&sourceId=de9255a5-0639-4bf3-b02d-e2399602703c\" -Method Get 2>&1)",
+      "PowerShell(Invoke-RestMethod -Uri \"http://localhost:5000/api/entries?page=1&pageSize=5&sourceId=b43f54c1-4633-4a08-9b06-97bee00605ae\" -Method Get 2>&1)",
+      "PowerShell(docker compose build *)",
+      "PowerShell(docker compose up *)"
     ]
   }
 }
