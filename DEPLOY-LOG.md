@@ -14,7 +14,8 @@ Tracks every step of the Phase 10 deployment to GCP for learning and reference.
 | Spec | e2-medium — 2 vCPU, 4GB RAM, 30GB balanced disk |
 | OS | Ubuntu 24.04.4 LTS (x86_64 / AMD64) |
 | External IP | 34.87.36.185 |
-| SSH alias | `ssh webcrawler` (user: gcp-webcrawler) |
+| SSH users | `gcp-webcrawler` (Windows), `nghianguyentrong1211` (Ubuntu) |
+| SSH alias | `ssh webcrawler` — both devices use this alias |
 
 ---
 
@@ -142,6 +143,62 @@ ls /opt/webcrawler
 ```
 
 Then open a new Claude Code session and run `/gsd:resume-work` to restore full context.
+
+---
+
+### 2026-05-20 — SSH Access from Ubuntu Machine + Repo Cloned
+
+**What:** Restored SSH access from Ubuntu dev machine, fixed user/docker permissions, cloned repo onto VM.
+
+**Steps completed:**
+- Reused existing `~/.ssh/id_personal` key (ed25519) on Ubuntu — no new key needed
+- Added public key to VM via GCP Console → VM → Edit → SSH Keys
+- Added `webcrawler` SSH config entry pointing to 34.87.36.185 with `User nghianguyentrong1211`
+- GCP maps the last word of the public key as the Linux username → two users now exist on VM:
+  - `gcp-webcrawler` (Windows key, from Day 1)
+  - `nghianguyentrong1211` (Ubuntu key, added today)
+- Added both users to `docker` group: `sudo usermod -aG docker nghianguyentrong1211`
+- Created deploy directory with shared group access:
+  ```bash
+  sudo mkdir -p /opt/webcrawler
+  sudo chown root:docker /opt/webcrawler
+  sudo chmod 775 /opt/webcrawler
+  ```
+- Cloned repo: `git clone https://<PAT>@github.com/NghiaMyst/web-crawler.git /opt/webcrawler`
+
+**Also:** Tuned `docker-compose.prod.yml` resource limits for 4GB GCP VM (original was sized for Oracle 24GB):
+| Service | Old limit | New limit |
+|---------|-----------|-----------|
+| postgres | 2G | 512M |
+| redis | 512M | 256M |
+| crawler | 4G | 1536M |
+| api | 1G | 512M |
+| nginx | 256M | 128M |
+| **Total** | **7.75G** | **~2.9G** |
+
+**Verified:**
+- `ssh webcrawler` → `nghianguyentrong1211@webcrawler-prod:~$` ✓
+- `docker ps` works without sudo ✓
+- `/opt/webcrawler` contains full repo ✓
+
+**Next:** Create prod env files on VM, then set up DuckDNS + TLS cert.
+
+---
+
+**Remaining for Phase 10:**
+- [x] GCP VM created and running
+- [x] SSH access from Windows confirmed
+- [x] Docker 29.5.1 + Compose v5.1.3 installed on VM
+- [x] SSH access from Ubuntu confirmed
+- [x] Repo cloned at `/opt/webcrawler`
+- [x] docker-compose.prod.yml tuned for 4GB GCP VM
+- [ ] Create prod env files on VM
+- [ ] Open GCP firewall rules (ports 80 + 443)
+- [ ] Set up DuckDNS subdomain
+- [ ] Issue Let's Encrypt TLS cert (Certbot DNS-01)
+- [ ] Deploy dashboard to Vercel
+- [ ] Start stack: `docker compose -f docker-compose.prod.yml up -d`
+- [ ] Smoke test all health checks
 
 ---
 
