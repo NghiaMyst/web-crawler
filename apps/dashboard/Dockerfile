@@ -36,6 +36,7 @@ COPY --from=build /app/apps/dashboard/.next ./apps/dashboard/.next
 COPY --from=build /app/apps/dashboard/package.json ./apps/dashboard/
 COPY --from=build /app/apps/dashboard/public ./apps/dashboard/public
 COPY --from=build /app/node_modules ./node_modules
+COPY --from=build /app/apps/dashboard/node_modules ./apps/dashboard/node_modules
 
 WORKDIR /app/apps/dashboard
 EXPOSE 3000
