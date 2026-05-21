@@ -99,7 +99,11 @@
       "PowerShell(Invoke-RestMethod -Uri \"http://localhost:5000/api/entries?page=1&pageSize=5&sourceId=de9255a5-0639-4bf3-b02d-e2399602703c\" -Method Get 2>&1)",
       "PowerShell(Invoke-RestMethod -Uri \"http://localhost:5000/api/entries?page=1&pageSize=5&sourceId=b43f54c1-4633-4a08-9b06-97bee00605ae\" -Method Get 2>&1)",
       "PowerShell(docker compose build *)",
-      "PowerShell(docker compose up *)"
+      "PowerShell(docker compose up *)",
+      "Bash(docker build *)",
+      "Bash(docker run *)",
+      "Read(//home/nghiant2/.ssh/**)",
+      "Bash(ssh webcrawler *)"
     ]
   }
 }
