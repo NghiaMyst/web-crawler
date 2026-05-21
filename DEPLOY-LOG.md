@@ -267,4 +267,61 @@ sed -i "s|<DUCKDNS_DOMAIN>|${DUCKDNS_DOMAIN}|g" nginx/nginx.conf
 
 ---
 
+### 2026-05-21 — Stack Started, All Services Healthy
+
+**What:** Fixed remaining Docker/config issues and brought all services up.
+
+**Issues encountered and fixed:**
+
+| Issue | Root Cause | Fix |
+|-------|-----------|-----|
+| `docker compose` not loading `.env.prod` | Compose loads `.env` by default, not `.env.prod` | Added `--env-file .env.prod` flag to all compose commands |
+| `dotnet restore` fails: "no project file found" | Dockerfile used `COPY *.csproj ./` but build context is repo root | Updated Dockerfile to `COPY apps/api/*.csproj ./` and `COPY apps/api/. ./` |
+| API container unhealthy (exit 139 / DB auth fail) | `USERNAME=postgres` in `apps/api/.env.prod` but postgres container uses `crawler` | Fixed to `Username=crawler` in connection string |
+| API healthcheck always failing | `wget` not available in dotnet aspnet:8.0 image | Added `curl` to runtime Dockerfile stage; updated healthcheck to use `curl -sf` |
+| nginx not starting | Depends on `api: service_healthy` — waited for above fix | Started automatically once API became healthy |
+
+**Correct startup command:**
+```bash
+docker compose -f docker-compose.prod.yml --env-file .env.prod up -d --build
+```
+
+**Database seeded:**
+```bash
+docker exec -i webcrawler-postgres-1 psql -U crawler -d webcrawler < db/seed.sql
+```
+5 sources inserted: football-data.org, hoyowiki-genshin, lol-tierlist, anilist, mangadex ✓
+
+**Final service status:**
+| Service | Status |
+|---------|--------|
+| postgres | healthy ✓ |
+| redis | healthy ✓ |
+| crawler | healthy ✓ |
+| api | healthy ✓ |
+| nginx | healthy ✓ |
+
+**Verified:**
+- `curl -s https://webcrawler-myst.duckdns.org/health` → 200 OK ✓
+- HTTPS with nginx/1.27.5 over TLS ✓
+- Dashboard loads at https://web-crawler-dashboard.vercel.app ✓
+
+**Remaining Phase 10:**
+- [x] GCP VM created and running
+- [x] SSH access from Windows + Ubuntu confirmed
+- [x] Docker 29.5.1 + Compose v5.1.3 installed
+- [x] Repo cloned at `/opt/webcrawler`
+- [x] docker-compose.prod.yml tuned for 4GB GCP VM
+- [x] Prod env files created on VM
+- [x] GCP firewall rules (ports 80 + 443)
+- [x] DuckDNS subdomain: webcrawler-myst.duckdns.org → 34.87.36.185
+- [x] Let's Encrypt TLS cert — expires 2026-08-19
+- [x] Vercel dashboard deployed
+- [x] CORS_ALLOWED_ORIGINS set to Vercel URL
+- [x] Stack started, all services healthy
+- [ ] SC-1..SC-5 smoke test sign-off
+- [ ] Set up cert renewal cron
+
+---
+
 <!-- Add new entries below as deployment progresses -->

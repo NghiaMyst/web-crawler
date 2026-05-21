@@ -103,7 +103,8 @@
       "Bash(docker build *)",
       "Bash(docker run *)",
       "Read(//home/nghiant2/.ssh/**)",
-      "Bash(ssh webcrawler *)"
+      "Bash(ssh webcrawler *)",
+      "Bash(ssh *)"
     ]
   }
 }
