@@ -2,10 +2,10 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-COPY *.csproj ./
+COPY apps/api/*.csproj ./
 RUN dotnet restore
 
-COPY . ./
+COPY apps/api/. ./
 RUN dotnet build --configuration Release
 RUN dotnet publish --configuration Release --no-build --output /app/publish
 
