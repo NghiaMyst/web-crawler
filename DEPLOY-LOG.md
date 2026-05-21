@@ -320,7 +320,46 @@ docker exec -i webcrawler-postgres-1 psql -U crawler -d webcrawler < db/seed.sql
 - [x] CORS_ALLOWED_ORIGINS set to Vercel URL
 - [x] Stack started, all services healthy
 - [ ] SC-1..SC-5 smoke test sign-off
-- [ ] Set up cert renewal cron
+- [x] Set up cert renewal cron
+
+---
+
+### 2026-05-21 — Cert Renewal Cron Installed
+
+**What:** Configured automatic TLS certificate renewal so the Let's Encrypt cert (expires 2026-08-19) renews itself without manual intervention.
+
+**Approach — token stored on VM, not in git:**
+- `DUCKDNS_TOKEN` appended to `/opt/webcrawler/.env.prod` (gitignored) on the VM
+- `scripts/renew-cert.sh` updated to auto-read the token from that file — cron entry needs no inline secrets
+- `cron` package installed on VM (`sudo apt-get install -y cron`)
+
+**Crontab installed (runs as `nghianguyentrong1211`):**
+```
+0 3,15 * * *  /opt/webcrawler/scripts/renew-cert.sh >> /var/log/cert-renew.log 2>&1
+```
+Runs at 03:00 and 15:00 UTC daily. Certbot skips renewal unless cert expires within 30 days. On renewal, nginx is reloaded automatically (`nginx -s reload`).
+
+**Logs:** `/var/log/cert-renew.log`
+
+**Expected first renewal:** ~mid-June 2026 (60 days before 2026-08-19 expiry)
+
+---
+
+**Remaining Phase 10:**
+- [x] GCP VM created and running
+- [x] SSH access from Windows + Ubuntu confirmed
+- [x] Docker 29.5.1 + Compose v5.1.3 installed
+- [x] Repo cloned at `/opt/webcrawler`
+- [x] docker-compose.prod.yml tuned for 4GB GCP VM
+- [x] Prod env files created on VM
+- [x] GCP firewall rules (ports 80 + 443)
+- [x] DuckDNS subdomain: webcrawler-myst.duckdns.org → 34.87.36.185
+- [x] Let's Encrypt TLS cert — expires 2026-08-19
+- [x] Vercel dashboard deployed
+- [x] CORS_ALLOWED_ORIGINS set to Vercel URL
+- [x] Stack started, all services healthy
+- [x] Set up cert renewal cron
+- [ ] SC-1..SC-5 smoke test sign-off
 
 ---
 
