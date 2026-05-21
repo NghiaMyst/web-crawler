@@ -11,6 +11,7 @@ RUN dotnet publish --configuration Release --no-build --output /app/publish
 
 # Runtime stage — multi-arch (ARM64 compatible)
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
+RUN apt-get update && apt-get install -y curl --no-install-recommends && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 COPY --from=build /app/publish ./
 
