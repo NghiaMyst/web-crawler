@@ -202,4 +202,69 @@ Then open a new Claude Code session and run `/gsd:resume-work` to restore full c
 
 ---
 
+### 2026-05-21 — Prod Env Files, DuckDNS, TLS Cert, Vercel Deploy
+
+**What:** Completed env setup, registered domain, issued TLS cert, deployed dashboard to Vercel.
+
+**Steps completed:**
+
+**Env files (VM):**
+- Copied `.env.prod.example` → `.env.prod`, `apps/api/.env.prod.example` → `apps/api/.env.prod`, `apps/crawler/.env.prod.example` → `apps/crawler/.env.prod`
+- Filled in real values (Postgres password, Telegram/Discord secrets, API keys)
+- Verified: `git status` shows no `.env.prod` files tracked ✓
+
+**GCP Firewall:**
+- Created VPC firewall rule `allow-http-https` — TCP 80 + 443 from 0.0.0.0/0
+- Verified from local: `curl --connect-timeout 5 http://34.87.36.185` → `Connection refused` (port reachable, nothing listening yet) ✓
+
+**DuckDNS:**
+- Registered subdomain: `webcrawler-myst.duckdns.org` → 34.87.36.185
+- Token saved locally
+
+**Let's Encrypt TLS (DNS-01 via DuckDNS):**
+```bash
+docker volume create letsencrypt
+export DUCKDNS_DOMAIN=webcrawler-myst.duckdns.org
+export DUCKDNS_TOKEN=<token>
+export CERT_EMAIL=nghianguyentrong1211@gmail.com
+bash scripts/issue-cert.sh
+sed -i "s|<DUCKDNS_DOMAIN>|${DUCKDNS_DOMAIN}|g" nginx/nginx.conf
+```
+- Cert issued, expires 2026-08-19 ✓
+- `nginx/nginx.conf` patched with real domain ✓
+
+**Vercel deploy (dashboard):**
+- Project: `apps/dashboard` (pnpm + Turborepo monorepo)
+- Troubleshooting: Vercel's Turbo auto-detection was overriding custom install command, causing "No Next.js version detected" error
+- Fix: updated `apps/dashboard/vercel.json` — moved `pnpm install --frozen-lockfile` to `installCommand` so Vercel can detect Next.js version before build runs
+- Env vars set: `NEXT_PUBLIC_API_URL=https://webcrawler-myst.duckdns.org`, `API_URL=https://webcrawler-myst.duckdns.org`
+- Deploy successful ✓
+
+**Verified:**
+- Vercel dashboard URL loads ✓
+- No data shown (expected — backend stack not started yet)
+
+**Next:** Update CORS in `.env.prod` with Vercel URL, then start the stack.
+
+---
+
+**Remaining for Phase 10:**
+- [x] GCP VM created and running
+- [x] SSH access from Windows confirmed
+- [x] Docker 29.5.1 + Compose v5.1.3 installed on VM
+- [x] SSH access from Ubuntu confirmed
+- [x] Repo cloned at `/opt/webcrawler`
+- [x] docker-compose.prod.yml tuned for 4GB GCP VM
+- [x] Create prod env files on VM
+- [x] Open GCP firewall rules (ports 80 + 443)
+- [x] Set up DuckDNS subdomain (webcrawler-myst.duckdns.org)
+- [x] Issue Let's Encrypt TLS cert (Certbot DNS-01) — expires 2026-08-19
+- [x] Deploy dashboard to Vercel
+- [ ] Update CORS_ALLOWED_ORIGINS in .env.prod with Vercel URL
+- [ ] Pull latest code on VM (vercel.json fix needs to be on VM too)
+- [ ] Start stack: `docker compose -f docker-compose.prod.yml up -d`
+- [ ] Smoke test all health checks (SC-1..SC-5)
+
+---
+
 <!-- Add new entries below as deployment progresses -->
