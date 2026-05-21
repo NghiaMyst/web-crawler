@@ -1,11 +1,16 @@
 #!/usr/bin/env bash
 # Cron-friendly Let's Encrypt renewal. Idempotent: skips renewal if cert not near expiry.
-# Required env vars: DUCKDNS_TOKEN (renewal uses the saved domain list automatically)
+# DUCKDNS_TOKEN is sourced from /opt/webcrawler/.env.prod (gitignored on VM) if not set in env.
 # Recommended cron entry (host crontab -e):
-#   0 3,15 * * * DUCKDNS_TOKEN=xxxx /opt/webcrawler/scripts/renew-cert.sh >> /var/log/cert-renew.log 2>&1
+#   0 3,15 * * * /opt/webcrawler/scripts/renew-cert.sh >> /var/log/cert-renew.log 2>&1
 set -euo pipefail
 
-: "${DUCKDNS_TOKEN:?Set DUCKDNS_TOKEN}"
+SECRETS_FILE="${SECRETS_FILE:-/opt/webcrawler/.env.prod}"
+if [[ -z "${DUCKDNS_TOKEN:-}" && -f "${SECRETS_FILE}" ]]; then
+  DUCKDNS_TOKEN="$(grep -E '^DUCKDNS_TOKEN=' "${SECRETS_FILE}" | cut -d'=' -f2- | tr -d '[:space:]')"
+fi
+
+: "${DUCKDNS_TOKEN:?DUCKDNS_TOKEN not set and not found in ${SECRETS_FILE}}"
 
 COMPOSE_FILE="${COMPOSE_FILE:-/opt/webcrawler/docker-compose.prod.yml}"
 
