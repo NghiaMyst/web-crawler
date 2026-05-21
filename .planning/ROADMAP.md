@@ -15,7 +15,7 @@ Ten phases that build a personal data aggregation system from an empty monorepo 
 - [x] **Phase 4: Notification Engine** - Diff engine evaluating alert rules, Telegram and Discord delivery, notification logs persisted (completed 2026-04-16)
 - [x] **Phase 5: .NET REST API** - Full CRUD for sources and alert rules, job management endpoints, paginated entries query, health check
 - [x] **Phase 6: SignalR Real-Time Layer** - SignalR hub pushing new entries to connected clients without polling
-- [ ] **Phase 7: Next.js Dashboard — Core Views** - Data table with filters, source management UI, job management UI
+- [x] **Phase 7: Next.js Dashboard — Core Views** - Data table with filters, source management UI, job management UI (completed 2026-05-21)
 - [x] **Phase 8: Next.js Dashboard — Alerts & Charts** - Alert rule CRUD UI, notification history, volume trend charts (completed 2026-05-15)
 - [x] **Phase 9: Real-Time Dashboard Integration** - SignalR client wired to dashboard, new entries appear live (completed 2026-05-14)
 - [x] **Phase 10: Production Deployment** - docker-compose.prod.yml on Oracle Cloud ARM, Nginx/Caddy HTTPS, Vercel dashboard, Redis + Bloom Filter persistence (completed 2026-05-13)
@@ -225,7 +225,7 @@ Plans:
 - [x] 07-01: Next.js project setup — App Router, Tailwind CSS, API client module (typed fetch wrappers around .NET API), environment config (`NEXT_PUBLIC_API_URL` vs `API_URL`)
 - [x] 07-02: Shared layout — navigation sidebar, responsive shell, loading skeletons, error boundary components (executed early, was planned as 07-05)
 - [x] 07-03: Data table page — server component fetch, client-side filter controls (category, source, date range), cursor pagination with "Load more"
-- [ ] 07-04: Job management page — status-filtered job table, retry button with loading state, auto-refresh every 30s (NOT BUILT — /jobs returns 404)
+- [x] 07-04: Job management page — status-filtered job table, retry button with loading state, auto-refresh every 30s
 - [x] 07-05: Source management page — list view, add/edit modal form, delete confirmation, optimistic UI updates (executed as 07-04)
 
 **UI hint**: yes
@@ -328,7 +328,7 @@ Plans:
 | 4. Notification Engine | 5/5 | Complete   | 2026-04-16 |
 | 5. .NET REST API | 5/5 | Complete | 2026-05-03 |
 | 6. SignalR Real-Time Layer | 3/3 | Complete | 2026-05-03 |
-| 7. Next.js Dashboard — Core Views | 4/5 | Partial (job mgmt page missing) | - |
+| 7. Next.js Dashboard — Core Views | 5/5 | Complete | 2026-05-21 |
 | 8. Next.js Dashboard — Alerts & Charts | 4/4 | Complete    | 2026-05-15 |
 | 9. Real-Time Dashboard Integration | 3/3 | Complete    | 2026-05-14 |
 | 10. Production Deployment | 6/6 | Complete   | 2026-05-14 |
