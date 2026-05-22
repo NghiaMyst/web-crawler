@@ -104,7 +104,8 @@
       "Bash(docker run *)",
       "Read(//home/nghiant2/.ssh/**)",
       "Bash(ssh webcrawler *)",
-      "Bash(ssh *)"
+      "Bash(ssh *)",
+      "Skill(gsd:add-phase)"
     ]
   }
 }

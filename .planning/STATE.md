@@ -86,6 +86,11 @@ Recent decisions affecting current work:
 - **swagger-api-docs** — Expose Swagger UI in .NET API for all environments (currently dev-only). See `.planning/todos/swagger-api-docs.md`
 - **verify-dashboard-api-endpoints** — Fix broken `POST /api/jobs` references in MANUAL-UAT.md (endpoint does not exist); all dashboard→API calls are otherwise compatible. See `.planning/todos/verify-dashboard-api-endpoints.md`
 
+### Roadmap Evolution
+
+- Phase 11 added: Search Foundation — content depth fixes, PostgreSQL FTS, search API, and dashboard search UI
+- Phase 12 added: CI/CD Pipeline and Observability — GitHub Actions deploy to GCE, Artifact Registry, Prometheus metrics, and Grafana dashboards
+
 ### Blockers/Concerns
 
 - Playwright on ARM: unknown until Phase 1 Plan 01-06 — if `mcr.microsoft.com/playwright` base image fails on Ampere A1, crawler architecture needs adjustment

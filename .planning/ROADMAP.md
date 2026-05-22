@@ -19,6 +19,8 @@ Ten phases that build a personal data aggregation system from an empty monorepo 
 - [x] **Phase 8: Next.js Dashboard — Alerts & Charts** - Alert rule CRUD UI, notification history, volume trend charts (completed 2026-05-15)
 - [x] **Phase 9: Real-Time Dashboard Integration** - SignalR client wired to dashboard, new entries appear live (completed 2026-05-14)
 - [x] **Phase 10: Production Deployment** - docker-compose.prod.yml on Oracle Cloud ARM, Nginx/Caddy HTTPS, Vercel dashboard, Redis + Bloom Filter persistence (completed 2026-05-13)
+- [ ] **Phase 11: Search Foundation** - Content depth fixes per source, PostgreSQL FTS tsvector index, search API endpoint, dashboard search UI
+- [ ] **Phase 12: CI/CD Pipeline and Observability** - GitHub Actions deploy to GCE via Artifact Registry, Prometheus metrics from crawler and API, Grafana dashboards for crawler health and system metrics
 
 ---
 
@@ -313,6 +315,26 @@ Plans:
 - [x] 10-05: Vercel dashboard deployment — `NEXT_PUBLIC_API_URL` pointed at production API, SignalR WSS upgrade verified, smoke test all pages
 
 **UI hint**: no
+
+### Phase 11: Search Foundation — content depth fixes, PostgreSQL FTS, search API, and dashboard search UI
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phase 10
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd-plan-phase 11 to break down)
+
+### Phase 12: CI/CD Pipeline and Observability — GitHub Actions deploy to GCE, Artifact Registry, Prometheus metrics, and Grafana dashboards
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phase 11
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd-plan-phase 12 to break down)
 
 ---
 
