@@ -1,10 +1,11 @@
 import type { Metadata } from 'next';
-import { Geist } from 'next/font/google';
+import { Inter, Plus_Jakarta_Sans } from 'next/font/google';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { cn } from '@/lib/utils';
 import './globals.css';
 
-const geist = Geist({ subsets: ['latin'], variable: '--font-sans' });
+const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
+const plusJakarta = Plus_Jakarta_Sans({ subsets: ['latin'], variable: '--font-heading' });
 
 export const metadata: Metadata = {
   title: 'Web Crawler Dashboard',
@@ -17,8 +18,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }): React.JSX.Element {
   return (
-    <html lang="en" className={cn('font-sans', geist.variable)}>
-      <body className="antialiased text-zinc-900">
+    <html lang="en" className={cn('font-sans antialiased', inter.variable, plusJakarta.variable)}>
+      <body className="text-zinc-900">
         <DashboardLayout>{children}</DashboardLayout>
       </body>
     </html>

@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+  Select, SelectContent, SelectItem, SelectTrigger,
 } from '@/components/ui/select';
 import { z } from 'zod';
 import { sourceCategoryEnum, crawlerTypeEnum } from '@/lib/schemas/source';
@@ -56,40 +56,53 @@ export function SourceModal({
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  source: Source | null; // null = add mode
+  source: Source | null;
   onSuccess: (saved: Source, mode: 'add' | 'edit') => void;
 }): React.JSX.Element {
   const isEdit = source !== null;
   const [serverError, setServerError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
+  // Local state for controlled selects — avoids stale watch() subscriptions.
+  const [selectedCategory, setSelectedCategory] = useState<SourceFormData['category']>('game');
+  const [selectedCrawlerType, setSelectedCrawlerType] = useState<SourceFormData['crawlerType']>('cheerio');
+  const [isActive, setIsActive] = useState(true);
+
   const {
-    register, handleSubmit, reset, setValue, watch, setError,
+    register, handleSubmit, reset, setValue, setError,
     formState: { errors },
   } = useForm<SourceFormData>({
     resolver: zodResolver(sourceFormSchema),
     defaultValues: DEFAULTS,
   });
 
-  // Reset form when source prop changes (edit vs add) or modal opens.
   useEffect(() => {
     if (open) {
-      reset(source ? {
-        name: source.name,
-        displayName: source.displayName,
-        url: source.url,
-        category: (source.category as SourceFormData['category']) || 'game',
-        parserKey: source.parserKey,
-        crawlerType: source.crawlerType,
-        crawlInterval: source.crawlInterval,
-        priority: source.priority,
-        isActive: source.isActive,
-      } : DEFAULTS);
+      if (source) {
+        const category = (source.category as SourceFormData['category']) || 'game';
+        setSelectedCategory(category);
+        setSelectedCrawlerType(source.crawlerType);
+        setIsActive(source.isActive);
+        reset({
+          name: source.name,
+          displayName: source.displayName,
+          url: source.url,
+          category,
+          parserKey: source.parserKey,
+          crawlerType: source.crawlerType,
+          crawlInterval: source.crawlInterval,
+          priority: source.priority,
+          isActive: source.isActive,
+        });
+      } else {
+        setSelectedCategory('game');
+        setSelectedCrawlerType('cheerio');
+        setIsActive(true);
+        reset(DEFAULTS);
+      }
       setServerError(null);
     }
   }, [open, source, reset]);
-
-  const isActive = watch('isActive');
 
   function onSubmit(data: SourceFormData): void {
     setServerError(null);
@@ -122,84 +135,178 @@ export function SourceModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg">
-        <DialogHeader>
-          <DialogTitle>{isEdit ? 'Edit source' : 'Add source'}</DialogTitle>
-          <DialogDescription>
+      <DialogContent className="sm:max-w-2xl p-0 gap-0 overflow-hidden">
+        {/* Header */}
+        <DialogHeader className="px-6 pt-6 pb-4 border-b border-zinc-100">
+          <DialogTitle className="text-base font-semibold text-zinc-900">
+            {isEdit ? 'Edit Source' : 'New Source'}
+          </DialogTitle>
+          <DialogDescription className="text-sm text-zinc-500 mt-0.5">
             {isEdit
-              ? 'Update the editable fields. Name, category, parser, and crawler type are immutable.'
-              : 'Configure a new crawl source.'}
+              ? 'Update editable fields. Name, category, parser key, and crawler type are fixed after creation.'
+              : 'Configure a new crawl source. Name, category, parser key, and crawler type cannot be changed later.'}
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <FormField label="Name (unique slug)" htmlFor="name" error={errors.name?.message}>
-            <Input id="name" {...register('name')} disabled={isEdit} placeholder="genshin-events" />
-          </FormField>
-          <FormField label="Display name" htmlFor="displayName" error={errors.displayName?.message}>
-            <Input id="displayName" {...register('displayName')} placeholder="Genshin Impact Events" />
-          </FormField>
-          <FormField label="URL" htmlFor="url" error={errors.url?.message}>
-            <Input id="url" type="url" {...register('url')} placeholder="https://example.com/api" />
-          </FormField>
-          <div className="grid grid-cols-2 gap-3">
-            <FormField label="Category" htmlFor="category" error={errors.category?.message}>
-              <Select
-                value={watch('category')}
-                onValueChange={(v) => setValue('category', v as SourceFormData['category'], { shouldValidate: true })}
-                disabled={isEdit}
-              >
-                <SelectTrigger id="category"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {CATEGORIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </FormField>
-            <FormField label="Parser key" htmlFor="parserKey" error={errors.parserKey?.message}>
-              <Input id="parserKey" {...register('parserKey')} disabled={isEdit} placeholder="genshin" />
-            </FormField>
-          </div>
-          <div className="grid grid-cols-3 gap-3">
-            <FormField label="Crawler" htmlFor="crawlerType" error={errors.crawlerType?.message}>
-              <Select
-                value={watch('crawlerType')}
-                onValueChange={(v) => setValue('crawlerType', v as SourceFormData['crawlerType'], { shouldValidate: true })}
-                disabled={isEdit}
-              >
-                <SelectTrigger id="crawlerType"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {CRAWLER_TYPES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </FormField>
-            <FormField label="Interval (s)" htmlFor="crawlInterval" error={errors.crawlInterval?.message}>
-              <Input id="crawlInterval" type="number" {...register('crawlInterval', { valueAsNumber: true })} />
-            </FormField>
-            <FormField label="Priority" htmlFor="priority" error={errors.priority?.message}>
-              <Input id="priority" type="number" min={1} max={10} {...register('priority', { valueAsNumber: true })} />
-            </FormField>
-          </div>
-          <div className="flex items-center gap-2">
-            <input
-              id="isActive"
-              type="checkbox"
-              checked={isActive}
-              onChange={(e) => setValue('isActive', e.target.checked, { shouldValidate: true })}
-              className="h-4 w-4 rounded border-zinc-300"
-            />
-            <Label htmlFor="isActive" className="text-sm">Active (enable crawling)</Label>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <div className="px-6 py-5 space-y-5 max-h-[65vh] overflow-y-auto">
+
+            {/* Identity section */}
+            <div className="rounded-lg border border-zinc-200 bg-zinc-50/50">
+              <div className="px-4 py-3 border-b border-zinc-200">
+                <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">Identity</p>
+              </div>
+              <div className="px-4 py-4 grid grid-cols-2 gap-4">
+                <Field label="Slug name" required error={errors.name?.message}>
+                  <Input
+                    id="name"
+                    {...register('name')}
+                    disabled={isEdit}
+                    placeholder="genshin-events"
+                  />
+                  {!isEdit && <p className="text-xs text-zinc-400 mt-1">Unique identifier. Cannot be changed later.</p>}
+                </Field>
+                <Field label="Display name" required error={errors.displayName?.message}>
+                  <Input
+                    id="displayName"
+                    {...register('displayName')}
+                    placeholder="Genshin Impact Events"
+                  />
+                </Field>
+              </div>
+            </div>
+
+            {/* Source section */}
+            <div className="rounded-lg border border-zinc-200 bg-zinc-50/50">
+              <div className="px-4 py-3 border-b border-zinc-200">
+                <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">Source</p>
+              </div>
+              <div className="px-4 py-4 space-y-4">
+                <Field label="URL" required error={errors.url?.message}>
+                  <Input
+                    id="url"
+                    type="url"
+                    {...register('url')}
+                    placeholder="https://example.com/api/data"
+                  />
+                </Field>
+                <div className="grid grid-cols-2 gap-4">
+                  <Field label="Category" error={errors.category?.message}>
+                    <Select
+                      value={selectedCategory}
+                      onValueChange={(v) => {
+                        const cat = v as SourceFormData['category'];
+                        setSelectedCategory(cat);
+                        setValue('category', cat, { shouldValidate: true });
+                      }}
+                      disabled={isEdit}
+                    >
+                      <SelectTrigger id="category">
+                        <span className="capitalize">{selectedCategory}</span>
+                      </SelectTrigger>
+                      <SelectContent>
+                        {CATEGORIES.map((c) => (
+                          <SelectItem key={c} value={c} className="capitalize">{c}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </Field>
+                  <Field label="Parser key" required error={errors.parserKey?.message}>
+                    <Input
+                      id="parserKey"
+                      {...register('parserKey')}
+                      disabled={isEdit}
+                      placeholder="genshin"
+                    />
+                  </Field>
+                </div>
+              </div>
+            </div>
+
+            {/* Crawl settings section */}
+            <div className="rounded-lg border border-zinc-200 bg-zinc-50/50">
+              <div className="px-4 py-3 border-b border-zinc-200">
+                <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">Crawl settings</p>
+              </div>
+              <div className="px-4 py-4 space-y-4">
+                <div className="grid grid-cols-3 gap-4">
+                  <Field label="Crawler type" error={errors.crawlerType?.message}>
+                    <Select
+                      value={selectedCrawlerType}
+                      onValueChange={(v) => {
+                        const ct = v as SourceFormData['crawlerType'];
+                        setSelectedCrawlerType(ct);
+                        setValue('crawlerType', ct, { shouldValidate: true });
+                      }}
+                      disabled={isEdit}
+                    >
+                      <SelectTrigger id="crawlerType">
+                        <span className="capitalize">{selectedCrawlerType}</span>
+                      </SelectTrigger>
+                      <SelectContent>
+                        {CRAWLER_TYPES.map((c) => (
+                          <SelectItem key={c} value={c} className="capitalize">{c}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </Field>
+                  <Field label="Interval (seconds)" error={errors.crawlInterval?.message}>
+                    <Input
+                      id="crawlInterval"
+                      type="number"
+                      {...register('crawlInterval', { valueAsNumber: true })}
+                      placeholder="3600"
+                    />
+                  </Field>
+                  <Field label="Priority (1–10)" error={errors.priority?.message}>
+                    <Input
+                      id="priority"
+                      type="number"
+                      min={1}
+                      max={10}
+                      {...register('priority', { valueAsNumber: true })}
+                    />
+                  </Field>
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-sm font-medium text-zinc-700">Status</Label>
+                  <label htmlFor="isActive" className="flex items-center gap-2.5 h-9 cursor-pointer select-none">
+                    <input
+                      id="isActive"
+                      type="checkbox"
+                      checked={isActive}
+                      onChange={(e) => {
+                        setIsActive(e.target.checked);
+                        setValue('isActive', e.target.checked, { shouldValidate: true });
+                      }}
+                      className="h-4 w-4 rounded border-zinc-300 accent-zinc-900 cursor-pointer"
+                    />
+                    <span className="text-sm text-zinc-700">{isActive ? 'Active — crawling enabled' : 'Paused — crawling disabled'}</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            {serverError && (
+              <div className="rounded-md bg-red-50 border border-red-200 px-3 py-2.5">
+                <p className="text-sm text-red-700">{serverError}</p>
+              </div>
+            )}
           </div>
 
-          {serverError && (
-            <p className="text-sm text-red-600" role="alert">{serverError}</p>
-          )}
-
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isPending}>
+          {/* Footer */}
+          <DialogFooter className="px-6 py-4 border-t border-zinc-100 bg-zinc-50/50 flex justify-end gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+              disabled={isPending}
+              className="text-zinc-600"
+            >
               Cancel
             </Button>
-            <Button type="submit" disabled={isPending}>
-              {isPending ? 'Saving…' : 'Save Source'}
+            <Button type="submit" disabled={isPending} className="min-w-[120px]">
+              {isPending ? 'Saving…' : isEdit ? 'Save changes' : 'Create source'}
             </Button>
           </DialogFooter>
         </form>
@@ -208,17 +315,23 @@ export function SourceModal({
   );
 }
 
-function FormField({
-  label, htmlFor, error, children,
+function Field({
+  label,
+  required,
+  error,
+  children,
 }: {
   label: string;
-  htmlFor: string;
+  required?: boolean;
   error?: string;
   children: React.ReactNode;
 }): React.JSX.Element {
   return (
     <div className="space-y-1.5">
-      <Label htmlFor={htmlFor} className="text-sm">{label}</Label>
+      <Label className="text-sm font-medium text-zinc-700">
+        {label}
+        {required && <span className="text-red-500 ml-0.5">*</span>}
+      </Label>
       {children}
       {error && <p className="text-xs text-red-600">{error}</p>}
     </div>

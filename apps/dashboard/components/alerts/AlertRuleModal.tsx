@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+  Select, SelectContent, SelectItem, SelectTrigger,
 } from '@/components/ui/select';
 import { createAlertRuleAction, updateAlertRuleAction } from '@/actions/alert-rule.actions';
 import type { AlertRule, Source } from '@/types/api';
@@ -38,6 +38,8 @@ const alertRuleFormSchema = z.object({
 });
 
 type AlertRuleFormData = z.infer<typeof alertRuleFormSchema>;
+type ConditionType = AlertRuleFormData['condition']['type'];
+type Channel = AlertRuleFormData['channel'];
 
 const DEFAULTS: AlertRuleFormData = {
   sourceId: '',
@@ -46,6 +48,12 @@ const DEFAULTS: AlertRuleFormData = {
   isActive: true,
   condition: { type: 'new_item' },
   messageTpl: '',
+};
+
+const CONDITION_LABELS: Record<ConditionType, string> = {
+  new_item: 'New item',
+  field_changed: 'Field changed',
+  threshold: 'Threshold',
 };
 
 export function AlertRuleModal({
@@ -65,8 +73,15 @@ export function AlertRuleModal({
   const [serverError, setServerError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
+  // Local state drives all controlled selects so UI updates immediately,
+  // independent of react-hook-form's watch subscription timing.
+  const [conditionType, setConditionType] = useState<ConditionType>('new_item');
+  const [selectedSourceId, setSelectedSourceId] = useState('');
+  const [selectedChannel, setSelectedChannel] = useState<Channel>('telegram');
+  const [isActive, setIsActive] = useState(true);
+
   const {
-    register, handleSubmit, reset, setValue, watch, setError, resetField,
+    register, handleSubmit, reset, setValue, setError,
     formState: { errors },
   } = useForm<AlertRuleFormData>({
     resolver: zodResolver(alertRuleFormSchema),
@@ -76,35 +91,40 @@ export function AlertRuleModal({
   useEffect(() => {
     if (open) {
       if (rule) {
+        const ruleCondition = rule.condition as AlertRuleFormData['condition'];
+        setConditionType(ruleCondition.type);
+        setSelectedSourceId(rule.sourceId);
+        setSelectedChannel(rule.channel);
+        setIsActive(rule.isActive);
         reset({
           sourceId: rule.sourceId,
           name: rule.name,
           channel: rule.channel,
           isActive: rule.isActive,
-          condition: rule.condition as AlertRuleFormData['condition'],
+          condition: ruleCondition,
           messageTpl: rule.messageTpl ?? '',
         });
       } else {
+        setConditionType('new_item');
+        setSelectedSourceId('');
+        setSelectedChannel('telegram');
+        setIsActive(true);
         reset(DEFAULTS);
       }
       setServerError(null);
     }
   }, [open, rule, reset]);
 
-  const conditionType = watch('condition.type');
-  const isActive = watch('isActive');
-
   function handleConditionTypeChange(newType: string | null): void {
     if (!newType) return;
-    if (newType === 'new_item') {
-      setValue('condition', { type: 'new_item' });
-    } else if (newType === 'field_changed') {
-      setValue('condition', { type: 'field_changed', fieldPath: '' });
-      resetField('condition.fieldPath' as keyof AlertRuleFormData);
-    } else if (newType === 'threshold') {
-      setValue('condition', { type: 'threshold', fieldPath: '', threshold: 0 });
-      resetField('condition.fieldPath' as keyof AlertRuleFormData);
-      resetField('condition.threshold' as keyof AlertRuleFormData);
+    const type = newType as ConditionType;
+    setConditionType(type);
+    if (type === 'new_item') {
+      setValue('condition', { type: 'new_item' }, { shouldValidate: false });
+    } else if (type === 'field_changed') {
+      setValue('condition', { type: 'field_changed', fieldPath: '' }, { shouldValidate: false });
+    } else if (type === 'threshold') {
+      setValue('condition', { type: 'threshold', fieldPath: '', threshold: 0 }, { shouldValidate: false });
     }
   }
 
@@ -126,9 +146,6 @@ export function AlertRuleModal({
         if (result.fieldErrors) {
           for (const [field, msgs] of Object.entries(result.fieldErrors)) {
             if (msgs?.[0]) {
-              // Cast to Parameters<typeof setError>[0] so dot-notation paths like
-              // "condition.fieldPath" are forwarded correctly to react-hook-form
-              // instead of being truncated to the parent key by a keyof cast.
               setError(field as Parameters<typeof setError>[0], { message: msgs[0] });
             }
           }
@@ -140,123 +157,198 @@ export function AlertRuleModal({
     });
   }
 
+  const selectedSourceName = sources.find((s) => s.id === selectedSourceId)?.displayName;
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg">
-        <DialogHeader>
-          <DialogTitle>{isEdit ? 'Edit Alert Rule' : 'Add Alert Rule'}</DialogTitle>
-          <DialogDescription>
+      <DialogContent className="sm:max-w-2xl p-0 gap-0 overflow-hidden">
+        {/* Header */}
+        <DialogHeader className="px-6 pt-6 pb-4 border-b border-zinc-100">
+          <DialogTitle className="text-base font-semibold text-zinc-900">
+            {isEdit ? 'Edit Alert Rule' : 'New Alert Rule'}
+          </DialogTitle>
+          <DialogDescription className="text-sm text-zinc-500 mt-0.5">
             {isEdit
-              ? 'Update the rule. Source cannot be changed after creation.'
-              : 'Configure a new alert rule for a crawl source.'}
+              ? 'Update rule settings. Source cannot be changed after creation.'
+              : 'Configure when and how you want to be notified.'}
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <FormField label="Source" htmlFor="sourceId" error={errors.sourceId?.message}>
-            <Select
-              value={watch('sourceId')}
-              onValueChange={(v) => { if (v) setValue('sourceId', v, { shouldValidate: true }); }}
-              disabled={isEdit}
-            >
-              <SelectTrigger id="sourceId"><SelectValue placeholder="Select a source" /></SelectTrigger>
-              <SelectContent>
-                {sources.map((s) => (
-                  <SelectItem key={s.id} value={s.id}>{s.displayName}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </FormField>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <div className="px-6 py-5 space-y-5 max-h-[65vh] overflow-y-auto">
 
-          <FormField label="Name" htmlFor="name" error={errors.name?.message}>
-            <Input id="name" {...register('name')} placeholder="e.g. New Genshin event" />
-          </FormField>
+            {/* Source */}
+            <Field label="Source" required error={errors.sourceId?.message}>
+              <Select
+                value={selectedSourceId}
+                onValueChange={(v) => {
+                  if (!v) return;
+                  setSelectedSourceId(v);
+                  setValue('sourceId', v, { shouldValidate: true });
+                }}
+                disabled={isEdit}
+              >
+                {/* Render the display name directly — avoids Radix UI's lazy
+                    item-registry lookup which shows raw UUIDs before first open */}
+                <SelectTrigger id="sourceId" className="w-full">
+                  {selectedSourceName
+                    ? <span>{selectedSourceName}</span>
+                    : <span className="text-zinc-400">Select a source…</span>}
+                </SelectTrigger>
+                <SelectContent>
+                  {sources.map((s) => (
+                    <SelectItem key={s.id} value={s.id}>{s.displayName}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </Field>
 
-          <FormField label="Condition type" htmlFor="conditionType" error={errors.condition?.message}>
-            <Select
-              value={conditionType}
-              onValueChange={handleConditionTypeChange}
-            >
-              <SelectTrigger id="conditionType"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="new_item">New item</SelectItem>
-                <SelectItem value="field_changed">Field changed</SelectItem>
-                <SelectItem value="threshold">Threshold</SelectItem>
-              </SelectContent>
-            </Select>
-          </FormField>
-
-          {(conditionType === 'field_changed' || conditionType === 'threshold') && (
-            <FormField
-              label="Field path"
-              htmlFor="fieldPath"
-              error={(errors.condition as { fieldPath?: { message?: string } })?.fieldPath?.message}
-            >
+            {/* Name */}
+            <Field label="Rule name" required error={errors.name?.message}>
               <Input
-                id="fieldPath"
-                {...register('condition.fieldPath' as keyof AlertRuleFormData)}
-                placeholder="e.g. patch_version"
+                id="name"
+                {...register('name')}
+                placeholder="e.g. New Genshin event"
+                className="w-full"
               />
-            </FormField>
-          )}
+            </Field>
 
-          {conditionType === 'threshold' && (
-            <FormField
-              label="Threshold value"
-              htmlFor="threshold"
-              error={(errors.condition as { threshold?: { message?: string } })?.threshold?.message}
-            >
+            {/* Condition section */}
+            <div className="rounded-lg border border-zinc-200 bg-zinc-50/50">
+              <div className="px-4 py-3 border-b border-zinc-200">
+                <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">Condition</p>
+              </div>
+              <div className="px-4 py-4 space-y-4">
+                <Field label="Type" error={errors.condition?.message}>
+                  <Select value={conditionType} onValueChange={handleConditionTypeChange}>
+                    <SelectTrigger id="conditionType" className="w-full">
+                      <span>{CONDITION_LABELS[conditionType]}</span>
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="new_item">New item</SelectItem>
+                      <SelectItem value="field_changed">Field changed</SelectItem>
+                      <SelectItem value="threshold">Threshold</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {conditionType === 'new_item' && (
+                    <p className="text-xs text-zinc-400 mt-1">Triggers when a new entry key is seen for the first time.</p>
+                  )}
+                </Field>
+
+                {(conditionType === 'field_changed' || conditionType === 'threshold') && (
+                  <Field
+                    label="Field path"
+                    required
+                    error={(errors.condition as { fieldPath?: { message?: string } })?.fieldPath?.message}
+                  >
+                    <Input
+                      id="fieldPath"
+                      {...register('condition.fieldPath' as keyof AlertRuleFormData)}
+                      placeholder="e.g. patch_version"
+                    />
+                    <p className="text-xs text-zinc-400 mt-1">Dot-notation path into the entry&apos;s JSON payload.</p>
+                  </Field>
+                )}
+
+                {conditionType === 'threshold' && (
+                  <Field
+                    label="Threshold value"
+                    required
+                    error={(errors.condition as { threshold?: { message?: string } })?.threshold?.message}
+                  >
+                    <Input
+                      id="threshold"
+                      type="number"
+                      placeholder="e.g. 100"
+                      {...register('condition.threshold' as keyof AlertRuleFormData, { valueAsNumber: true })}
+                    />
+                  </Field>
+                )}
+              </div>
+            </div>
+
+            {/* Delivery section */}
+            <div className="rounded-lg border border-zinc-200 bg-zinc-50/50">
+              <div className="px-4 py-3 border-b border-zinc-200">
+                <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">Delivery</p>
+              </div>
+              <div className="px-4 py-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <Field label="Channel" error={errors.channel?.message}>
+                    <Select
+                      value={selectedChannel}
+                      onValueChange={(v) => {
+                        const ch = v as Channel;
+                        setSelectedChannel(ch);
+                        setValue('channel', ch, { shouldValidate: true });
+                      }}
+                    >
+                      <SelectTrigger id="channel" className="w-full">
+                        <span className="capitalize">{selectedChannel}</span>
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="telegram">Telegram</SelectItem>
+                        <SelectItem value="discord">Discord</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </Field>
+
+                  <div className="space-y-1.5">
+                    <Label className="text-sm font-medium text-zinc-700">Status</Label>
+                    <label
+                      htmlFor="isActive"
+                      className="flex items-center gap-2.5 h-9 cursor-pointer select-none"
+                    >
+                      <div className="relative flex items-center">
+                        <input
+                          id="isActive"
+                          type="checkbox"
+                          checked={isActive}
+                          onChange={(e) => {
+                            setIsActive(e.target.checked);
+                            setValue('isActive', e.target.checked, { shouldValidate: true });
+                          }}
+                          className="peer h-4 w-4 rounded border-zinc-300 text-zinc-900 accent-zinc-900 cursor-pointer"
+                        />
+                      </div>
+                      <span className="text-sm text-zinc-700">
+                        {isActive ? 'Active' : 'Paused'}
+                      </span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Message template */}
+            <Field label="Message template" hint="Optional — leave blank for the default format." error={errors.messageTpl?.message}>
               <Input
-                id="threshold"
-                type="number"
-                placeholder="e.g. 100"
-                {...register('condition.threshold' as keyof AlertRuleFormData, { valueAsNumber: true })}
+                id="messageTpl"
+                {...register('messageTpl')}
+                placeholder="e.g. New anime: {title} — Ep {episode}"
               />
-            </FormField>
-          )}
+            </Field>
 
-          <FormField label="Message template" htmlFor="messageTpl" error={errors.messageTpl?.message}>
-            <Input
-              id="messageTpl"
-              {...register('messageTpl')}
-              placeholder="e.g. New anime: {title} — Ep {episode}  (leave blank for auto)"
-            />
-          </FormField>
-
-          <FormField label="Notification channel" htmlFor="channel" error={errors.channel?.message}>
-            <Select
-              value={watch('channel')}
-              onValueChange={(v) => setValue('channel', v as AlertRuleFormData['channel'], { shouldValidate: true })}
-            >
-              <SelectTrigger id="channel"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="telegram">Telegram</SelectItem>
-                <SelectItem value="discord">Discord</SelectItem>
-              </SelectContent>
-            </Select>
-          </FormField>
-
-          <div className="flex items-center gap-2">
-            <input
-              id="isActive"
-              type="checkbox"
-              checked={isActive}
-              onChange={(e) => setValue('isActive', e.target.checked, { shouldValidate: true })}
-              className="h-4 w-4 rounded border-zinc-300"
-            />
-            <Label htmlFor="isActive" className="text-sm">Active (send notifications)</Label>
+            {serverError && (
+              <div className="rounded-md bg-red-50 border border-red-200 px-3 py-2.5">
+                <p className="text-sm text-red-700">{serverError}</p>
+              </div>
+            )}
           </div>
 
-          {serverError && (
-            <p className="text-sm text-red-600" role="alert">{serverError}</p>
-          )}
-
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isPending}>
-              Discard changes
+          {/* Footer */}
+          <DialogFooter className="px-6 py-4 border-t border-zinc-100 bg-zinc-50/50 flex justify-end gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+              disabled={isPending}
+              className="text-zinc-600"
+            >
+              Cancel
             </Button>
-            <Button type="submit" disabled={isPending}>
-              {isPending ? 'Saving…' : isEdit ? 'Save Changes' : 'Save Alert Rule'}
+            <Button type="submit" disabled={isPending} className="min-w-[120px]">
+              {isPending ? 'Saving…' : isEdit ? 'Save changes' : 'Create rule'}
             </Button>
           </DialogFooter>
         </form>
@@ -265,17 +357,26 @@ export function AlertRuleModal({
   );
 }
 
-function FormField({
-  label, htmlFor, error, children,
+function Field({
+  label,
+  required,
+  hint,
+  error,
+  children,
 }: {
   label: string;
-  htmlFor: string;
+  required?: boolean;
+  hint?: string;
   error?: string;
   children: React.ReactNode;
 }): React.JSX.Element {
   return (
     <div className="space-y-1.5">
-      <Label htmlFor={htmlFor} className="text-sm">{label}</Label>
+      <Label className="text-sm font-medium text-zinc-700">
+        {label}
+        {required && <span className="text-red-500 ml-0.5">*</span>}
+        {hint && <span className="ml-1.5 font-normal text-zinc-400">{hint}</span>}
+      </Label>
       {children}
       {error && <p className="text-xs text-red-600">{error}</p>}
     </div>

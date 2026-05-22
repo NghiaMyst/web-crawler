@@ -21,7 +21,7 @@ export function DeleteAlertDialog({
   const [isPending, startTransition] = useTransition();
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Delete alert rule?</DialogTitle>
           <DialogDescription>

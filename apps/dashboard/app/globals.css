@@ -15,7 +15,7 @@ body {
 }
 
 @theme inline {
-  --font-heading: var(--font-sans);
+  --font-heading: var(--font-heading);
   --font-sans: var(--font-sans);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -135,5 +135,6 @@ body {
   }
   html {
     @apply font-sans;
+    font-size: 17px;
   }
 }
