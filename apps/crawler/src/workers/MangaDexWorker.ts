@@ -26,7 +26,7 @@ export function createMangaDexWorker(): Worker<MangaDexJobData> {
   const worker = new Worker<MangaDexJobData>(
     'crawl-mangadex',
     async (job: Job<MangaDexJobData>): Promise<void> => {
-      const url = 'https://api.mangadex.org/chapter?order[publishAt]=desc&limit=10';
+      const url = 'https://api.mangadex.org/chapter?order[publishAt]=desc&limit=10&includes[]=manga';
 
       logger.info('MangaDex fetch started', { url, sourceId: SOURCE_ID, jobId: job.id });
 
