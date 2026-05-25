@@ -332,13 +332,17 @@ Plans:
 
 ### Phase 12: CI/CD Pipeline and Observability — GitHub Actions deploy to GCE, Artifact Registry, Prometheus metrics, and Grafana dashboards
 
-**Goal:** [To be planned]
-**Requirements**: TBD
+**Goal:** Push Docker images to GCP Artifact Registry via GitHub Actions (WIF auth, matrix build for crawler+api, registry cache), SSH deploy to GCE VM with IMAGE_TAG-based rolling update, instrument crawler with prom-client (BullMQ queue metrics + crawl latency histogram on port 9464) and .NET API with prometheus-net (HTTP metrics + runtime metrics at /metrics), add Prometheus + Grafana to docker-compose.prod.yml, expose Grafana at /grafana/ via nginx with basic auth.
+**Requirements**: CICD-01, CICD-02, CICD-03, OBS-01, OBS-02
 **Depends on:** Phase 11
-**Plans:** 0 plans
+**Plans:** 5 plans
 
 Plans:
-- [ ] TBD (run /gsd-plan-phase 12 to break down)
+- [ ] 12-01-PLAN.md — GCP Artifact Registry + WIF setup docs: gcloud runbook with project-c67469b2-5925-4167-b6a, SSH key generation steps, .github/secrets.md with all 7 required secrets
+- [ ] 12-02-PLAN.md — GitHub Actions CI: build-and-push job with matrix strategy (crawler + api parallel), WIF auth, type=registry cache, linux/amd64 only
+- [ ] 12-03-PLAN.md — GitHub Actions CD + compose migration: replace build: with image: in docker-compose.prod.yml, add deploy job with appleboy/ssh-action, sed IMAGE_TAG update, --no-deps restart
+- [ ] 12-04-PLAN.md — Prometheus metrics instrumentation: prom-client in crawler (BullMQ exportPrometheusMetrics + crawl histogram), prometheus-net in .NET API (UseHttpMetrics + MapMetrics), Vitest + xUnit test stubs
+- [ ] 12-05-PLAN.md — Observability stack: monitoring/ directory with prometheus.yml + Grafana provisioning + crawler/api dashboard JSONs, prometheus+grafana services in docker-compose.prod.yml, nginx /grafana/ proxy with $grafana_connection_upgrade
 
 ---
 
