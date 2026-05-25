@@ -1,4 +1,5 @@
 using System.Text.Json;
+using NpgsqlTypes;
 
 namespace WebCrawlerApi.Data.Entities;
 
@@ -17,6 +18,13 @@ public class DataEntry
     public JsonDocument Payload { get; set; } = JsonDocument.Parse("{}");
 
     public DateTimeOffset CrawledAt { get; set; }
+
+    /// <summary>
+    /// PostgreSQL tsvector populated by data_entries_search_vector_trigger (Phase 11).
+    /// NULL for rows inserted before the migration. Reads search_config.json_paths
+    /// for this row's source_id, extracts JSONB values, and writes to_tsvector('english', ...).
+    /// </summary>
+    public NpgsqlTsVector? SearchVector { get; set; }
 
     // Navigation properties
     public Source Source { get; set; } = null!;

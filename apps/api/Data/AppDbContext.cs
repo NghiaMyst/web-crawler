@@ -12,6 +12,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<DataEntry> DataEntries => Set<DataEntry>();
     public DbSet<AlertRule> AlertRules => Set<AlertRule>();
     public DbSet<NotificationLog> NotificationLogs => Set<NotificationLog>();
+    public DbSet<SearchConfig> SearchConfigs => Set<SearchConfig>();
 
     private static JsonDocument ParseJsonDocument(string s) => JsonDocument.Parse(s);
 
@@ -88,6 +89,11 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             entity.HasIndex(e => e.Category);
             entity.HasIndex(e => e.CrawledAt).IsDescending();
 
+            // Phase 11: tsvector column populated by PL/pgSQL trigger. Not used in InMemory provider.
+            // GIN index is created via raw SQL in the AddFtsSearchVector migration (HasGeneratedTsVectorColumn
+            // is broken with JSONB in Npgsql 8.0 — GitHub issue #3075).
+            entity.Property(e => e.SearchVector).HasColumnType("tsvector");
+
             entity.HasOne(e => e.Source)
                   .WithMany(s => s.DataEntries)
                   .HasForeignKey(e => e.SourceId)
@@ -141,6 +147,21 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                   .WithMany()
                   .HasForeignKey(n => n.DataEntryId)
                   .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        // ── SearchConfig (Phase 11 — FTS per-source field list) ───────────────
+        modelBuilder.Entity<SearchConfig>(entity =>
+        {
+            entity.HasKey(c => c.SourceId);
+
+            entity.Property(c => c.JsonPaths)
+                .HasColumnType("text[]")
+                .IsRequired();
+
+            entity.HasOne(c => c.Source)
+                  .WithOne()
+                  .HasForeignKey<SearchConfig>(c => c.SourceId)
+                  .OnDelete(DeleteBehavior.Cascade);
         });
     }
 }
