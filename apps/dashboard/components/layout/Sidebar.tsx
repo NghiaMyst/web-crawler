@@ -1,5 +1,6 @@
 import { NavLinks } from './NavLinks';
 import { ConnectionDot } from '@/components/connection/connection-dot';
+import { SearchInput } from '@/components/search/SearchInput';
 
 export function Sidebar(): React.JSX.Element {
   return (
@@ -9,6 +10,9 @@ export function Sidebar(): React.JSX.Element {
           <span className="font-heading font-semibold text-white tracking-tight">Web Crawler</span>
           <ConnectionDot />
         </div>
+      </div>
+      <div className="px-3 py-2 border-b border-white/10">
+        <SearchInput />
       </div>
       <NavLinks />
     </aside>

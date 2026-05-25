@@ -57,7 +57,7 @@ async function EntriesContent({
   return (
     <div className="space-y-4">
       <EntriesFilters sources={sources} />
-      <LiveEntriesWrapper serverEntries={result.items} />
+      <LiveEntriesWrapper serverEntries={result.items} q={filters.q} />
       <LoadMoreButton
         initialCursor={result.nextCursor}
         filters={filters}
@@ -76,6 +76,7 @@ export default async function EntriesPage({
     sourceId: getStringParam(params['sourceId']),
     from: getStringParam(params['from']),
     to: getStringParam(params['to']),
+    q: getStringParam(params['q']),
     limit: 20,
   };
 

@@ -53,6 +53,7 @@ export interface EntryFilters {
   to?: string;
   cursor?: string;
   limit?: number;
+  q?: string;
 }
 
 export type JobStatus = CrawlJob['status'];

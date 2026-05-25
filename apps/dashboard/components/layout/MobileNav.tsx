@@ -6,6 +6,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/co
 import { Button } from '@/components/ui/button';
 import { NavLinks } from './NavLinks';
 import { ConnectionDot } from '@/components/connection/connection-dot';
+import { SearchInput } from '@/components/search/SearchInput';
 
 export function MobileNav(): React.JSX.Element {
   const [open, setOpen] = useState(false);
@@ -19,7 +20,10 @@ export function MobileNav(): React.JSX.Element {
           <SheetHeader className="h-14 border-b border-zinc-200 px-5 flex justify-center">
             <SheetTitle className="text-base font-semibold">Web Crawler</SheetTitle>
           </SheetHeader>
-          <NavLinks onNavigate={() => setOpen(false)} />
+              <div className="px-3 py-2 border-b border-zinc-200">
+                <SearchInput />
+              </div>
+              <NavLinks onNavigate={() => setOpen(false)} />
         </SheetContent>
       </Sheet>
       <div className="inline-flex items-center gap-1.5">

@@ -11,9 +11,10 @@ const ROW_CAP = 200;
 
 interface LiveEntriesWrapperProps {
   serverEntries: DataEntry[];
+  q?: string;
 }
 
-export function LiveEntriesWrapper({ serverEntries }: LiveEntriesWrapperProps): React.JSX.Element {
+export function LiveEntriesWrapper({ serverEntries, q }: LiveEntriesWrapperProps): React.JSX.Element {
   const { connection, registerReconnectHandler } = useSignalRContext();
   const [liveEntries, setLiveEntries] = useState<DataEntry[]>([]);
   const lastReceivedAtRef = useRef<string | null>(null);
@@ -75,5 +76,5 @@ export function LiveEntriesWrapper({ serverEntries }: LiveEntriesWrapperProps): 
 
   const allEntries = [...liveEntries, ...serverEntries].slice(0, ROW_CAP);
 
-  return <EntriesTable entries={allEntries} />;
+  return <EntriesTable entries={allEntries} q={q} />;
 }

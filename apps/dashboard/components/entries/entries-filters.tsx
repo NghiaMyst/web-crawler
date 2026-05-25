@@ -12,6 +12,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Search, X } from 'lucide-react';
 
 const CATEGORIES = ['football', 'games', 'anime', 'manga', 'music'] as const;
 
@@ -59,12 +61,14 @@ export function EntriesFilters({ sources }: EntriesFiltersProps): React.JSX.Elem
   const currentSourceId = searchParams.get('sourceId') ?? 'all';
   const currentFrom = searchParams.get('from') ?? '';
   const currentTo = searchParams.get('to') ?? '';
+  const currentQ = searchParams.get('q') ?? '';
 
   const hasFilters =
     searchParams.has('category') ||
     searchParams.has('sourceId') ||
     searchParams.has('from') ||
-    searchParams.has('to');
+    searchParams.has('to') ||
+    searchParams.has('q');
 
   return (
     <div className="flex flex-wrap items-center gap-2">
@@ -143,6 +147,21 @@ export function EntriesFilters({ sources }: EntriesFiltersProps): React.JSX.Elem
         >
           Reset
         </Button>
+      )}
+
+      {currentQ !== '' && (
+        <Badge variant="secondary" className="flex items-center gap-1 text-xs">
+          <Search size={12} />
+          <span>Searching: {currentQ}</span>
+          <button
+            type="button"
+            aria-label="Clear search"
+            className="inline-flex items-center justify-center rounded-sm hover:bg-zinc-200"
+            onClick={() => handleChange('q', null)}
+          >
+            <X size={12} />
+          </button>
+        </Badge>
       )}
 
       {isPending && (

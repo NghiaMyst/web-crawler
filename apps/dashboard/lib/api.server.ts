@@ -35,6 +35,7 @@ export async function fetchEntries(filters: EntryFilters): Promise<PaginatedEntr
   if (filters.sourceId) params.set('sourceId', filters.sourceId);
   if (filters.from) params.set('from', filters.from);
   if (filters.to) params.set('to', filters.to);
+  if (filters.q) params.set('q', filters.q);
   if (filters.cursor) params.set('cursor', filters.cursor);
   params.set('limit', String(filters.limit ?? 20));
   const qs = params.toString();

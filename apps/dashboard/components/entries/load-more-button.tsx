@@ -35,7 +35,7 @@ export function LoadMoreButton({
 
   return (
     <div className="mt-4 space-y-4">
-      {extraEntries.length > 0 && <EntriesTable entries={extraEntries} />}
+      {extraEntries.length > 0 && <EntriesTable entries={extraEntries} q={filters.q} />}
       {cursor && (
         <div className="flex justify-center">
           <Button
