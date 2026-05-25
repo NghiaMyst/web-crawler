@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 11-02-PLAN.md
-last_updated: "2026-05-25T06:27:34.806Z"
-last_activity: 2026-05-25 -- Phase 11 Plan 01 complete (content depth fixes + parser depth tests)
+stopped_at: Completed 11-04-PLAN.md
+last_updated: "2026-05-25T14:55:00.000Z"
+last_activity: 2026-05-25 -- Phase 11 Plan 04 complete (dashboard search UI — SearchInput, highlight, filters badge)
 progress:
   total_phases: 12
   completed_phases: 9
@@ -26,9 +26,9 @@ See: .planning/PROJECT.md (updated 2026-04-07)
 ## Current Position
 
 Phase: 11
-Plan: 02
+Plan: 04
 Status: Executing
-Last activity: 2026-05-25 -- Phase 11 Plan 01 complete (content depth fixes + parser depth tests)
+Last activity: 2026-05-25 -- Phase 11 Plan 04 complete (dashboard search UI — SearchInput, highlight, filters badge)
 
 Progress: [██████████] 96%
 
@@ -61,6 +61,7 @@ Progress: [██████████] 96%
 | Phase 04 P04 | 420 | 1 tasks | 4 files |
 | Phase 04 P05 | 25 | 2 tasks | 7 files |
 | Phase 11 P02 | 8 | 2 tasks | 6 files |
+| Phase 11 P04 | 20 | 3 tasks | 12 files |
 
 ## Accumulated Context
 
@@ -83,6 +84,8 @@ Recent decisions affecting current work:
 - [Phase 04]: JsonDocument value converter added to AppDbContext for InMemory EF test provider compatibility; EFCore 8.0.22 pinned in test project
 - [Phase 11]: Used migrationBuilder.Sql() for all FTS DDL — HasGeneratedTsVectorColumn broken with JSONB in Npgsql 8.0 (GitHub issue #3075)
 - [Phase 11]: PL/pgSQL trigger over EF interceptor — trigger fires on raw ADO.NET INSERTs, interceptor only fires on SaveChanges
+- [Phase 11 P04]: SearchInput wraps useSearchParams in Suspense (inner SearchInputInner pattern) — required by Next.js 16 static generation
+- [Phase 11 P04]: api.client.ts fetchEntriesClient also forwards q — load-more-button uses client path, both must be consistent
 
 ### Pending Todos
 
@@ -101,6 +104,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-05-25T06:27:34.801Z
-Stopped at: Completed 11-02-PLAN.md
+Last session: 2026-05-25T14:55:00.000Z
+Stopped at: Completed 11-04-PLAN.md
 Resume file: None
