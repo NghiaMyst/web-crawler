@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Phase 11 UI-SPEC approved
-last_updated: "2026-05-25T03:06:30.398Z"
-last_activity: 2026-05-25 -- Phase 11 planning complete
+stopped_at: Completed 11-02-PLAN.md
+last_updated: "2026-05-25T06:27:34.806Z"
+last_activity: 2026-05-25 -- Phase 11 Plan 01 complete (content depth fixes + parser depth tests)
 progress:
   total_phases: 12
   completed_phases: 9
   total_plans: 45
-  completed_plans: 43
-  percent: 96
+  completed_plans: 45
+  percent: 100
 ---
 
 # Project State
@@ -60,6 +60,7 @@ Progress: [██████████] 96%
 | Phase 04 P03 | 15 | 1 tasks | 4 files |
 | Phase 04 P04 | 420 | 1 tasks | 4 files |
 | Phase 04 P05 | 25 | 2 tasks | 7 files |
+| Phase 11 P02 | 8 | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -80,6 +81,8 @@ Recent decisions affecting current work:
 - [Phase 04]: TelegramSender uses direct HttpClient (no Telegram.Bot NuGet); token never logged (T-04-06 mitigation)
 - [Phase 04]: Discord webhook content field (not text) for plain text messages; DISCORD_WEBHOOK_URL never logged per T-04-09
 - [Phase 04]: JsonDocument value converter added to AppDbContext for InMemory EF test provider compatibility; EFCore 8.0.22 pinned in test project
+- [Phase 11]: Used migrationBuilder.Sql() for all FTS DDL — HasGeneratedTsVectorColumn broken with JSONB in Npgsql 8.0 (GitHub issue #3075)
+- [Phase 11]: PL/pgSQL trigger over EF interceptor — trigger fires on raw ADO.NET INSERTs, interceptor only fires on SaveChanges
 
 ### Pending Todos
 
@@ -98,6 +101,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-05-25T00:00:00Z
-Stopped at: Completed 11-01-PLAN.md (content depth fixes + parser depth tests)
-Resume file: .planning/phases/11-search-foundation-content-depth-fixes-postgresql-fts-search-/11-02-PLAN.md
+Last session: 2026-05-25T06:27:34.801Z
+Stopped at: Completed 11-02-PLAN.md
+Resume file: None

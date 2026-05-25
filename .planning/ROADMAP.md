@@ -12,13 +12,13 @@ Ten phases that build a personal data aggregation system from an empty monorepo 
  (completed 2026-04-07)
 - [x] **Phase 2: Full URL Frontier & Crawl Hardening** - Bloom Filter dedup, per-domain politeness queues, robots.txt caching, exponential backoff, dead-letter queue, and all five data sources crawling
 - [x] **Phase 3: PostgreSQL Schema & LISTEN/NOTIFY Handoff** - Database schema live with EF Core Migrations, Node→.NET handoff via LISTEN/NOTIFY, keyed-service parser dispatch, JSONB entries stored
-- [x] **Phase 4: Notification Engine** - Diff engine evaluating alert rules, Telegram and Discord delivery, notification logs persisted (completed 2026-04-16)
+- [x] **Phase 4: Notification Engine** - Diff engine evaluating alert rules, Telegram and Discord delivery, notification logs persisted (completed 2026-04-16)
 - [x] **Phase 5: .NET REST API** - Full CRUD for sources and alert rules, job management endpoints, paginated entries query, health check
 - [x] **Phase 6: SignalR Real-Time Layer** - SignalR hub pushing new entries to connected clients without polling
 - [x] **Phase 7: Next.js Dashboard — Core Views** - Data table with filters, source management UI, job management UI (completed 2026-05-21)
 - [x] **Phase 8: Next.js Dashboard — Alerts & Charts** - Alert rule CRUD UI, notification history, volume trend charts (completed 2026-05-15)
-- [x] **Phase 9: Real-Time Dashboard Integration** - SignalR client wired to dashboard, new entries appear live (completed 2026-05-14)
-- [x] **Phase 10: Production Deployment** - docker-compose.prod.yml on Oracle Cloud ARM, Nginx/Caddy HTTPS, Vercel dashboard, Redis + Bloom Filter persistence (completed 2026-05-13)
+- [x] **Phase 9: Real-Time Dashboard Integration** - SignalR client wired to dashboard, new entries appear live (completed 2026-05-14)
+- [x] **Phase 10: Production Deployment** - docker-compose.prod.yml on Oracle Cloud ARM, Nginx/Caddy HTTPS, Vercel dashboard, Redis + Bloom Filter persistence (completed 2026-05-13)
 - [ ] **Phase 11: Search Foundation** - Content depth fixes per source, PostgreSQL FTS tsvector index, search API endpoint, dashboard search UI
 - [ ] **Phase 12: CI/CD Pipeline and Observability** - GitHub Actions deploy to GCE via Artifact Registry, Prometheus metrics from crawler and API, Grafana dashboards for crawler health and system metrics
 
@@ -318,13 +318,17 @@ Plans:
 
 ### Phase 11: Search Foundation — content depth fixes, PostgreSQL FTS, search API, and dashboard search UI
 
-**Goal:** [To be planned]
-**Requirements**: TBD
+**Goal:** A user can type a query in a global nav search input on the dashboard, and the `/entries` page filters to entries whose JSONB payload text (selected per-source via the `search_config` table) matches the query via PostgreSQL full-text search. Matched tokens are visually highlighted, content depth fixes (MangaDex `manga_title`, AniList `status`) ensure FTS has meaningful data to index, and the FTS infrastructure (tsvector column, GIN index, PL/pgSQL trigger, seed configs) is in place on `data_entries`.
+
+**Requirements**: SC-1 (content depth fixes), SC-2 (tsvector index + trigger), SC-3 (search API ?q= param), SC-4 (dashboard search UI)
 **Depends on:** Phase 10
-**Plans:** 0 plans
+**Plans:** 2/4 plans executed
 
 Plans:
-- [ ] TBD (run /gsd-plan-phase 11 to break down)
+- [x] 11-01-PLAN.md — Parser content depth fixes: MangaDexWorker adds `includes[]=manga`, AniListWorker GraphQL query adds `status`/`averageScore`, ParserDepthTests.cs Wave 0 stubs
+- [x] 11-02-PLAN.md — PostgreSQL FTS infrastructure migration: SearchConfig entity, DataEntry.SearchVector property, EF Core migration with raw SQL DDL (tsvector column + GIN index + search_configs table + PL/pgSQL trigger + per-source seed rows)
+- [ ] 11-03-PLAN.md — Search API extension: `GET /api/entries?q=...` filter using `PlainToTsQuery` + `NpgsqlTsVector.Matches`, EntriesSearchTests.cs Wave 0 stubs
+- [ ] 11-04-PLAN.md — Dashboard search UI: SearchInput client component in Sidebar + MobileNav, EntryFilters.q wiring through fetchEntries / /entries page / EntriesTable client-side `<mark>` highlight / EntriesFilters "Searching: {q}" badge
 
 ### Phase 12: CI/CD Pipeline and Observability — GitHub Actions deploy to GCE, Artifact Registry, Prometheus metrics, and Grafana dashboards
 
