@@ -2,12 +2,15 @@ import { logger } from './logger.js';
 import { createCrawlWorker, setupGracefulShutdown } from './workers/crawlWorker.js';
 import { browserPool } from './workers/BrowserPool.js';
 import { runPlaywrightSmokeTest } from './workers/PlaywrightWorker.js';
+import { crawlQueue } from './queues/crawlQueue.js';
 import { footballDataQueue } from './queues/footballDataQueue.js';
 import { createFootballDataWorker } from './workers/FootballDataWorker.js';
 import { genshinQueue } from './queues/genshinQueue.js';
 import { lolQueue } from './queues/lolQueue.js';
 import { anilistQueue } from './queues/anilistQueue.js';
 import { mangadexQueue } from './queues/mangadexQueue.js';
+import { startMetricsServer } from './metrics/metricsServer.js';
+import { instrumentWorker } from './metrics/crawlMetrics.js';
 import { createGenshinWorker } from './workers/GenshinWorker.js';
 import { createLoLWorker } from './workers/LoLWorker.js';
 import { createAniListWorker } from './workers/AniListWorker.js';
@@ -34,6 +37,19 @@ const genshinWorker = createGenshinWorker();
 const lolWorker = createLoLWorker();
 const anilistWorker = createAniListWorker();
 const mangadexWorker = createMangaDexWorker();
+
+// Start Prometheus metrics server on port 9464 (internal Docker network only)
+startMetricsServer([
+  crawlQueue, footballDataQueue, genshinQueue, lolQueue, anilistQueue, mangadexQueue,
+]);
+
+// Instrument workers for crawl duration histogram
+instrumentWorker(crawlWorker, 'crawl-default');
+instrumentWorker(footballWorker, 'crawl-football-data.org');
+instrumentWorker(genshinWorker, 'crawl-genshin');
+instrumentWorker(lolWorker, 'crawl-lol');
+instrumentWorker(anilistWorker, 'crawl-anilist');
+instrumentWorker(mangadexWorker, 'crawl-mangadex');
 
 const jobOpts = { attempts: 3, backoff: { type: 'exponential' as const, delay: 5000 } };
 

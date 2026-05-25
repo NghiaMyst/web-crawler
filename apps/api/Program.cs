@@ -1,6 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
+using Prometheus;
 using Serilog;
 using StackExchange.Redis;
 using WebCrawlerApi.Data;
@@ -93,11 +94,18 @@ try
     using (var scope = app.Services.CreateScope())
     {
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-        db.Database.Migrate();
+        // Skip migration when using InMemory provider (e.g. during integration tests)
+        if (db.Database.IsRelational())
+            db.Database.Migrate();
     }
 
     // Log every HTTP request with timing
     app.UseSerilogRequestLogging();
+    app.UseRouting();    // Required — UseHttpMetrics needs routing to be configured
+    app.UseHttpMetrics(options =>
+    {
+        options.ReduceStatusCodeCardinality();  // Groups 2xx/3xx/4xx/5xx — reduces label cardinality
+    });
 
     if (app.Environment.IsDevelopment())
     {
@@ -122,6 +130,7 @@ try
     app.MapGroup("/api/alert-rules").MapAlertRulesEndpoints();
     app.MapGroup("/api/notifications").MapNotificationsEndpoints();
     app.MapGroup("/api/stats").MapStatsEndpoints();
+    app.MapMetrics();  // Exposes GET /metrics with Prometheus text format
 
     app.Run();
 }
@@ -134,3 +143,6 @@ finally
 {
     Log.CloseAndFlush();
 }
+
+// Make Program accessible for WebApplicationFactory in integration tests
+public partial class Program { }
