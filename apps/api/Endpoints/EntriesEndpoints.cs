@@ -23,6 +23,7 @@ public static class EntriesEndpoints
         Guid? sourceId = null,
         DateTimeOffset? from = null,
         DateTimeOffset? to = null,
+        string? q = null,
         string? cursor = null,
         int limit = 20)
     {
@@ -42,6 +43,16 @@ public static class EntriesEndpoints
             query = query.Where(e => e.CrawledAt >= from.Value);
         if (to.HasValue)
             query = query.Where(e => e.CrawledAt <= to.Value);
+
+        // Phase 11: full-text search filter.
+        // PlainToTsQuery (NOT ToTsQuery) — ignores and/or/not punctuation in user input,
+        // safe against FTS operator injection. EF Core parameterizes q through Npgsql.
+        // SearchVector is null for rows inserted before the AddFtsSearchVector migration;
+        // those rows will not match any FTS query (acceptable per RESEARCH.md backfill note).
+        if (!string.IsNullOrWhiteSpace(q))
+            query = query.Where(e =>
+                e.SearchVector != null &&
+                e.SearchVector.Matches(EF.Functions.PlainToTsQuery("english", q)));
 
         if (cursor is not null)
         {

@@ -20,6 +20,11 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     {
         base.OnModelCreating(modelBuilder);
 
+        // Detect InMemory provider from ctor options (safe to call here — avoids the
+        // circular-init issue that occurs when accessing Database.ProviderName inside OnModelCreating).
+        var isInMemory = options.Extensions.Any(
+            e => e.GetType().Name.Contains("InMemory", StringComparison.OrdinalIgnoreCase));
+
         // snake_case naming convention is configured on DbContextOptionsBuilder in Program.cs
         // (via .UseSnakeCaseNamingConvention() on the options builder, not on ModelBuilder)
 
@@ -89,10 +94,14 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             entity.HasIndex(e => e.Category);
             entity.HasIndex(e => e.CrawledAt).IsDescending();
 
-            // Phase 11: tsvector column populated by PL/pgSQL trigger. Not used in InMemory provider.
-            // GIN index is created via raw SQL in the AddFtsSearchVector migration (HasGeneratedTsVectorColumn
-            // is broken with JSONB in Npgsql 8.0 — GitHub issue #3075).
-            entity.Property(e => e.SearchVector).HasColumnType("tsvector");
+            // Phase 11: tsvector column populated by PL/pgSQL trigger.
+            // NpgsqlTsVector is a Postgres-specific CLR type unsupported by the InMemory provider,
+            // so we ignore the property there. HasColumnType("tsvector") is set for Postgres.
+            // GIN index is created via raw SQL in AddFtsSearchVector migration.
+            if (isInMemory)
+                entity.Ignore(e => e.SearchVector);
+            else
+                entity.Property(e => e.SearchVector).HasColumnType("tsvector");
 
             entity.HasOne(e => e.Source)
                   .WithMany(s => s.DataEntries)
@@ -154,9 +163,10 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         {
             entity.HasKey(c => c.SourceId);
 
-            entity.Property(c => c.JsonPaths)
-                .HasColumnType("text[]")
-                .IsRequired();
+            // text[] is a PostgreSQL-specific type; skip the column-type annotation for InMemory.
+            if (!isInMemory)
+                entity.Property(c => c.JsonPaths).HasColumnType("text[]");
+            entity.Property(c => c.JsonPaths).IsRequired();
 
             entity.HasOne(c => c.Source)
                   .WithOne()
