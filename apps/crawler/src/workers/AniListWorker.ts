@@ -13,6 +13,8 @@ const ANILIST_QUERY = `
       media(type: ANIME, status: RELEASING, sort: POPULARITY_DESC) {
         id
         title { romaji english }
+        status
+        averageScore
         nextAiringEpisode { airingAt episode }
       }
     }
@@ -26,6 +28,8 @@ export interface AniListJobData {
 interface AniListMedia {
   id: number;
   title: { romaji: string; english: string | null };
+  status: string | null;
+  averageScore: number | null;
   nextAiringEpisode: { airingAt: number; episode: number } | null;
 }
 
