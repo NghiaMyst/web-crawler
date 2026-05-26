@@ -70,7 +70,7 @@ export function SourceModal({
 
   const {
     register, handleSubmit, reset, setValue, setError,
-    formState: { errors },
+    formState: { errors, isDirty },
   } = useForm<SourceFormData>({
     resolver: zodResolver(sourceFormSchema),
     defaultValues: DEFAULTS,
@@ -137,11 +137,11 @@ export function SourceModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-2xl p-0 gap-0 overflow-hidden">
         {/* Header */}
-        <DialogHeader className="px-6 pt-6 pb-4 border-b border-zinc-100">
-          <DialogTitle className="text-base font-semibold text-zinc-900">
+        <DialogHeader className="px-6 pt-6 pb-4 border-b border-border">
+          <DialogTitle className="text-base font-semibold text-foreground">
             {isEdit ? 'Edit Source' : 'New Source'}
           </DialogTitle>
-          <DialogDescription className="text-sm text-zinc-500 mt-0.5">
+          <DialogDescription className="text-sm text-muted-foreground mt-0.5">
             {isEdit
               ? 'Update editable fields. Name, category, parser key, and crawler type are fixed after creation.'
               : 'Configure a new crawl source. Name, category, parser key, and crawler type cannot be changed later.'}
@@ -152,9 +152,9 @@ export function SourceModal({
           <div className="px-6 py-5 space-y-5 max-h-[65vh] overflow-y-auto">
 
             {/* Identity section */}
-            <div className="rounded-lg border border-zinc-200 bg-zinc-50/50">
-              <div className="px-4 py-3 border-b border-zinc-200">
-                <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">Identity</p>
+            <div className="rounded-lg border border-border bg-muted/40">
+              <div className="px-4 py-3 border-b border-border">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Identity</p>
               </div>
               <div className="px-4 py-4 grid grid-cols-2 gap-4">
                 <Field label="Slug name" required error={errors.name?.message}>
@@ -164,7 +164,7 @@ export function SourceModal({
                     disabled={isEdit}
                     placeholder="genshin-events"
                   />
-                  {!isEdit && <p className="text-xs text-zinc-400 mt-1">Unique identifier. Cannot be changed later.</p>}
+                  {!isEdit && <p className="text-xs text-muted-foreground mt-1">Unique identifier. Cannot be changed later.</p>}
                 </Field>
                 <Field label="Display name" required error={errors.displayName?.message}>
                   <Input
@@ -177,9 +177,9 @@ export function SourceModal({
             </div>
 
             {/* Source section */}
-            <div className="rounded-lg border border-zinc-200 bg-zinc-50/50">
-              <div className="px-4 py-3 border-b border-zinc-200">
-                <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">Source</p>
+            <div className="rounded-lg border border-border bg-muted/40">
+              <div className="px-4 py-3 border-b border-border">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Source</p>
               </div>
               <div className="px-4 py-4 space-y-4">
                 <Field label="URL" required error={errors.url?.message}>
@@ -224,9 +224,9 @@ export function SourceModal({
             </div>
 
             {/* Crawl settings section */}
-            <div className="rounded-lg border border-zinc-200 bg-zinc-50/50">
-              <div className="px-4 py-3 border-b border-zinc-200">
-                <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">Crawl settings</p>
+            <div className="rounded-lg border border-border bg-muted/40">
+              <div className="px-4 py-3 border-b border-border">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Crawl settings</p>
               </div>
               <div className="px-4 py-4 space-y-4">
                 <div className="grid grid-cols-3 gap-4">
@@ -269,7 +269,7 @@ export function SourceModal({
                   </Field>
                 </div>
                 <div className="space-y-1.5">
-                  <Label className="text-sm font-medium text-zinc-700">Status</Label>
+                  <Label className="text-sm font-medium text-foreground">Status</Label>
                   <label htmlFor="isActive" className="flex items-center gap-2.5 h-9 cursor-pointer select-none">
                     <input
                       id="isActive"
@@ -279,9 +279,9 @@ export function SourceModal({
                         setIsActive(e.target.checked);
                         setValue('isActive', e.target.checked, { shouldValidate: true });
                       }}
-                      className="h-4 w-4 rounded border-zinc-300 accent-zinc-900 cursor-pointer"
+                      className="h-4 w-4 rounded border-input accent-primary cursor-pointer"
                     />
-                    <span className="text-sm text-zinc-700">{isActive ? 'Active — crawling enabled' : 'Paused — crawling disabled'}</span>
+                    <span className="text-sm text-foreground">{isActive ? 'Active — crawling enabled' : 'Paused — crawling disabled'}</span>
                   </label>
                 </div>
               </div>
@@ -295,18 +295,18 @@ export function SourceModal({
           </div>
 
           {/* Footer */}
-          <DialogFooter className="px-6 py-4 border-t border-zinc-100 bg-zinc-50/50 flex justify-end gap-2">
+          <DialogFooter className="px-6 py-4 border-t border-border bg-muted/40 flex justify-end gap-2">
             <Button
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
               disabled={isPending}
-              className="text-zinc-600"
+              className="text-muted-foreground"
             >
-              Cancel
+              {isDirty ? 'Discard Changes' : 'Close'}
             </Button>
             <Button type="submit" disabled={isPending} className="min-w-[120px]">
-              {isPending ? 'Saving…' : isEdit ? 'Save changes' : 'Create source'}
+              {isPending ? 'Saving…' : 'Save Source'}
             </Button>
           </DialogFooter>
         </form>
@@ -328,7 +328,7 @@ function Field({
 }): React.JSX.Element {
   return (
     <div className="space-y-1.5">
-      <Label className="text-sm font-medium text-zinc-700">
+      <Label className="text-sm font-medium text-foreground">
         {label}
         {required && <span className="text-red-500 ml-0.5">*</span>}
       </Label>

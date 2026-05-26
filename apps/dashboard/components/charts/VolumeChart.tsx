@@ -8,6 +8,7 @@ import {
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
+import { BarChart3 } from 'lucide-react';
 import type { Source, VolumeDataPoint } from '@/types/api';
 
 type Range = '7d' | '30d' | '90d';
@@ -71,16 +72,15 @@ export function VolumeChart({
       </div>
 
       {isEmpty ? (
-        <div className="flex flex-col items-center justify-center text-center py-16 gap-4">
-          <h2 className="text-xl font-semibold text-zinc-900">No data available</h2>
-          <p className="text-sm text-zinc-600 max-w-md">
-            Entry volume data will appear once crawl sources are active and entries are collected.
-          </p>
+        <div className="flex flex-col items-center justify-center rounded-lg border border-border p-12 gap-3 text-muted-foreground">
+          <BarChart3 size={36} className="opacity-40" aria-hidden="true" />
+          <p className="text-sm font-medium text-foreground">No data to display</p>
+          <p className="text-xs">Charts appear once entries have been crawled.</p>
         </div>
       ) : (
         <>
-          <section className="space-y-2">
-            <h2 className="text-sm font-semibold text-zinc-700">Entries over time</h2>
+          <section className="rounded-lg border border-border bg-card shadow-sm p-6 space-y-3">
+            <h2 className="text-sm font-semibold text-foreground">Entries over time</h2>
             <div className="h-64" aria-label="Entry volume chart">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={pivoted} margin={{ top: 4, right: 16, left: 0, bottom: 4 }}>
@@ -104,8 +104,8 @@ export function VolumeChart({
             </div>
           </section>
 
-          <section className="space-y-2">
-            <h2 className="text-sm font-semibold text-zinc-700">Per-source breakdown</h2>
+          <section className="rounded-lg border border-border bg-card shadow-sm p-6 space-y-3">
+            <h2 className="text-sm font-semibold text-foreground">Per-source breakdown</h2>
             <div className="h-64" aria-label="Entry volume chart">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={pivoted} margin={{ top: 4, right: 16, left: 0, bottom: 4 }}>
