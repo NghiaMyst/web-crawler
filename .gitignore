@@ -41,3 +41,6 @@ Thumbs.db
 apps/api/.env.prod
 apps/crawler/.env.prod
 apps/dashboard/.env.prod
+
+# GitHub Secrets reference — never commit (developer reference only, no actual values)
+/.github/secrets.md
