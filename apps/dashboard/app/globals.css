@@ -82,14 +82,14 @@ body {
   --chart-4: oklch(0.62 0.15 140);         /* green */
   --chart-5: oklch(0.62 0.15 340);         /* pink */
   --radius: 0.625rem;
-  --sidebar: oklch(0.20 0.015 65);              /* #252017 warm-dark (D-02) */
-  --sidebar-foreground: oklch(0.85 0.005 80);   /* warm off-white text on dark sidebar */
-  --sidebar-primary: oklch(0.55 0.19 28);       /* coral — unchanged */
-  --sidebar-primary-foreground: oklch(0.985 0 0); /* unchanged */
-  --sidebar-accent: oklch(1 0 0 / 6%);          /* white/6 hover bg for nav items on dark sidebar */
-  --sidebar-accent-foreground: oklch(0.985 0 0); /* white text on hover */
-  --sidebar-border: oklch(1 0 0 / 8%);          /* white/8 dividers on dark sidebar */
-  --sidebar-ring: oklch(0.55 0.19 28);          /* coral focus ring — unchanged */
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.55 0.19 28);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.55 0.19 28);
 }
 
 .dark {
