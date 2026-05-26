@@ -112,7 +112,9 @@
       "Bash(pnpm build *)",
       "Skill(gsd:plan-phase)",
       "Skill(gsd:add-todo)",
-      "Bash(docker network *)"
+      "Bash(docker network *)",
+      "WebFetch(domain:webcrawler-myst.duckdns.org)",
+      "WebFetch(domain:web-crawler-dashboard.vercel.app)"
     ]
   }
 }
