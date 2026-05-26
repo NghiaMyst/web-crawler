@@ -5,6 +5,7 @@ export default defineConfig({
   test: {
     globals: false,
     environment: 'node',
+    exclude: ['e2e/**', 'node_modules/**'],
   },
   resolve: {
     alias: {
