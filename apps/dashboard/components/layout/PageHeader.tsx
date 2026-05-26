@@ -10,9 +10,9 @@ interface PageHeaderProps {
 export function PageHeader({ title, description }: PageHeaderProps): React.JSX.Element {
   return (
     <div className="mb-6">
-      <h1 className="font-heading text-2xl font-bold tracking-tight text-zinc-900">{title}</h1>
+      <h1 className="font-heading text-2xl font-bold tracking-tight text-foreground">{title}</h1>
       {description && (
-        <p className="mt-1 text-sm text-zinc-500">{description}</p>
+        <p className="mt-1 text-sm text-muted-foreground">{description}</p>
       )}
     </div>
   );
