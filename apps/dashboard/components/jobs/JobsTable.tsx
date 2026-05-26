@@ -6,15 +6,8 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import type { CrawlJob, JobStatus } from '@/types/api';
-
-const STATUS_STYLES: Record<JobStatus, string> = {
-  pending: 'border-amber-500 text-amber-600',
-  running: 'border-blue-500 text-blue-600',
-  done: 'border-green-600 text-green-600',
-  failed: 'border-red-500 text-red-500',
-  skipped: 'border-zinc-400 text-zinc-500',
-};
+import type { CrawlJob } from '@/types/api';
+import { JOB_STATUS_STYLES } from '@/lib/badge-styles';
 
 function formatDate(iso: string): string {
   return new Date(iso).toLocaleString(undefined, {
@@ -38,28 +31,28 @@ export function JobsTable({
   onRetry: (id: string) => void;
 }): React.JSX.Element {
   return (
-    <div className="rounded-md border border-zinc-200 bg-white overflow-x-auto">
+    <div className="rounded-md border border-border bg-card overflow-x-auto">
       <Table>
-        <TableHeader className="bg-zinc-100">
+        <TableHeader className="bg-muted/50">
           <TableRow>
-            <TableHead className="text-zinc-700">Status</TableHead>
-            <TableHead className="text-zinc-700">URL</TableHead>
-            <TableHead className="text-zinc-700">Source</TableHead>
-            <TableHead className="text-zinc-700 text-center">Attempts</TableHead>
-            <TableHead className="text-zinc-700">Created</TableHead>
-            <TableHead className="text-zinc-700 text-right">Actions</TableHead>
+            <TableHead className="text-muted-foreground">Status</TableHead>
+            <TableHead className="text-muted-foreground">URL</TableHead>
+            <TableHead className="text-muted-foreground">Source</TableHead>
+            <TableHead className="text-muted-foreground text-center">Attempts</TableHead>
+            <TableHead className="text-muted-foreground">Created</TableHead>
+            <TableHead className="text-muted-foreground text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {jobs.map((job) => {
             const isRetrying = retryingId === job.id;
             return (
-              <TableRow key={job.id} className="hover:bg-zinc-50">
+              <TableRow key={job.id} className="hover:bg-muted/30">
                 <TableCell>
                   <div className="flex flex-col gap-1">
                     <Badge
                       variant="outline"
-                      className={STATUS_STYLES[job.status]}
+                      className={JOB_STATUS_STYLES[job.status]}
                     >
                       {job.status}
                     </Badge>
@@ -67,7 +60,7 @@ export function JobsTable({
                 </TableCell>
                 <TableCell className="max-w-[320px]">
                   <span
-                    className="text-xs text-zinc-600 block overflow-hidden text-ellipsis whitespace-nowrap"
+                    className="text-xs text-muted-foreground block overflow-hidden text-ellipsis whitespace-nowrap"
                     title={job.url}
                   >
                     {truncateUrl(job.url)}
@@ -78,19 +71,19 @@ export function JobsTable({
                     </span>
                   )}
                 </TableCell>
-                <TableCell className="text-sm text-zinc-700">
+                <TableCell className="text-sm text-foreground">
                   {sourceMap[job.sourceId] ?? job.sourceId.slice(0, 8)}
                 </TableCell>
-                <TableCell className="text-center text-sm text-zinc-600">
+                <TableCell className="text-center text-sm text-muted-foreground">
                   {job.attemptCount}
                 </TableCell>
-                <TableCell className="text-sm text-zinc-600 whitespace-nowrap">
+                <TableCell className="text-sm text-muted-foreground whitespace-nowrap">
                   {formatDate(job.createdAt)}
                 </TableCell>
                 <TableCell className="text-right">
                   {job.status === 'failed' && (
                     <Button
-                      variant="outline"
+                      variant="default"
                       size="sm"
                       disabled={isRetrying}
                       aria-label={`Retry job ${job.id}`}

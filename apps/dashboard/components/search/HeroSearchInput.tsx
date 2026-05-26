@@ -44,7 +44,7 @@ function HeroSearchInputInner(): React.JSX.Element {
     <div className="relative w-full max-w-2xl mx-auto">
       <Search
         size={18}
-        className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none"
+        className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 pointer-events-none"
         aria-hidden="true"
       />
       <input
@@ -56,14 +56,14 @@ function HeroSearchInputInner(): React.JSX.Element {
         aria-label="Search entries"
         aria-busy={isPending}
         className={cn(
-          'w-full h-12 pl-11 pr-24 rounded-xl border border-input bg-card',
-          'text-sm text-foreground placeholder:text-muted-foreground',
+          'w-full h-12 pl-11 pr-24 rounded-xl border border-zinc-200 bg-white',
+          'text-sm text-zinc-900 placeholder:text-zinc-400',
           'shadow-sm transition-shadow',
-          'focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary',
+          'focus:outline-none focus:ring-2 focus:ring-[#d8553a]/40 focus:border-[#d8553a]',
           isPending && 'opacity-70',
         )}
       />
-      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground font-mono bg-muted px-1.5 py-0.5 rounded border border-border select-none">
+      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-zinc-400 font-mono bg-zinc-100 px-1.5 py-0.5 rounded border border-zinc-200 select-none">
         ↵ search
       </span>
     </div>
@@ -79,7 +79,7 @@ export function HeroSearchInput(): React.JSX.Element {
     <Suspense
       fallback={
         <div className="relative w-full max-w-2xl mx-auto">
-          <div className="w-full h-12 rounded-xl border border-border bg-muted animate-pulse" />
+          <div className="w-full h-12 rounded-xl border border-zinc-200 bg-zinc-100 animate-pulse" />
         </div>
       }
     >

@@ -82,7 +82,7 @@ export function AlertRuleModal({
 
   const {
     register, handleSubmit, reset, setValue, setError,
-    formState: { errors },
+    formState: { errors, isDirty },
   } = useForm<AlertRuleFormData>({
     resolver: zodResolver(alertRuleFormSchema),
     defaultValues: DEFAULTS,
@@ -163,11 +163,11 @@ export function AlertRuleModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-2xl p-0 gap-0 overflow-hidden">
         {/* Header */}
-        <DialogHeader className="px-6 pt-6 pb-4 border-b border-zinc-100">
-          <DialogTitle className="text-base font-semibold text-zinc-900">
+        <DialogHeader className="px-6 pt-6 pb-4 border-b border-border">
+          <DialogTitle className="text-base font-semibold text-foreground">
             {isEdit ? 'Edit Alert Rule' : 'New Alert Rule'}
           </DialogTitle>
-          <DialogDescription className="text-sm text-zinc-500 mt-0.5">
+          <DialogDescription className="text-sm text-muted-foreground mt-0.5">
             {isEdit
               ? 'Update rule settings. Source cannot be changed after creation.'
               : 'Configure when and how you want to be notified.'}
@@ -193,7 +193,7 @@ export function AlertRuleModal({
                 <SelectTrigger id="sourceId" className="w-full">
                   {selectedSourceName
                     ? <span>{selectedSourceName}</span>
-                    : <span className="text-zinc-400">Select a source…</span>}
+                    : <span className="text-muted-foreground">Select a source…</span>}
                 </SelectTrigger>
                 <SelectContent>
                   {sources.map((s) => (
@@ -214,9 +214,9 @@ export function AlertRuleModal({
             </Field>
 
             {/* Condition section */}
-            <div className="rounded-lg border border-zinc-200 bg-zinc-50/50">
-              <div className="px-4 py-3 border-b border-zinc-200">
-                <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">Condition</p>
+            <div className="rounded-lg border border-border bg-muted/40">
+              <div className="px-4 py-3 border-b border-border">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Condition</p>
               </div>
               <div className="px-4 py-4 space-y-4">
                 <Field label="Type" error={errors.condition?.message}>
@@ -231,7 +231,7 @@ export function AlertRuleModal({
                     </SelectContent>
                   </Select>
                   {conditionType === 'new_item' && (
-                    <p className="text-xs text-zinc-400 mt-1">Triggers when a new entry key is seen for the first time.</p>
+                    <p className="text-xs text-muted-foreground mt-1">Triggers when a new entry key is seen for the first time.</p>
                   )}
                 </Field>
 
@@ -246,7 +246,7 @@ export function AlertRuleModal({
                       {...register('condition.fieldPath' as keyof AlertRuleFormData)}
                       placeholder="e.g. patch_version"
                     />
-                    <p className="text-xs text-zinc-400 mt-1">Dot-notation path into the entry&apos;s JSON payload.</p>
+                    <p className="text-xs text-muted-foreground mt-1">Dot-notation path into the entry&apos;s JSON payload.</p>
                   </Field>
                 )}
 
@@ -268,9 +268,9 @@ export function AlertRuleModal({
             </div>
 
             {/* Delivery section */}
-            <div className="rounded-lg border border-zinc-200 bg-zinc-50/50">
-              <div className="px-4 py-3 border-b border-zinc-200">
-                <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">Delivery</p>
+            <div className="rounded-lg border border-border bg-muted/40">
+              <div className="px-4 py-3 border-b border-border">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Delivery</p>
               </div>
               <div className="px-4 py-4">
                 <div className="grid grid-cols-2 gap-4">
@@ -294,7 +294,7 @@ export function AlertRuleModal({
                   </Field>
 
                   <div className="space-y-1.5">
-                    <Label className="text-sm font-medium text-zinc-700">Status</Label>
+                    <Label className="text-sm font-medium text-foreground">Status</Label>
                     <label
                       htmlFor="isActive"
                       className="flex items-center gap-2.5 h-9 cursor-pointer select-none"
@@ -308,10 +308,10 @@ export function AlertRuleModal({
                             setIsActive(e.target.checked);
                             setValue('isActive', e.target.checked, { shouldValidate: true });
                           }}
-                          className="peer h-4 w-4 rounded border-zinc-300 text-zinc-900 accent-zinc-900 cursor-pointer"
+                          className="peer h-4 w-4 rounded border-input text-primary accent-primary cursor-pointer"
                         />
                       </div>
-                      <span className="text-sm text-zinc-700">
+                      <span className="text-sm text-foreground">
                         {isActive ? 'Active' : 'Paused'}
                       </span>
                     </label>
@@ -337,18 +337,18 @@ export function AlertRuleModal({
           </div>
 
           {/* Footer */}
-          <DialogFooter className="px-6 py-4 border-t border-zinc-100 bg-zinc-50/50 flex justify-end gap-2">
+          <DialogFooter className="px-6 py-4 border-t border-border bg-muted/40 flex justify-end gap-2">
             <Button
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
               disabled={isPending}
-              className="text-zinc-600"
+              className="text-muted-foreground"
             >
-              Cancel
+              {isDirty ? 'Discard Changes' : 'Close'}
             </Button>
             <Button type="submit" disabled={isPending} className="min-w-[120px]">
-              {isPending ? 'Saving…' : isEdit ? 'Save changes' : 'Create rule'}
+              {isPending ? 'Saving…' : 'Save Rule'}
             </Button>
           </DialogFooter>
         </form>
@@ -372,10 +372,10 @@ function Field({
 }): React.JSX.Element {
   return (
     <div className="space-y-1.5">
-      <Label className="text-sm font-medium text-zinc-700">
+      <Label className="text-sm font-medium text-foreground">
         {label}
         {required && <span className="text-red-500 ml-0.5">*</span>}
-        {hint && <span className="ml-1.5 font-normal text-zinc-400">{hint}</span>}
+        {hint && <span className="ml-1.5 font-normal text-muted-foreground">{hint}</span>}
       </Label>
       {children}
       {error && <p className="text-xs text-red-600">{error}</p>}

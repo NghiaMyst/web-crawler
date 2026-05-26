@@ -28,11 +28,11 @@ export function NavLinks({ onNavigate }: { onNavigate?: () => void }): React.JSX
             className={cn(
               'flex items-center gap-3 rounded-md px-3 py-2.5 text-sm min-h-[44px] transition-colors',
               isActive
-                ? 'bg-primary text-primary-foreground font-medium'
-                : 'text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground',
+                ? 'bg-[#d8553a] text-white font-medium'
+                : 'text-zinc-400 hover:bg-white/6 hover:text-zinc-100',
             )}
           >
-            <Icon size={16} aria-hidden="true" className={isActive ? 'text-primary-foreground' : 'text-sidebar-foreground/50'} />
+            <Icon size={16} aria-hidden="true" className={isActive ? 'text-white' : 'text-zinc-500'} />
             <span>{label}</span>
           </Link>
         );
