@@ -105,7 +105,13 @@
       "Read(//home/nghiant2/.ssh/**)",
       "Bash(ssh webcrawler *)",
       "Bash(ssh *)",
-      "Skill(gsd:add-phase)"
+      "Skill(gsd:add-phase)",
+      "Skill(gsd:execute-phase)",
+      "Bash(pnpm exec *)",
+      "Bash(pnpm test *)",
+      "Bash(pnpm build *)",
+      "Skill(gsd:plan-phase)",
+      "Skill(gsd:add-todo)"
     ]
   }
 }
