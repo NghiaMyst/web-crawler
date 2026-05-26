@@ -50,9 +50,7 @@ services:
           memory: 64M
 
   crawler:
-    build:
-      context: .
-      dockerfile: apps/crawler/Dockerfile
+    image: asia-southeast1-docker.pkg.dev/project-c67469b2-5925-4167-b6a/webcrawler/crawler:${IMAGE_TAG:-latest}
     restart: always
     env_file:
       - ./apps/crawler/.env.prod
@@ -80,9 +78,7 @@ services:
           memory: 256M
 
   api:
-    build:
-      context: .
-      dockerfile: apps/api/Dockerfile
+    image: asia-southeast1-docker.pkg.dev/project-c67469b2-5925-4167-b6a/webcrawler/api:${IMAGE_TAG:-latest}
     restart: always
     env_file:
       - ./apps/api/.env.prod
