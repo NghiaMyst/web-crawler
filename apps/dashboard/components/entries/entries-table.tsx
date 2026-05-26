@@ -8,6 +8,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { CategoryBadge } from '@/components/entries/CategoryBadge';
+import { Inbox, SearchX } from 'lucide-react';
 
 interface EntriesTableProps {
   entries: DataEntry[];
@@ -32,7 +33,7 @@ function highlightMatches(text: string, q: string | undefined): React.ReactNode 
     part.toLowerCase() === q.trim().toLowerCase() ? (
       <mark
         key={i}
-        className="bg-yellow-200 dark:bg-yellow-800/50 rounded-sm px-0.5"
+        className="bg-primary/10 rounded-sm px-0.5 underline decoration-primary decoration-2 underline-offset-2 text-inherit"
       >
         {part}
       </mark>
@@ -64,11 +65,19 @@ function formatDate(iso: string): string {
 
 export function EntriesTable({ entries, q }: EntriesTableProps): React.JSX.Element {
   if (entries.length === 0) {
+    const hasQuery = !!q && q.trim() !== '';
+    const Icon = hasQuery ? SearchX : Inbox;
+    const heading = hasQuery
+      ? `No results for "${q!.trim()}"`
+      : 'No entries found';
+    const subcopy = hasQuery
+      ? 'Try a different search term or clear filters.'
+      : 'Adjust filters or wait for new crawl data.';
     return (
-      <div className="rounded-lg border border-border p-8 text-center text-muted-foreground text-sm">
-        {q && q.trim() !== ''
-          ? `No results for "${q.trim()}". Try a different search term or clear filters.`
-          : 'No entries found. Adjust filters or wait for new crawl data.'}
+      <div className="flex flex-col items-center justify-center rounded-lg border border-border p-12 gap-3 text-muted-foreground">
+        <Icon size={36} className="opacity-40" aria-hidden="true" />
+        <p className="text-sm font-medium text-foreground">{heading}</p>
+        <p className="text-xs">{subcopy}</p>
       </div>
     );
   }
@@ -86,16 +95,16 @@ export function EntriesTable({ entries, q }: EntriesTableProps): React.JSX.Eleme
       <TableBody>
         {entries.map((entry) => (
           <TableRow key={entry.id}>
-            <TableCell>
+            <TableCell className="py-3">
               <CategoryBadge category={entry.category} />
             </TableCell>
-            <TableCell className="font-mono text-xs text-muted-foreground max-w-[160px] truncate">
+            <TableCell className="py-3 font-mono text-xs text-muted-foreground max-w-[160px] truncate">
               {entry.entryKey ?? '—'}
             </TableCell>
-            <TableCell className="max-w-[400px] truncate text-xs text-muted-foreground">
+            <TableCell className="py-3 max-w-[400px] truncate text-xs text-muted-foreground">
               {formatPayloadPreview(entry.payload, q)}
             </TableCell>
-            <TableCell className="text-xs text-muted-foreground">
+            <TableCell className="py-3 text-xs text-muted-foreground">
               {formatDate(entry.crawledAt)}
             </TableCell>
           </TableRow>
