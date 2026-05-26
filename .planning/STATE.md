@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: completed
-stopped_at: Phase 11 complete — all 4 plans executed and committed
-last_updated: "2026-05-26T02:55:03.280Z"
+status: in_progress
+stopped_at: Phase 13 added — Frontend Design Refresh
+last_updated: "2026-05-26T00:00:00.000Z"
 last_activity: 2026-05-26
 progress:
-  total_phases: 12
-  completed_phases: 11
-  total_plans: 50
+  total_phases: 13
+  completed_phases: 12
+  total_plans: 54
   completed_plans: 52
-  percent: 100
+  percent: 96
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-07)
 
 **Core value:** Automated monitoring delivers timely alerts for events you care about without manual checking
-**Current focus:** Phase 10 — production-deployment
+**Current focus:** Phase 13 — frontend-design-refresh
 
 ## Current Position
 
-Phase: 12
+Phase: 13
 Plan: Not started
-Status: Complete — ready to execute Phase 12
+Status: Not started — ready to plan Phase 13
 Last activity: 2026-05-26
 
-Progress: [██████████] 100% (Phase 11 of 12)
+Progress: [█████████░] 96% (Phase 12 of 13)
 
 ## Performance Metrics
 
@@ -92,11 +92,14 @@ Recent decisions affecting current work:
 
 - **swagger-api-docs** — Expose Swagger UI in .NET API for all environments (currently dev-only). See `.planning/todos/swagger-api-docs.md`
 - **verify-dashboard-api-endpoints** — Fix broken `POST /api/jobs` references in MANUAL-UAT.md (endpoint does not exist); all dashboard→API calls are otherwise compatible. See `.planning/todos/verify-dashboard-api-endpoints.md`
+- **deploy-phase-11-12-code-to-gcp-vm** — VM still runs Phase 10 image; Phase 11 FTS + Phase 12 observability not deployed. Path A: SSH + git pull + rebuild + FTS backfill. Path B: activate CI/CD (Artifact Registry + 7 GitHub Secrets). See `.planning/todos/pending/2026-05-26-deploy-phase-11-12-code-to-gcp-vm.md`
+- **phase-12-live-deployment-uat-checks** — After deploy, verify: GitHub Actions pipeline end-to-end, Grafana at /grafana/, Prometheus scrape targets up. See `.planning/todos/pending/2026-05-26-phase-12-live-deployment-uat-checks.md`
 
 ### Roadmap Evolution
 
 - Phase 11 added: Search Foundation — content depth fixes, PostgreSQL FTS, search API, and dashboard search UI
 - Phase 12 added: CI/CD Pipeline and Observability — GitHub Actions deploy to GCE, Artifact Registry, Prometheus metrics, and Grafana dashboards
+- Phase 13 added: Frontend Design Refresh — research design/design-v1/ wireframes (variants A–E, coral accent), select direction with user, apply cohesive visual redesign to Next.js dashboard
 
 ### Blockers/Concerns
 
