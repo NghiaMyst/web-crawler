@@ -1,0 +1,52 @@
+{
+  "uid": "api-overview",
+  "title": "API Overview",
+  "schemaVersion": 38,
+  "version": 1,
+  "refresh": "30s",
+  "time": { "from": "now-1h", "to": "now" },
+  "panels": [
+    {
+      "id": 1,
+      "type": "timeseries",
+      "title": "HTTP Request Rate (1m)",
+      "gridPos": { "x": 0, "y": 0, "w": 24, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "-- Default --" },
+      "targets": [
+        {
+          "expr": "rate(http_requests_received_total[1m])",
+          "legendFormat": "{{method}} {{controller}} {{action}}",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "type": "timeseries",
+      "title": "HTTP Latency p99 (5m)",
+      "gridPos": { "x": 0, "y": 8, "w": 24, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "-- Default --" },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.99, rate(http_request_duration_seconds_bucket[5m]))",
+          "legendFormat": "p99 {{method}} {{controller}}",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "type": "timeseries",
+      "title": ".NET Heap Memory",
+      "gridPos": { "x": 0, "y": 16, "w": 24, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "-- Default --" },
+      "targets": [
+        {
+          "expr": "dotnet_total_memory_bytes",
+          "legendFormat": "Heap bytes",
+          "refId": "A"
+        }
+      ]
+    }
+  ]
+}

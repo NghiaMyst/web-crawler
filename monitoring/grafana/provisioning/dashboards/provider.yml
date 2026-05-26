@@ -1,0 +1,12 @@
+apiVersion: 1
+
+providers:
+  - name: 'webcrawler-dashboards'
+    orgId: 1
+    folder: 'Web Crawler'
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 30
+    allowUiUpdates: true
+    options:
+      path: /var/lib/grafana/dashboards

@@ -1,0 +1,20 @@
+# Prometheus scrape configuration for webcrawler stack.
+# Scrapes crawler (prom-client on :9464) and api (prometheus-net on :5000/metrics).
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  - job_name: 'crawler'
+    static_configs:
+      - targets: ['crawler:9464']
+    # /metrics is the default path — no metrics_path override needed
+
+  - job_name: 'api'
+    static_configs:
+      - targets: ['api:5000']
+    metrics_path: /metrics
