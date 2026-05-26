@@ -44,3 +44,6 @@ apps/dashboard/.env.prod
 
 # GitHub Secrets reference — never commit (developer reference only, no actual values)
 /.github/secrets.md
+
+# Grafana nginx basic auth — generated locally, never commit
+monitoring/grafana/.htpasswd
