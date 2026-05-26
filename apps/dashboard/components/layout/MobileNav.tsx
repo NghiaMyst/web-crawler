@@ -11,23 +11,29 @@ import { SearchInput } from '@/components/search/SearchInput';
 export function MobileNav(): React.JSX.Element {
   const [open, setOpen] = useState(false);
   return (
-    <header className="md:hidden flex items-center gap-3 h-14 px-4 border-b border-zinc-200 bg-zinc-100">
+    <header className="md:hidden flex items-center gap-3 h-14 px-4 border-b border-zinc-200 bg-[#1c1814]">
       <Sheet open={open} onOpenChange={setOpen}>
-        <SheetTrigger render={<Button variant="ghost" size="icon" aria-label="Open navigation" />}>
+        <SheetTrigger render={<Button variant="ghost" size="icon" aria-label="Open navigation" className="text-zinc-300 hover:text-white hover:bg-white/10" />}>
           <Menu size={20} />
         </SheetTrigger>
-        <SheetContent side="left" className="w-[260px] p-0 bg-zinc-100">
-          <SheetHeader className="h-14 border-b border-zinc-200 px-5 flex justify-center">
-            <SheetTitle className="text-base font-semibold">Web Crawler</SheetTitle>
+        <SheetContent side="left" className="w-[260px] p-0 bg-[#1c1814]">
+          <SheetHeader className="h-14 border-b border-white/8 px-5 flex justify-center">
+            <SheetTitle className="text-base font-bold tracking-tight">
+              <span className="text-white">web</span>
+              <span className="text-[#d8553a]">crawler</span>
+            </SheetTitle>
           </SheetHeader>
-              <div className="px-3 py-2 border-b border-zinc-200">
+              <div className="px-3 py-2.5 border-b border-white/8">
                 <SearchInput />
               </div>
               <NavLinks onNavigate={() => setOpen(false)} />
         </SheetContent>
       </Sheet>
       <div className="inline-flex items-center gap-1.5">
-        <span className="font-semibold text-zinc-900">Web Crawler</span>
+        <span className="font-bold tracking-tight">
+          <span className="text-white">web</span>
+          <span className="text-[#d8553a]">crawler</span>
+        </span>
         <ConnectionDot />
       </div>
     </header>

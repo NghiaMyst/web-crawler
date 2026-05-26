@@ -15,8 +15,6 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Search, X } from 'lucide-react';
 
-const CATEGORIES = ['football', 'games', 'anime', 'manga', 'music'] as const;
-
 interface EntriesFiltersProps {
   sources: Source[];
 }
@@ -57,7 +55,6 @@ export function EntriesFilters({ sources }: EntriesFiltersProps): React.JSX.Elem
     });
   };
 
-  const currentCategory = searchParams.get('category') ?? 'all';
   const currentSourceId = searchParams.get('sourceId') ?? 'all';
   const currentFrom = searchParams.get('from') ?? '';
   const currentTo = searchParams.get('to') ?? '';
@@ -72,24 +69,6 @@ export function EntriesFilters({ sources }: EntriesFiltersProps): React.JSX.Elem
 
   return (
     <div className="flex flex-wrap items-center gap-2">
-      {/* Category filter */}
-      <Select
-        value={currentCategory}
-        onValueChange={(value) => handleChange('category', value)}
-      >
-        <SelectTrigger className="w-[140px]" aria-label="Filter by category">
-          <SelectValue placeholder="Category" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">All categories</SelectItem>
-          {CATEGORIES.map((cat) => (
-            <SelectItem key={cat} value={cat}>
-              {cat.charAt(0).toUpperCase() + cat.slice(1)}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-
       {/* Source filter */}
       <Select
         value={currentSourceId}

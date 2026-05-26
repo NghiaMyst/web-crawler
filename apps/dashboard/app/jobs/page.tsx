@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { fetchJobs, fetchSources } from '@/lib/api.server';
 import { JobsClient } from '@/components/jobs/JobsClient';
+import { PageHeader } from '@/components/layout/PageHeader';
 import type { JobStatus } from '@/types/api';
 
 export const metadata: Metadata = { title: 'Jobs — Web Crawler' };
@@ -23,8 +24,8 @@ export default async function JobsPage({
   const sourceMap = Object.fromEntries(sources.map((s) => [s.id, s.displayName]));
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-xl font-semibold text-zinc-900">Jobs</h1>
+    <div>
+      <PageHeader title="Jobs" description="Crawl job runs, statuses, and execution history." />
       <JobsClient initialJobs={jobs} sourceMap={sourceMap} activeStatus={activeStatus} />
     </div>
   );

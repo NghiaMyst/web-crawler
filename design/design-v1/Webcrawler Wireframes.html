@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Webcrawler — search dashboard wireframes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Kalam:wght@300;400;700&family=Cutive+Mono&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1a1714;
+    --ink-2:#3b3530;
+    --ink-3:#766f68;
+    --paper:#fbf8f2;
+    --paper-2:#f1ecdf;
+    --accent:#d8553a;        /* warm coral */
+    --accent-2:#ffd49a;      /* highlighter */
+    --rule:#1a1714;
+  }
+  html,body{background:#f0eee9;margin:0;color:var(--ink);font-family:'Kalam',sans-serif;}
+  *{box-sizing:border-box}
+
+  /* Wobble filter applied to anything that should look hand-drawn. */
+  .wobble{filter:url(#wob);}
+
+  /* ===== Wireframe primitives ===== */
+  .wf{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Kalam',sans-serif;
+    font-weight:400;
+    width:100%; height:100%;
+    position:relative;
+    overflow:hidden;
+  }
+  .wf, .wf *{ --br:2px; }
+
+  /* Hand-drawn box: thick irregular border via filter */
+  .box{
+    border:2px solid var(--ink);
+    border-radius:6px;
+    background:var(--paper);
+    position:relative;
+  }
+  .box.dash{ border-style:dashed; }
+  .box.fill{ background:var(--paper-2); }
+  .box.ink{ background:var(--ink); color:var(--paper); }
+  .box.accent{ background:var(--accent); color:var(--paper); border-color:var(--ink); }
+  .box.shadow{ box-shadow: 3px 3px 0 var(--ink); }
+
+  .hand{ font-family:'Caveat',cursive; line-height:1; }
+  .mono{ font-family:'Cutive Mono',monospace; font-size:11px; letter-spacing:.02em;}
+  .tag{
+    display:inline-flex; align-items:center; gap:4px;
+    padding:2px 8px; border:1.5px solid var(--ink); border-radius:999px;
+    font-family:'Cutive Mono',monospace; font-size:10px; line-height:1.4;
+    background:var(--paper);
+  }
+  .tag.on{ background:var(--ink); color:var(--paper); }
+  .tag.acc{ background:var(--accent); color:var(--paper); border-color:var(--ink);}
+  .pill{ display:inline-block; padding:2px 8px; border:1.5px solid var(--ink); border-radius:999px; background:var(--paper); font-family:'Cutive Mono',monospace; font-size:10px;}
+  .chip{
+    display:inline-flex; align-items:center; gap:6px;
+    padding:4px 10px;
+    border:1.5px solid var(--ink); border-radius:999px;
+    font-family:'Kalam',sans-serif; font-size:13px;
+    background:var(--paper);
+  }
+  .chip.on{ background:var(--ink); color:var(--paper);}
+  .chip.acc{ background:var(--accent); color:var(--paper); border-color:var(--ink);}
+
+  .hl{ background:linear-gradient(transparent 55%, var(--accent-2) 55%); padding:0 2px;}
+  .ink{ color:var(--ink); }
+  .muted{ color:var(--ink-3); }
+
+  .row{ display:flex; align-items:center; }
+  .col{ display:flex; flex-direction:column; }
+  .gap-4{ gap:4px;} .gap-6{ gap:6px;} .gap-8{ gap:8px;} .gap-10{ gap:10px;}
+  .gap-12{ gap:12px;} .gap-16{ gap:16px;} .gap-20{ gap:20px;}
+
+  .scribble{
+    height:8px; background:
+      radial-gradient(circle at 4px 4px, var(--ink-3) 1px, transparent 1.4px) 0 0/8px 8px;
+    opacity:.5;
+  }
+  .underline-sketch{
+    height:6px; width:100%;
+    background:
+      radial-gradient(circle at 3px 3px, var(--ink) 1px, transparent 1.4px) 0 0/7px 6px;
+    opacity:.55;
+  }
+  .check{ width:14px; height:14px; border:1.5px solid var(--ink); border-radius:3px; display:inline-block;}
+  .check.on{ background:var(--ink); position:relative;}
+  .check.on::after{ content:"✓"; position:absolute; inset:0; color:var(--paper); font-size:11px; text-align:center; line-height:11px; font-family:'Caveat',cursive; font-weight:700;}
+
+  /* Sparkline + bars */
+  svg.spark, svg.bars{ display:block; }
+
+  /* Annotation note (handwritten, accent) */
+  .note{
+    position:absolute;
+    font-family:'Caveat',cursive;
+    color:var(--accent);
+    font-size:18px;
+    line-height:1;
+    pointer-events:none;
+  }
+  .note svg{ overflow:visible;}
+
+  /* avatar/icon circle */
+  .ico{
+    width:28px; height:28px; border-radius:50%;
+    border:1.5px solid var(--ink); background:var(--paper-2);
+    display:inline-flex; align-items:center; justify-content:center;
+    font-family:'Caveat',cursive; font-size:18px; font-weight:700;
+  }
+  .ico.sq{ border-radius:6px;}
+  .ico.lg{ width:44px; height:44px; font-size:24px;}
+  .ico.xl{ width:64px; height:64px; font-size:34px;}
+
+  /* result rows */
+  .resrow{
+    display:grid; grid-template-columns: 28px 1fr auto auto;
+    gap:10px; align-items:center;
+    padding:8px 10px;
+    border-bottom:1.5px dashed var(--ink);
+  }
+  .resrow:last-child{ border-bottom:0;}
+
+  /* Sketch image placeholder (striped) */
+  .ph{
+    background:
+      repeating-linear-gradient(45deg, var(--ink) 0 1px, transparent 1px 7px),
+      var(--paper-2);
+    border:1.5px solid var(--ink); border-radius:4px;
+    position:relative;
+  }
+  .ph .label{
+    position:absolute; inset:auto 0 6px 0; text-align:center;
+    font-family:'Cutive Mono',monospace; font-size:10px; color:var(--ink);
+  }
+
+  /* sidebar nav item */
+  .nav{
+    display:flex; align-items:center; gap:8px;
+    padding:6px 10px; border-radius:6px;
+    font-family:'Kalam',sans-serif; font-size:14px;
+  }
+  .nav.on{ background:var(--ink); color:var(--paper);}
+  .nav .dot{ width:8px; height:8px; border-radius:50%; background:var(--ink); border:1.5px solid var(--ink);}
+  .nav.on .dot{ background:var(--accent); border-color:var(--accent);}
+
+  /* category big tile */
+  .cat-tile{
+    border:2.5px solid var(--ink); border-radius:10px;
+    padding:14px; background:var(--paper);
+    display:flex; flex-direction:column; gap:8px; justify-content:space-between;
+    box-shadow: 3px 3px 0 var(--ink);
+    cursor:pointer;
+  }
+  .cat-tile h3{ margin:0; font-family:'Caveat',cursive; font-size:34px; line-height:.95;}
+  .cat-tile .stat{ font-family:'Cutive Mono',monospace; font-size:11px; color:var(--ink-2);}
+
+  /* Search input look */
+  .search{
+    display:flex; align-items:center; gap:10px;
+    border:2px solid var(--ink); border-radius:999px;
+    background:var(--paper); padding:6px 14px;
+    font-family:'Caveat',cursive; font-size:22px;
+  }
+  .search .ph-txt{ color:var(--ink-3); flex:1;}
+  .search .icon{
+    width:24px; height:24px; border:2px solid var(--ink); border-radius:50%;
+    position:relative;
+  }
+  .search .icon::after{
+    content:""; position:absolute; right:-6px; bottom:-6px;
+    width:10px; height:2px; background:var(--ink); transform:rotate(45deg);
+  }
+
+  /* small kbd */
+  .kbd{
+    display:inline-block; padding:1px 6px;
+    border:1.5px solid var(--ink); border-bottom-width:3px;
+    border-radius:4px; font-family:'Cutive Mono',monospace; font-size:10px;
+    background:var(--paper);
+  }
+
+  /* Tweaks header bar */
+  body{ overflow:auto; }
+</style>
+
+<!-- Wobble filter: applied via .wobble class for hand-drawn edges. -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <filter id="wob">
+    <feTurbulence type="fractalNoise" baseFrequency="0.018" numOctaves="2" seed="3"/>
+    <feDisplacementMap in="SourceGraphic" scale="1.2"/>
+  </filter>
+</svg>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel" src="design-canvas.jsx"></script>
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+<script type="text/babel" src="wireframes.jsx"></script>
+<script type="text/babel" src="app.jsx"></script>
+</body>
+</html>

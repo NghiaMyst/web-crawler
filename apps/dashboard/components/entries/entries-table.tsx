@@ -7,7 +7,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
+import { CategoryBadge } from '@/components/entries/CategoryBadge';
 
 interface EntriesTableProps {
   entries: DataEntry[];
@@ -87,7 +87,7 @@ export function EntriesTable({ entries, q }: EntriesTableProps): React.JSX.Eleme
         {entries.map((entry) => (
           <TableRow key={entry.id}>
             <TableCell>
-              <Badge variant="secondary">{entry.category}</Badge>
+              <CategoryBadge category={entry.category} />
             </TableCell>
             <TableCell className="font-mono text-xs text-muted-foreground max-w-[160px] truncate">
               {entry.entryKey ?? '—'}

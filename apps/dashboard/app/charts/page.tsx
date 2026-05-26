@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { fetchSources, fetchVolumeStats } from '@/lib/api.server';
 import { VolumeChart } from '@/components/charts/VolumeChart';
+import { PageHeader } from '@/components/layout/PageHeader';
 
 export const metadata: Metadata = { title: 'Entry Volume — Web Crawler' };
 export const dynamic = 'force-dynamic';
@@ -25,8 +26,8 @@ export default async function ChartsPage({
   ]);
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-xl font-semibold text-zinc-900">Entry Volume</h1>
+    <div>
+      <PageHeader title="Entry Volume" description="Crawl throughput over time, by source and category." />
       <VolumeChart sources={sources} volumeData={volumeData} activeRange={range} />
     </div>
   );

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { fetchNotifications, fetchSources } from '@/lib/api.server';
 import { NotificationsClient } from '@/components/notifications/NotificationsClient';
+import { PageHeader } from '@/components/layout/PageHeader';
 
 export const metadata: Metadata = { title: 'Notification History — Web Crawler' };
 export const dynamic = 'force-dynamic';
@@ -17,8 +18,8 @@ export default async function NotificationsPage({
   ]);
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-xl font-semibold text-zinc-900">Notification History</h1>
+    <div>
+      <PageHeader title="Notification History" description="Recent alert notifications sent for matched entries." />
       <NotificationsClient initialLogs={logs} sources={sources} activeSourceId={sourceId} />
     </div>
   );

@@ -4,6 +4,7 @@ import { fetchEntries, fetchSources } from '@/lib/api.server';
 import { EntriesFilters } from '@/components/entries/entries-filters';
 import { LiveEntriesWrapper } from '@/components/entries/live-entries-wrapper';
 import { LoadMoreButton } from '@/components/entries/load-more-button';
+import { HeroSection } from '@/components/entries/HeroSection';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { Metadata } from 'next';
 
@@ -82,12 +83,8 @@ export default async function EntriesPage({
 
   return (
     <main className="container mx-auto px-4 py-6 max-w-7xl">
-      <div className="mb-6">
-        <h1 className="text-2xl font-semibold tracking-tight">Data Entries</h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          Browse crawled data entries filtered by category, source, or date range.
-        </p>
-      </div>
+      {/* Variant-B hero: big search + category tiles */}
+      <HeroSection />
 
       <Suspense
         fallback={

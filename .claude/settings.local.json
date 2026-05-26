@@ -111,7 +111,8 @@
       "Bash(pnpm test *)",
       "Bash(pnpm build *)",
       "Skill(gsd:plan-phase)",
-      "Skill(gsd:add-todo)"
+      "Skill(gsd:add-todo)",
+      "Bash(docker network *)"
     ]
   }
 }

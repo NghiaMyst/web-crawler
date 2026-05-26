@@ -28,8 +28,8 @@ export function NavLinks({ onNavigate }: { onNavigate?: () => void }): React.JSX
             className={cn(
               'flex items-center gap-3 rounded-md px-3 py-2.5 text-sm min-h-[44px] transition-colors',
               isActive
-                ? 'bg-white/10 text-white font-semibold'
-                : 'text-zinc-400 hover:bg-white/8 hover:text-zinc-100',
+                ? 'bg-[#d8553a] text-white font-medium'
+                : 'text-zinc-400 hover:bg-white/6 hover:text-zinc-100',
             )}
           >
             <Icon size={16} aria-hidden="true" className={isActive ? 'text-white' : 'text-zinc-500'} />

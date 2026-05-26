@@ -52,7 +52,7 @@ function SearchInputInner(): React.JSX.Element {
       value={value}
       onChange={(e) => setValue(e.target.value)}
       onKeyDown={handleKeyDown}
-      className="h-8 text-sm"
+      className="h-8 text-sm bg-white/10 border-white/15 text-white placeholder:text-zinc-400 focus-visible:border-[#d8553a] focus-visible:ring-[#d8553a]/30"
       aria-label="Search entries"
       aria-busy={isPending}
     />
@@ -70,7 +70,7 @@ function SearchInputInner(): React.JSX.Element {
  */
 export function SearchInput(): React.JSX.Element {
   return (
-    <Suspense fallback={<Input type="search" placeholder="Search entries..." className="h-8 text-sm" aria-label="Search entries" disabled />}>
+    <Suspense fallback={<Input type="search" placeholder="Search entries..." className="h-8 text-sm bg-white/10 border-white/15 text-white placeholder:text-zinc-400" aria-label="Search entries" disabled />}>
       <SearchInputInner />
     </Suspense>
   );
