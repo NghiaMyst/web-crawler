@@ -489,3 +489,48 @@ When a Dockerfile uses `COPY *.ext ./` or `COPY . ./` without path prefixes, the
 context must be the directory those files live in. If you need files from multiple
 directories (shared libraries, workspace config), use the monorepo root as context and
 prefix all `COPY` paths explicitly (e.g. `COPY apps/api/*.csproj apps/api/`).
+
+---
+
+### Error 6: `docker pull` permission denied on GCE VM — `artifactregistry.repositories.downloadArtifacts` denied
+
+**Full error:**
+```
+Error response from daemon: error from registry: Permission
+'artifactregistry.repositories.downloadArtifacts' denied on resource (or it may not exist).
+```
+
+**Root cause:**
+GCE VMs run as a Compute Engine service account (e.g.
+`958055060147-compute@developer.gserviceaccount.com`). When `gcloud auth configure-docker`
+is run on the VM, Docker uses this service account to authenticate — not the human user
+account. The Compute Engine default service account has no Artifact Registry access by
+default.
+
+Granting `roles/artifactregistry.reader` to the human user account
+(e.g. `user:nghianguyentrong1211@gmail.com`) does NOT help because Docker on the VM
+authenticates as the service account, not the human user.
+
+**How to verify which account the VM is using:**
+```bash
+# SSH into the VM, then:
+gcloud config get-value account
+# Expected: 958055060147-compute@developer.gserviceaccount.com (not your user email)
+```
+
+**Fix — grant the VM's service account Artifact Registry reader (run in Cloud Shell):**
+```bash
+gcloud projects add-iam-policy-binding "project-c67469b2-5925-4167-b6a" \
+  --member="serviceAccount:958055060147-compute@developer.gserviceaccount.com" \
+  --role="roles/artifactregistry.reader"
+```
+
+This is the correct long-term setup. The VM authenticates automatically via the GCP
+metadata server — no `gcloud auth login` needed on the VM, and credentials never expire.
+
+**Why `docker compose pull` showed "Skipped" instead of an error:**
+When Docker can't authenticate to pull an image, `docker compose pull` silently marks it
+as "Skipped No image to be pulled" rather than failing loudly. This masked the permission
+error and made it appear as though the images were already up to date. The real failure
+only surfaced when `docker compose up` tried to start a container with an image tag that
+didn't exist locally.
