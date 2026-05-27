@@ -104,8 +104,11 @@ jobs:
             # Restart only crawler and api (--no-deps skips postgres/redis/nginx restart)
             docker compose -f docker-compose.prod.yml --env-file .env.prod up -d --no-deps crawler api
 
-            # Wait for API healthcheck (up to 90 seconds)
+            # Wait for API container to report healthy via Docker's built-in healthcheck.
+            # Port 5000 is not exposed to the host (API is inside the Docker network only),
+            # so curling localhost:5000 from here would always fail. Docker's healthcheck
+            # runs curl inside the container itself and is the correct check to poll.
             echo "Waiting for API healthcheck..."
-            timeout 90 bash -c 'until curl -sf http://localhost:5000/health > /dev/null; do echo "  still waiting..."; sleep 5; done'
+            timeout 120 bash -c 'until [ "$(docker inspect webcrawler-api-1 --format={{.State.Health.Status}})" = "healthy" ]; do echo "  still waiting..."; sleep 5; done'
 
             echo "Deploy SUCCESS: IMAGE_TAG=${IMAGE_TAG}"
