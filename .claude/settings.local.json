@@ -126,7 +126,8 @@
       "Bash(node_modules/.bin/playwright --version)",
       "Bash(echo \"EXIT:$?\")",
       "Bash(echo \"exit:$?\")",
-      "Bash(pnpm test:e2e:update)"
+      "Bash(pnpm test:e2e:update)",
+      "Bash(gcloud projects describe project-c67469b2-5925-4167-b6a *)"
     ]
   }
 }
