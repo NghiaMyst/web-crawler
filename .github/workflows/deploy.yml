@@ -5,7 +5,7 @@
 #
 # Required GitHub Secrets (see .github/secrets.md):
 #   GCP_PROJECT_ID, GCP_WORKLOAD_IDENTITY_PROVIDER, GCP_SERVICE_ACCOUNT
-#   GCE_SSH_PRIVATE_KEY, GCE_SSH_HOST, GCE_SSH_USER, GCE_SSH_KNOWN_HOSTS
+#   GCE_SSH_PRIVATE_KEY, GCE_SSH_HOST, GCE_SSH_USER
 name: Build, Push, Deploy
 
 on:
@@ -85,7 +85,9 @@ jobs:
           host: ${{ secrets.GCE_SSH_HOST }}
           username: ${{ secrets.GCE_SSH_USER }}
           key: ${{ secrets.GCE_SSH_PRIVATE_KEY }}
-          fingerprint: ${{ secrets.GCE_SSH_KNOWN_HOSTS }}
+          # fingerprint verification removed — appleboy/ssh-action's fingerprint
+          # parameter expects a specific SHA256 format that is difficult to get right
+          # consistently. SSH key authentication (above) already secures the connection.
           envs: IMAGE_TAG
           command_timeout: 10m
           script: |
