@@ -63,6 +63,9 @@ jobs:
           file: ${{ matrix.dockerfile }}
           platforms: linux/amd64
           push: true
+          # provenance=false: disables build attestation, which causes HEAD request
+          # 403 errors on mcr.microsoft.com (Playwright base image) with buildx v6+.
+          provenance: false
           tags: |
             asia-southeast1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/webcrawler/${{ matrix.app }}:${{ github.sha }}
             asia-southeast1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/webcrawler/${{ matrix.app }}:latest
