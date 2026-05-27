@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: executing
-stopped_at: Phase 11 complete — all 4 plans executed and committed
-last_updated: "2026-05-27T04:14:06.699Z"
+status: complete
+stopped_at: All 13 phases complete — CI/CD pipeline verified live 2026-05-27
+last_updated: "2026-05-27T08:00:00.000Z"
 last_activity: 2026-05-27
 progress:
   total_phases: 13
-  completed_phases: 12
+  completed_phases: 13
   total_plans: 54
   completed_plans: 56
   percent: 100
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-07)
 
 **Core value:** Automated monitoring delivers timely alerts for events you care about without manual checking
-**Current focus:** Phase 10 — production-deployment
+**Current focus:** All phases complete — milestone v1.0 delivered
 
 ## Current Position
 
-Phase: 13
-Plan: Not started
-Status: Executing Phase 13
+Phase: 13 (final)
+Plan: All complete
+Status: All 13 phases complete
 Last activity: 2026-05-27
 
-Progress: [██████████] 100% (Phase 11 of 12)
+Progress: [██████████] 100% (13 of 13)
 
 ## Performance Metrics
 
@@ -101,12 +101,19 @@ Recent decisions affecting current work:
 
 ### Blockers/Concerns
 
-- Playwright on ARM: unknown until Phase 1 Plan 01-06 — if `mcr.microsoft.com/playwright` base image fails on Ampere A1, crawler architecture needs adjustment
-- Oracle Cloud firewall (VCN + iptables): must be documented before Phase 10 deploy
+None — all phases complete and CI/CD pipeline verified live.
+
+### Deployment Status (2026-05-27)
+
+- CI/CD pipeline: ✅ working — GitHub Actions builds + pushes to Artifact Registry, SSH deploys to GCE VM
+- GCP infrastructure: ✅ WIF pool/provider, service accounts, IAM bindings all configured
+- GCE VM: ✅ docker pull working (Compute Engine SA has artifactregistry.reader)
+- EF Core migrations: ✅ run automatically on container startup (AddFtsSearchVector applied)
+- Remaining UAT: Grafana /grafana/ UI + Prometheus scrape targets (see phase-12 todo)
 
 ## Session Continuity
 
-Last session: 2026-05-25T15:10:00.000Z
-Stopped at: Phase 11 complete — all 4 plans executed and committed
+Last session: 2026-05-27T08:00:00.000Z
+Stopped at: All 13 phases complete — CI/CD verified live, GCP docs updated
 Resume file: None
-Next: Phase 12 — CI/CD Pipeline and Observability
+Next: Optional — Grafana + Prometheus live UAT (see .planning/todos/pending/2026-05-26-phase-12-live-deployment-uat-checks.md)
