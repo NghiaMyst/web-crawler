@@ -114,7 +114,19 @@
       "Skill(gsd:add-todo)",
       "Bash(docker network *)",
       "WebFetch(domain:webcrawler-myst.duckdns.org)",
-      "WebFetch(domain:web-crawler-dashboard.vercel.app)"
+      "WebFetch(domain:web-crawler-dashboard.vercel.app)",
+      "Bash(pnpm type-check *)",
+      "Bash(pnpm add *)",
+      "Bash(npx playwright *)",
+      "Bash(pnpm --filter @web-crawler/dashboard type-check)",
+      "Bash(pnpm --filter @web-crawler/dashboard test)",
+      "Bash(timeout 180 pnpm test:e2e:update)",
+      "Bash(timeout 180 pnpm test:e2e)",
+      "Bash(cd *)",
+      "Bash(node_modules/.bin/playwright --version)",
+      "Bash(echo \"EXIT:$?\")",
+      "Bash(echo \"exit:$?\")",
+      "Bash(pnpm test:e2e:update)"
     ]
   }
 }

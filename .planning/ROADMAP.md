@@ -21,7 +21,7 @@ Ten phases that build a personal data aggregation system from an empty monorepo 
 - [x] **Phase 10: Production Deployment** - docker-compose.prod.yml on Oracle Cloud ARM, Nginx/Caddy HTTPS, Vercel dashboard, Redis + Bloom Filter persistence (completed 2026-05-13)
 - [x] **Phase 11: Search Foundation** - Content depth fixes per source, PostgreSQL FTS tsvector index, search API endpoint, dashboard search UI (completed 2026-05-25)
 - [x] **Phase 12: CI/CD Pipeline and Observability** - GitHub Actions deploy to GCE via Artifact Registry, Prometheus metrics from crawler and API, Grafana dashboards for crawler health and system metrics (completed 2026-05-26)
-- [ ] **Phase 13: Frontend Design Refresh** - Research design wireframes from design/ folder, select a direction, and apply cohesive visual redesign to the Next.js dashboard (layout, typography, color palette, component polish)
+- [x] **Phase 13: Frontend Design Refresh** - Research design wireframes from design/ folder, select a direction, and apply cohesive visual redesign to the Next.js dashboard (layout, typography, color palette, component polish) (completed 2026-05-26)
 
 ---
 
@@ -351,13 +351,13 @@ Plans:
 
 **Requirements**: DESIGN-01 (wireframe audit & direction selection), DESIGN-02 (design system tokens / Tailwind config), DESIGN-03 (page-level layout implementation), DESIGN-04 (component polish & visual QA)
 **Depends on:** Phase 12
-**Plans:** 0/4 plans executed
+**Plans:** 4/4 plans complete
 
 Plans:
-- [ ] 13-01-PLAN.md — Token formalization (D-02): update --sidebar / --sidebar-foreground / --sidebar-border CSS vars in globals.css; replace bg-[#1c1814] / text-[#d8553a] / bg-[#d8553a] / zinc-* hardcodes with bg-sidebar / bg-primary / text-foreground / text-muted-foreground / border-border across Sidebar, MobileNav, NavLinks, PageHeader, HeroSection, HeroSearchInput, CategoryFilterTiles
-- [ ] 13-02-PLAN.md — Entries table polish (D-04, D-05, D-06): py-3 row density on TableCells, coral mark highlight (bg-primary/10 + decoration-primary), Inbox/SearchX empty state with UI-SPEC copywriting
-- [ ] 13-03-PLAN.md — Charts + management tables + modals (D-07, D-08, D-09): wrap VolumeChart sections in border/shadow cards; standardize Jobs/Sources/Alerts/Notifications table containers on border-border/bg-card/bg-muted/50; extract STATUS_STYLES into shared lib/badge-styles.ts; switch Jobs Retry to variant="default"; update SourceModal/AlertRuleModal palette + change primary action to "Save Source"/"Save Rule" + secondary to "Discard Changes"/"Close" (isDirty driven)
-- [ ] 13-04-PLAN.md — Playwright visual QA (D-10) [non-autonomous]: pnpm add -D @playwright/test --filter dashboard; npx playwright install chromium; playwright.config.ts (Chrome 1280x800, maxDiffPixelRatio 0.02); e2e/visual.spec.ts snapshots for /entries, /charts, /sources, /jobs; generate baselines via test:e2e:update; human checkpoint approves baselines before commit
+- [x] 13-01-PLAN.md — Token formalization (D-02): update --sidebar / --sidebar-foreground / --sidebar-border CSS vars in globals.css; replace bg-[#1c1814] / text-[#d8553a] / bg-[#d8553a] / zinc-* hardcodes with bg-sidebar / bg-primary / text-foreground / text-muted-foreground / border-border across Sidebar, MobileNav, NavLinks, PageHeader, HeroSection, HeroSearchInput, CategoryFilterTiles
+- [x] 13-02-PLAN.md — Entries table polish (D-04, D-05, D-06): py-3 row density on TableCells, coral mark highlight (bg-primary/10 + decoration-primary), Inbox/SearchX empty state with UI-SPEC copywriting
+- [x] 13-03-PLAN.md — Charts + management tables + modals (D-07, D-08, D-09): wrap VolumeChart sections in border/shadow cards; standardize Jobs/Sources/Alerts/Notifications table containers on border-border/bg-card/bg-muted/50; extract STATUS_STYLES into shared lib/badge-styles.ts; switch Jobs Retry to variant="default"; update SourceModal/AlertRuleModal palette + change primary action to "Save Source"/"Save Rule" + secondary to "Discard Changes"/"Close" (isDirty driven)
+- [x] 13-04-PLAN.md — Playwright visual QA (D-10) [non-autonomous]: pnpm add -D @playwright/test --filter dashboard; npx playwright install chromium; playwright.config.ts (Chrome 1280x800, maxDiffPixelRatio 0.02); e2e/visual.spec.ts snapshots for /entries, /charts, /sources, /jobs; generate baselines via test:e2e:update; human checkpoint approves baselines before commit
 
 ---
 
@@ -379,4 +379,4 @@ Plans:
 | 10. Production Deployment | 6/6 | Complete   | 2026-05-14 |
 | 11. Search Foundation | 4/4 | Complete | 2026-05-26 |
 | 12. CI/CD Pipeline and Observability | 5/5 | Complete | 2026-05-26 |
-| 13. Frontend Design Refresh | 0/4 | Not started | — |
+| 13. Frontend Design Refresh | 4/4 | Complete    | 2026-05-27 |
