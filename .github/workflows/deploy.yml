@@ -23,10 +23,16 @@ jobs:
     strategy:
       matrix:
         include:
+          # crawler needs monorepo root context — its Dockerfile copies workspace files
+          # (package.json, pnpm-workspace.yaml, shared-types/) from the repo root.
           - app: crawler
             dockerfile: apps/crawler/Dockerfile
+            context: .
+          # api is a standalone .NET app — context scoped to apps/api/ so that
+          # COPY *.csproj finds the .csproj file. No monorepo dependencies.
           - app: api
             dockerfile: apps/api/Dockerfile
+            context: apps/api
 
     steps:
       - uses: actions/checkout@v4
@@ -53,7 +59,7 @@ jobs:
       - name: Build and push ${{ matrix.app }}
         uses: docker/build-push-action@v7.2.0
         with:
-          context: .
+          context: ${{ matrix.context }}
           file: ${{ matrix.dockerfile }}
           platforms: linux/amd64
           push: true

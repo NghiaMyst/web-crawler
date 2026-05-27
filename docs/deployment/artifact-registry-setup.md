@@ -287,3 +287,205 @@ asia-southeast1-docker.pkg.dev/project-c67469b2-5925-4167-b6a/webcrawler/api:cac
 - [Artifact Registry authentication](https://cloud.google.com/artifact-registry/docs/docker/authentication)
 - [google-github-actions/auth README](https://github.com/google-github-actions/auth)
 - `.github/secrets.md` — lists all 7 GitHub Secrets with descriptions and where to get each value
+
+---
+
+## Troubleshooting: Real Errors Encountered During First Setup
+
+This section documents errors hit during the initial CI/CD setup and their root causes.
+Preserved here because the errors are non-obvious and the fixes reveal important GCP concepts.
+
+---
+
+### Error 1: `must specify exactly one of "workload_identity_provider" or "credentials_json"`
+
+**Full error:**
+```
+Error: google-github-actions/auth failed with: the GitHub Action workflow must specify
+exactly one of "workload_identity_provider" or "credentials_json"!
+```
+
+**Root cause:**
+The `GCP_WORKLOAD_IDENTITY_PROVIDER` GitHub Secret was missing or empty. When a GitHub
+Secret is not set, `${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}` evaluates to an empty
+string. The auth action then sees neither `workload_identity_provider` nor
+`credentials_json` set and throws this error.
+
+**Why this can appear suddenly after working before:**
+GitHub Secrets can be accidentally deleted (e.g. during a repo settings change, team
+member cleanup, or repo transfer). The workflow file is fine — the resource just disappeared.
+
+**Fix:**
+Add (or re-add) all 3 GCP secrets in GitHub → Settings → Secrets and variables → Actions:
+- `GCP_PROJECT_ID` = `project-c67469b2-5925-4167-b6a`
+- `GCP_WORKLOAD_IDENTITY_PROVIDER` = `projects/958055060147/locations/global/workloadIdentityPools/github-pool/providers/github-provider`
+- `GCP_SERVICE_ACCOUNT` = `github-ci@project-c67469b2-5925-4167-b6a.iam.gserviceaccount.com`
+
+**How to find your project number** (different from project ID):
+```bash
+# In GCP Cloud Shell or local gcloud:
+gcloud projects describe project-c67469b2-5925-4167-b6a --format="value(projectNumber)"
+# Or: GCP Console → Home Dashboard → "Project number" field
+```
+Project number for this project: **958055060147**
+
+---
+
+### Error 2: `"invalid_target" — pool or provider is disabled or deleted or doesn't exist`
+
+**Full error:**
+```
+Error: google-github-actions/auth failed with: failed to generate Google Cloud federated
+token for //iam.googleapis.com/...: {"error":"invalid_target","error_description":"The
+target service indicated by the \"audience\" parameters is invalid. This might either be
+because the pool or provider is disabled or deleted or because it doesn't exist."}
+```
+
+**Root cause:**
+The Workload Identity Pool (`github-pool`) and Provider (`github-provider`) were never
+created on GCP, even though the secret value pointing to them was correctly formatted.
+GCP has no record of these resources so it rejects the token exchange.
+
+**Why this is confusing:**
+The secret value format looks valid (`projects/NUMBER/locations/global/...`) so the
+GitHub Actions step appears to start correctly — the error only surfaces when GCP is
+actually contacted. The secret is a *pointer* to a GCP resource; the resource itself
+must exist independently.
+
+**Fix — run in GCP Cloud Shell (https://console.cloud.google.com → `>_` icon):**
+```bash
+# 1. Create the WIF Pool
+gcloud iam workload-identity-pools create github-pool \
+  --project="project-c67469b2-5925-4167-b6a" \
+  --location="global" \
+  --display-name="GitHub Actions Pool"
+
+# 2. Create the OIDC Provider (scoped to this repo only)
+gcloud iam workload-identity-pools providers create-oidc github-provider \
+  --project="project-c67469b2-5925-4167-b6a" \
+  --location="global" \
+  --workload-identity-pool="github-pool" \
+  --attribute-mapping="google.subject=assertion.sub,attribute.repository=assertion.repository,attribute.actor=assertion.actor" \
+  --attribute-condition="assertion.repository=='NghiaMyst/web-crawler'" \
+  --issuer-uri="https://token.actions.githubusercontent.com"
+
+# 3. Create the service account (if it also doesn't exist yet — see Error 3)
+gcloud iam service-accounts create github-ci \
+  --display-name="GitHub Actions CI" \
+  --project="project-c67469b2-5925-4167-b6a"
+
+gcloud projects add-iam-policy-binding "project-c67469b2-5925-4167-b6a" \
+  --member="serviceAccount:github-ci@project-c67469b2-5925-4167-b6a.iam.gserviceaccount.com" \
+  --role="roles/artifactregistry.writer"
+
+# 4. Bind service account to the pool
+gcloud iam service-accounts add-iam-policy-binding \
+  "github-ci@project-c67469b2-5925-4167-b6a.iam.gserviceaccount.com" \
+  --project="project-c67469b2-5925-4167-b6a" \
+  --role="roles/iam.workloadIdentityUser" \
+  --member="principalSet://iam.googleapis.com/projects/958055060147/locations/global/workloadIdentityPools/github-pool/attribute.repository/NghiaMyst/web-crawler"
+```
+
+---
+
+### Error 3: `NOT_FOUND: Unknown service account` when binding WIF
+
+**Full error:**
+```
+ERROR: (gcloud.iam.service-accounts.add-iam-policy-binding) NOT_FOUND: Unknown service account.
+```
+
+**Root cause:**
+The `github-ci` service account was never created (Step 3 of this guide was skipped).
+The WIF binding command references it, so GCP returns NOT_FOUND.
+
+**Fix:**
+Run the service account creation commands from Step 3 before running the WIF binding
+in Step 6. The order matters: service account → WIF pool → WIF provider → binding.
+
+---
+
+### Error 4: `IAM Service Account Credentials API has not been used … or it is disabled`
+
+**Full error:**
+```
+Error: google-github-actions/auth failed with: failed to generate Google Cloud OAuth 2.0
+Access Token for ...: {"error":{"code":403,"message":"IAM Service Account Credentials API
+has not been used in project 958055060147 before or it is disabled.","status":"PERMISSION_DENIED"}}
+```
+
+**Root cause:**
+GCP APIs must be explicitly enabled per project before use. Even though the WIF pool,
+provider, and service account all exist correctly, generating an OAuth 2.0 access token
+for a service account requires the `iamcredentials.googleapis.com` API to be enabled.
+This API is what allows one identity (the WIF token) to impersonate a service account.
+
+**Why this is easy to miss:**
+Step 1 of this guide enables both APIs, but if that step was skipped or the project was
+recreated, the API will be absent. The error doesn't appear until the pool and provider
+are both working — it's the last gate in the auth chain.
+
+**Fix:**
+```bash
+gcloud services enable iamcredentials.googleapis.com \
+  --project="project-c67469b2-5925-4167-b6a"
+```
+Wait ~30 seconds for propagation, then re-trigger the workflow.
+
+**GCP API concept:**
+GCP is designed so that no API is available by default — each one must be opted into.
+This is a security and billing control: you can audit exactly which services are active
+in a project and disable ones you don't use. The two APIs required for this CI/CD setup:
+- `artifactregistry.googleapis.com` — allows reading/writing Docker images
+- `iamcredentials.googleapis.com` — allows service account impersonation via WIF
+
+---
+
+### Error 5: `dotnet restore` fails — `MSB1003: Specify a project or solution file`
+
+**Full error (in Docker build):**
+```
+#13 [build 4/7] RUN dotnet restore
+#13 0.259 MSBUILD : error MSB1003: Specify a project or solution file. The current working
+directory does not contain a project or solution file.
+```
+
+**Root cause:**
+The `api` Dockerfile was written assuming the Docker build context is `apps/api/`:
+```dockerfile
+COPY *.csproj ./   # expects *.csproj at the root of the build context
+RUN dotnet restore
+```
+But the CI workflow was passing the monorepo root (`.`) as the build context for all
+apps. Since there is no `.csproj` file at the repo root, `COPY *.csproj ./` copies
+nothing, and `dotnet restore` finds no project file.
+
+**Why the crawler didn't have this problem:**
+The crawler Dockerfile was explicitly written for the monorepo root context — it
+copies `package.json`, `pnpm-workspace.yaml`, and `packages/shared-types/` which are
+all at the repo root. The api has no monorepo dependencies and needs only `apps/api/`.
+
+**Fix — per-app build context in the workflow matrix:**
+
+Each app declares its own `context` in `.github/workflows/deploy.yml`:
+```yaml
+strategy:
+  matrix:
+    include:
+      # crawler needs monorepo root — copies workspace-level files
+      - app: crawler
+        dockerfile: apps/crawler/Dockerfile
+        context: .
+      # api is standalone .NET — context scoped to apps/api/
+      - app: api
+        dockerfile: apps/api/Dockerfile
+        context: apps/api
+```
+
+The build step uses `context: ${{ matrix.context }}` instead of a hardcoded `context: .`.
+
+**General rule:**
+When a Dockerfile uses `COPY *.ext ./` or `COPY . ./` without path prefixes, the build
+context must be the directory those files live in. If you need files from multiple
+directories (shared libraries, workspace config), use the monorepo root as context and
+prefix all `COPY` paths explicitly (e.g. `COPY apps/api/*.csproj apps/api/`).
