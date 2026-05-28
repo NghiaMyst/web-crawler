@@ -10,5 +10,4 @@ datasources:
     jsonData:
       prometheusVersion: "3.11.3"
       prometheusType: Prometheus
-    version: 1
     editable: true
