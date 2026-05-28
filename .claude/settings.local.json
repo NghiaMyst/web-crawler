@@ -127,7 +127,8 @@
       "Bash(echo \"EXIT:$?\")",
       "Bash(echo \"exit:$?\")",
       "Bash(pnpm test:e2e:update)",
-      "Bash(gcloud projects describe project-c67469b2-5925-4167-b6a *)"
+      "Bash(gcloud projects describe project-c67469b2-5925-4167-b6a *)",
+      "Bash(curl -s \"https://mcr.microsoft.com/v2/playwright/tags/list\")"
     ]
   }
 }
