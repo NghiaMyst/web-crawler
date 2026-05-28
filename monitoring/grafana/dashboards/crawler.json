@@ -1,6 +1,8 @@
 {
+  "id": null,
   "uid": "crawler-overview",
   "title": "Crawler Overview",
+  "editable": true,
   "schemaVersion": 38,
   "version": 1,
   "refresh": "30s",
