@@ -11,4 +11,4 @@ datasources:
       prometheusVersion: "3.11.3"
       prometheusType: Prometheus
     version: 1
-    editable: false
+    editable: true
