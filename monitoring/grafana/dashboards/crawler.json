@@ -11,7 +11,7 @@
       "type": "timeseries",
       "title": "BullMQ Job Count by State",
       "gridPos": { "x": 0, "y": 0, "w": 24, "h": 8 },
-      "datasource": { "type": "prometheus", "uid": "-- Default --" },
+      "datasource": { "type": "prometheus", "uid": "webcrawler-prometheus" },
       "targets": [
         {
           "expr": "bullmq_job_count",
@@ -25,7 +25,7 @@
       "type": "timeseries",
       "title": "Crawl Duration Percentiles (p50 / p95)",
       "gridPos": { "x": 0, "y": 8, "w": 24, "h": 8 },
-      "datasource": { "type": "prometheus", "uid": "-- Default --" },
+      "datasource": { "type": "prometheus", "uid": "webcrawler-prometheus" },
       "targets": [
         {
           "expr": "histogram_quantile(0.50, rate(crawler_crawl_duration_seconds_bucket[5m]))",
@@ -44,7 +44,7 @@
       "type": "timeseries",
       "title": "Completed Jobs Rate (5m)",
       "gridPos": { "x": 0, "y": 16, "w": 24, "h": 8 },
-      "datasource": { "type": "prometheus", "uid": "-- Default --" },
+      "datasource": { "type": "prometheus", "uid": "webcrawler-prometheus" },
       "targets": [
         {
           "expr": "rate(bullmq_job_count{state=\"completed\"}[5m])",
