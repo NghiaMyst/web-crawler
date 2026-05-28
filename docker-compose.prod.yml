@@ -150,6 +150,14 @@ services:
       - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
     depends_on:
       - prometheus
+    # Grafana 13 takes ~60s to load its embedded API server before port 3000 opens.
+    # start_period gives it that runway; after that, unhealthy = actually broken.
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 90s
     deploy:
       resources:
         limits:
