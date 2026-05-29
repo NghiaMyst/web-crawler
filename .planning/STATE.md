@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-stopped_at: All 13 phases complete — CI/CD pipeline verified live 2026-05-27
-last_updated: "2026-05-27T08:00:00.000Z"
-last_activity: 2026-05-27
+stopped_at: v1.0 milestone closed — all todos resolved, Grafana/Prometheus UAT confirmed live 2026-05-29
+last_updated: "2026-05-29T00:00:00.000Z"
+last_activity: 2026-05-29
 progress:
   total_phases: 13
   completed_phases: 13
@@ -91,8 +91,7 @@ Recent decisions affecting current work:
 
 ### Pending Todos
 
-- **swagger-api-docs** — Expose Swagger UI in .NET API for all environments (currently dev-only). See `.planning/todos/swagger-api-docs.md`
-- **verify-dashboard-api-endpoints** — Fix broken `POST /api/jobs` references in MANUAL-UAT.md (endpoint does not exist); all dashboard→API calls are otherwise compatible. See `.planning/todos/verify-dashboard-api-endpoints.md`
+None — all todos resolved.
 
 ### Roadmap Evolution
 
@@ -103,17 +102,18 @@ Recent decisions affecting current work:
 
 None — all phases complete and CI/CD pipeline verified live.
 
-### Deployment Status (2026-05-27)
+### Deployment Status (2026-05-29)
 
 - CI/CD pipeline: ✅ working — GitHub Actions builds + pushes to Artifact Registry, SSH deploys to GCE VM
 - GCP infrastructure: ✅ WIF pool/provider, service accounts, IAM bindings all configured
 - GCE VM: ✅ docker pull working (Compute Engine SA has artifactregistry.reader)
 - EF Core migrations: ✅ run automatically on container startup (AddFtsSearchVector applied)
-- Remaining UAT: Grafana /grafana/ UI + Prometheus scrape targets (see phase-12 todo)
+- Grafana/Prometheus: ✅ live and scraping — all 3 targets up, dashboards rendering data
+- Swagger UI: ✅ served in all environments (development guard removed)
 
 ## Session Continuity
 
-Last session: 2026-05-27T08:00:00.000Z
-Stopped at: All 13 phases complete — CI/CD verified live, GCP docs updated
+Last session: 2026-05-29T00:00:00.000Z
+Stopped at: v1.0 milestone closed — Grafana/Prometheus UAT confirmed, Swagger enabled all envs, MANUAL-UAT.md fixed, all todos resolved
 Resume file: None
-Next: Optional — Grafana + Prometheus live UAT (see .planning/todos/pending/2026-05-26-phase-12-live-deployment-uat-checks.md)
+Next: Run /gsd:complete-milestone to archive v1.0 and start fresh, or /gsd:new-milestone for v2 planning

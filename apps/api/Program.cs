@@ -107,11 +107,8 @@ try
         options.ReduceStatusCodeCardinality();  // Groups 2xx/3xx/4xx/5xx — reduces label cardinality
     });
 
-    if (app.Environment.IsDevelopment())
-    {
-        app.UseSwagger();
-        app.UseSwaggerUI();
-    }
+    app.UseSwagger();
+    app.UseSwaggerUI();
 
     app.UseCors();
     app.UseStaticFiles();

@@ -311,9 +311,9 @@ curl -I https://<DUCKDNS_DOMAIN>/health
 
 ```bash
 # Trigger a crawl first (so bloom filter has state):
-curl -X POST https://<DUCKDNS_DOMAIN>/api/jobs \
-  -H 'Content-Type: application/json' \
-  -d '{"sourceId": "<SOURCE_ID>"}'
+# Crawls are driven by the crawler's internal scheduler — wait for the next scheduled run
+# (each source runs on its configured crawlInterval), or restart the crawler to re-queue:
+docker compose -f docker-compose.prod.yml restart crawler
 sleep 30   # wait for crawl to complete and bloom filter to be populated
 
 # Then run the validation script:
